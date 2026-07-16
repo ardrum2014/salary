@@ -21,6 +21,12 @@
             unicode-range: U+0041-005A, U+0061-007A, U+0020-002F, U+003A-0040, U+005B-0060, U+007B-007E;
         }
 
+        @font-face {
+            font-family: 'TabularNumbers';
+            src: local('Consolas'), local('Monaco'), local('Courier New'), monospace;
+            unicode-range: U+0030-0039, U+002C, U+002E, U+0025, U+002F, U+002B, U+002D, U+2192, U+0024, U+004E, U+0054; /* 0-9, comma, dot, %, /, +, -, →, $, N, T */
+        }
+
         :root {
             /* Warm and Bright default theme (Light mode) */
             --bg-primary: #fbf9f5;            /* Soft Cream / Warm Linen background */
@@ -35,7 +41,7 @@
             --text-secondary: #64748b;        /* Soft Gray-blue */
             --border-color: rgba(226, 218, 203, 0.5); /* Warm ivory borders */
             --shadow-glow: 0 10px 30px rgba(249, 115, 22, 0.08); /* Warm amber glow */
-            --font-family: 'Outfit', '芫荽', 'Iansui', 'Klee One', 'Noto Sans TC', sans-serif;
+            --font-family: 'TabularNumbers', 'Outfit', '芫荽', 'Iansui', 'Klee One', 'Noto Sans TC', sans-serif;
         }
 
         [data-theme="dark"] {
@@ -61,6 +67,22 @@
             transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
         }
 
+        /* Custom scrollbars for a premium feel */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(100, 116, 139, 0.25);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(100, 116, 139, 0.45);
+        }
+
         body {
             font-family: var(--font-family);
             background-color: var(--bg-primary);
@@ -71,7 +93,7 @@
             align-items: center;
             justify-content: flex-start;
             padding: 2rem 1rem;
-            overflow-x: hidden;
+            overflow-x: auto;
             background-image: 
                 radial-gradient(circle at 10% 20%, rgba(249, 115, 22, 0.04) 0%, transparent 40%),
                 radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.03) 0%, transparent 40%);
@@ -654,6 +676,7 @@
             border-bottom: 1px solid var(--border-color);
             white-space: nowrap;
             text-align: right; /* Default align currency to the right */
+            font-variant-numeric: tabular-nums;
         }
 
         /* Center metadata columns (Year, Age, Degree, Starting Point) */
@@ -679,7 +702,7 @@
         }
 
         .copyright-info-gold {
-            font-family: 'FooterNumbersOnly', 'FooterEnglishOnly', '華康文徵明體', '華康文徵明體W4', 'DFWenZhengMing-W4', 'DFWenZhengMing', 'Zhi Mang Xing', 'Klee One', 'DFKai-SB', '標楷體', serif;
+            font-family: 'Segoe Print', 'FooterEnglishOnly', 'TabularNumbers', 'Outfit', '芫荽', 'Iansui', 'Klee One', 'Noto Sans TC', sans-serif;
             font-size: 0.8rem;
             margin-top: 0.75rem;
             letter-spacing: 0.1rem;
@@ -698,7 +721,7 @@
             border-radius: 1rem;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             text-align: center;
-            font-family: 'FooterNumbersOnly', 'FooterEnglishOnly', '華康文徵明體', '華康文徵明體W4', 'DFWenZhengMing-W4', 'DFWenZhengMing', 'Zhi Mang Xing', 'Klee One', 'DFKai-SB', '標楷體', serif;
+            font-family: 'Segoe Print', 'FooterEnglishOnly', 'TabularNumbers', 'Outfit', '芫荽', 'Iansui', 'Klee One', 'Noto Sans TC', sans-serif;
         }
 
         footer p {
@@ -708,7 +731,15 @@
         footer p[style*="font-size: 0.7rem"] {
             color: #94a3b8 !important; /* Soft gray for formula text on dark background */
         }
+
+        .btn-export:hover {
+            background-color: #059669 !important;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.35) !important;
+        }
     </style>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
@@ -780,6 +811,21 @@
                         <option value="regular" selected>正式教師</option>
                         <option value="sub_with_cert">代理教師 (有教師證)</option>
                         <option value="sub_no_cert">代理教師 (無教師證)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group" id="laborPensionSelfCard" style="display: none;">
+                <label for="laborPensionRate">勞退個人自提比率</label>
+                <div class="select-wrapper">
+                    <select id="laborPensionRate">
+                        <option value="0" selected>0% (不自提)</option>
+                        <option value="1">1%</option>
+                        <option value="2">2%</option>
+                        <option value="3">3%</option>
+                        <option value="4">4%</option>
+                        <option value="5">5%</option>
+                        <option value="6">6%</option>
                     </select>
                 </div>
             </div>
@@ -927,11 +973,11 @@
 
                 <div class="breakdown-section">
                     <div class="section-header">扣繳經費項目 (減項)</div>
-                    <div class="row-item highlight-sub">
+                    <div class="row-item highlight-sub" id="rowGIP">
                         <span class="item-label">公教人員保險費 (公保)</span>
                         <span class="item-val text-sub" id="valGIP">$0</span>
                     </div>
-                    <div class="row-item highlight-sub">
+                    <div class="row-item highlight-sub" id="rowPension">
                         <span class="item-label">公務人員退撫基金 (退撫)</span>
                         <span class="item-val text-sub" id="valPension">$0</span>
                     </div>
@@ -981,6 +1027,21 @@
                             <option value="regular" selected>正式教師</option>
                             <option value="sub_with_cert">代理教師 (有教師證)</option>
                             <option value="sub_no_cert">代理教師 (無教師證)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group" id="progLaborPensionSelfCard" style="display: none;">
+                    <label for="progLaborPensionRate">勞退個人自提比率</label>
+                    <div class="select-wrapper">
+                        <select id="progLaborPensionRate">
+                            <option value="0" selected>0% (不自提)</option>
+                            <option value="1">1%</option>
+                            <option value="2">2%</option>
+                            <option value="3">3%</option>
+                            <option value="4">4%</option>
+                            <option value="5">5%</option>
+                            <option value="6">6%</option>
                         </select>
                     </div>
                 </div>
@@ -1333,6 +1394,21 @@
                     </div>
                 </div>
 
+                <div class="form-group" id="projLaborPensionSelfCard" style="display: none;">
+                    <label for="projLaborPensionRate">勞退個人自提比率</label>
+                    <div class="select-wrapper">
+                        <select id="projLaborPensionRate">
+                            <option value="0" selected>0% (不自提)</option>
+                            <option value="1">1%</option>
+                            <option value="2">2%</option>
+                            <option value="3">3%</option>
+                            <option value="4">4%</option>
+                            <option value="5">5%</option>
+                            <option value="6">6%</option>
+                        </select>
+                    </div>
+                </div>
+
                 <div class="form-group">
                     <label for="projCurrentPoint">目前薪級 (薪點)</label>
                     <div class="select-wrapper">
@@ -1548,11 +1624,19 @@
 
             <!-- Scrollable Lifetime Table -->
             <div class="card">
-                <div class="card-title">
-                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
-                    </svg>
-                    歷年年薪投影詳細明細表
+                <div class="card-title" style="display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 1rem; flex-wrap: wrap;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+                        </svg>
+                        歷年年薪投影詳細明細表
+                    </div>
+                    <button id="btnExportExcel" class="btn-export" style="background-color: var(--accent-success); color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 0.375rem; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 0.25rem; font-weight: 600; box-shadow: 0 2px 6px rgba(16, 185, 129, 0.2); transition: all 0.2s ease;">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                        </svg>
+                        匯出 Excel (.csv)
+                    </button>
                 </div>
                 <div class="table-scrollable">
                     <table class="proj-table">
@@ -1562,19 +1646,51 @@
                                 <th>年齡</th>
                                 <th>薪資<br>學歷</th>
                                 <th>起訖薪點</th>
-                                <th>實領月薪 (12M)</th>
+                                <th>實領月薪 (跳級後)</th>
+                                <th>月實領增額</th>
                                 <th>年終獎金(1.5m)<br>(2月領錢)</th>
                                 <th>考績獎金(1or2m)<br>(10月領錢)</th>
                                 <th>未休假加班費<br>(行政專屬)</th>
                                 <th>年度實領<br>(稅前)</th>
                                 <th>預估所得稅</th>
                                 <th>稅後實領</th>
+                                <th>年實領增額</th>
                             </tr>
                         </thead>
                         <tbody id="lifetimeTableBody">
                             <!-- Populated by JS -->
                         </tbody>
                     </table>
+                </div>
+            </div>
+
+            <!-- Career Salary Growth Trend Chart -->
+            <div class="card" style="grid-column: 1 / -1; margin-top: 1rem;">
+                <div class="card-title" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M7 12l3-3 3 3 4-4M8 21h12a2 2 0 002-2V7a2 2 0 00-2-2H8a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                        生涯薪資成長趨勢圖
+                    </div>
+                    <div style="display: flex; gap: 0.5rem; font-size: 0.8rem;">
+                        <button id="chartViewAnnual" class="tab-button active" style="padding: 0.25rem 0.75rem; font-size: 0.8rem; height: auto;" onclick="setChartView('annual')">年實領薪資</button>
+                        <button id="chartViewMonthly" class="tab-button" style="padding: 0.25rem 0.75rem; font-size: 0.8rem; height: auto;" onclick="setChartView('monthly')">月實領薪資</button>
+                    </div>
+                </div>
+                <div style="width: 100%; height: 350px; position: relative; margin-top: 1rem;">
+                    <canvas id="lifetimeChart"></canvas>
+                    <div id="chartOfflineMessage" style="display: none; position: absolute; inset: 0; align-items: center; justify-content: center; background: var(--bg-card); color: var(--text-secondary); text-align: center; border: 1px dashed var(--border-color); border-radius: 8px; z-index: 10;">
+                        <div style="display: flex; flex-direction: column; align-items: center; gap: 0.75rem; padding: 1.5rem; max-width: 400px; margin: auto;">
+                            <svg width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="color: var(--accent-danger);">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                            </svg>
+                            <div>
+                                <p style="font-weight: 600; font-size: 0.95rem; margin-bottom: 0.25rem; color: var(--text-primary);">離線模式 / 無法載入圖表庫</p>
+                                <p style="font-size: 0.8rem; line-height: 1.4; color: var(--text-secondary);">本趨勢圖需要網路連線以載入圖表組件 (Chart.js)。請檢查網路連線，或在連網狀態下重新整理頁面。</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1695,6 +1811,7 @@
         const yearSelect = document.getElementById('salaryYear');
         const degreeSelect = document.getElementById('degree');
         const teacherStatus = document.getElementById('teacherStatus');
+        const laborPensionRate = document.getElementById('laborPensionRate');
         const pointSelect = document.getElementById('salaryPoint');
         const advQualCard = document.getElementById('advQualCard');
         const hasAdvancedQual = document.getElementById('hasAdvancedQual');
@@ -1707,6 +1824,7 @@
 
         const progDegree = document.getElementById('progDegree');
         const progTeacherStatus = document.getElementById('progTeacherStatus');
+        const progLaborPensionRate = document.getElementById('progLaborPensionRate');
         const progCurrentPoint = document.getElementById('progCurrentPoint');
         const progAdminRole = document.getElementById('progAdminRole');
         const progAdminSeniority = document.getElementById('progAdminSeniority');
@@ -1722,6 +1840,7 @@
         const projAge = document.getElementById('projAge');
         const projDegree = document.getElementById('projDegree');
         const projTeacherStatus = document.getElementById('projTeacherStatus');
+        const projLaborPensionRate = document.getElementById('projLaborPensionRate');
         const projCurrentPoint = document.getElementById('projCurrentPoint');
         const projAdminRole = document.getElementById('projAdminRole');
         const projAdminSeniority = document.getElementById('projAdminSeniority');
@@ -1743,7 +1862,9 @@
         const valTutorPay = document.getElementById('valTutorPay');
         const valAdminPay = document.getElementById('valAdminPay');
         const valGrossSalary = document.getElementById('valGrossSalary');
+        const rowGIP = document.getElementById('rowGIP');
         const valGIP = document.getElementById('valGIP');
+        const rowPension = document.getElementById('rowPension');
         const valPension = document.getElementById('valPension');
         const valNHI = document.getElementById('valNHI');
         const valTotalDeduct = document.getElementById('valTotalDeduct');
@@ -1780,19 +1901,103 @@
         const themeIcon = document.getElementById('themeIcon');
         const themeText = document.getElementById('themeText');
 
-        // Helper: Compute GIP, Pension and NHI deductions
-        function computeDeductions(basicPay, grossSalary, dependentsCount, is114 = true) {
-            const gip = Math.round(basicPay * 0.0722 * 0.35);
-            const pension = Math.round(basicPay * 0.30 * 0.35);
+        // Labor Insurance (勞保) Brackets
+        const LI_BRACKETS_113 = [
+            { maxSalary: 27470, premiumSalary: 27470 },
+            { maxSalary: 27600, premiumSalary: 27600 },
+            { maxSalary: 28800, premiumSalary: 28800 },
+            { maxSalary: 30300, premiumSalary: 30300 },
+            { maxSalary: 31800, premiumSalary: 31800 },
+            { maxSalary: 33300, premiumSalary: 33300 },
+            { maxSalary: 34800, premiumSalary: 34800 },
+            { maxSalary: 36300, premiumSalary: 36300 },
+            { maxSalary: 38200, premiumSalary: 38200 },
+            { maxSalary: 40100, premiumSalary: 40100 },
+            { maxSalary: 42000, premiumSalary: 42000 },
+            { maxSalary: 43900, premiumSalary: 43900 },
+            { maxSalary: Infinity, premiumSalary: 45800 }
+        ];
 
-            const activeNHIList = is114 ? NHI_BRACKETS_114 : NHI_BRACKETS_113;
+        const LI_BRACKETS_114 = [
+            { maxSalary: 28590, premiumSalary: 28590 },
+            { maxSalary: 29700, premiumSalary: 29700 },
+            { maxSalary: 30300, premiumSalary: 30300 },
+            { maxSalary: 31800, premiumSalary: 31800 },
+            { maxSalary: 33300, premiumSalary: 33300 },
+            { maxSalary: 34800, premiumSalary: 34800 },
+            { maxSalary: 36300, premiumSalary: 36300 },
+            { maxSalary: 38200, premiumSalary: 38200 },
+            { maxSalary: 40100, premiumSalary: 40100 },
+            { maxSalary: 42000, premiumSalary: 42000 },
+            { maxSalary: 43900, premiumSalary: 43900 },
+            { maxSalary: Infinity, premiumSalary: 45800 }
+        ];
+
+        const LI_BRACKETS_115 = [
+            { maxSalary: 29500, premiumSalary: 29500 },
+            { maxSalary: 30300, premiumSalary: 30300 },
+            { maxSalary: 31800, premiumSalary: 31800 },
+            { maxSalary: 33300, premiumSalary: 33300 },
+            { maxSalary: 34800, premiumSalary: 34800 },
+            { maxSalary: 36300, premiumSalary: 36300 },
+            { maxSalary: 38200, premiumSalary: 38200 },
+            { maxSalary: 40100, premiumSalary: 40100 },
+            { maxSalary: 42000, premiumSalary: 42000 },
+            { maxSalary: 43900, premiumSalary: 43900 },
+            { maxSalary: Infinity, premiumSalary: 45800 }
+        ];
+
+        function getLaborPensionBracket(gross, is115 = true) {
+            const grades = [
+                1500, 3000, 4500, 6000, 7500, 8700, 9900, 11100, 12500, 13500, 15840, 16500, 17280, 17880, 19008, 20008, 21009, 22000, 23100, 24000, 25200, 26400, 27600, 28800, 30300, 31800, 33300, 34800, 36300, 38200, 40100, 42000, 43900, 45800, 48200, 50600, 53000, 55400, 57800, 60800, 63800, 66800, 69800, 72800, 76500, 80200, 83900, 87600, 92100, 96600, 101100, 105600, 110100, 115500, 120900, 126300, 131700, 137100, 142500, 147900, 150000
+            ];
+            const minWage = is115 ? 29500 : 28590;
+            let activeGrades = grades.map(g => g < minWage ? minWage : g);
+            activeGrades = [...new Set(activeGrades)];
+            
+            let grade = activeGrades.find(g => gross <= g);
+            return grade || 150000;
+        }
+
+        // Helper: Compute GIP, Pension and NHI deductions
+        function computeDeductions(basicPay, grossSalary, dependentsCount, teacherStatusVal, year, pensionSelfRate = 0) {
+            let gip = 0;
+            let pension = 0;
+            let laborInsurance = 0;
+            let laborPensionDeduct = 0;
+
+            const isSubstitute = (teacherStatusVal === 'sub_with_cert' || teacherStatusVal === 'sub_no_cert');
+
+            if (!isSubstitute) {
+                gip = Math.round(basicPay * 0.0722 * 0.35);
+                pension = Math.round(basicPay * 0.30 * 0.35);
+            } else {
+                // Labor Insurance (勞保)
+                const activeLIBrackets = year >= 115 ? LI_BRACKETS_115 : (year === 114 ? LI_BRACKETS_114 : LI_BRACKETS_113);
+                let liBracket = activeLIBrackets.find(b => grossSalary <= b.maxSalary);
+                if (!liBracket) liBracket = activeLIBrackets[activeLIBrackets.length - 1];
+                const liPremiumSalary = liBracket.premiumSalary;
+
+                // Labor Insurance Rate is 12%, employee share is 20%
+                laborInsurance = Math.round(liPremiumSalary * 0.12 * 0.20);
+
+                // Labor Pension Self-Contribution (勞退自提)
+                if (pensionSelfRate > 0) {
+                    const lpGrade = getLaborPensionBracket(grossSalary, year >= 115);
+                    laborPensionDeduct = Math.round(lpGrade * (pensionSelfRate / 100));
+                }
+            }
+
+            // Health Insurance (健保)
+            // NHI table in 113 uses 113 scale, 114+ uses 114 scale
+            const activeNHIList = year === 113 ? NHI_BRACKETS_113 : NHI_BRACKETS_114;
             let nhiBracket = activeNHIList.find(b => grossSalary <= b.maxSalary);
             if (!nhiBracket) nhiBracket = activeNHIList[activeNHIList.length - 1];
             const premiumSalary = nhiBracket.premiumSalary;
 
             const nhi = Math.round(premiumSalary * 0.0517 * 0.3 * (1 + dependentsCount));
-            const total = gip + pension + nhi;
-            return { gip, pension, nhi, total };
+            const total = gip + pension + laborInsurance + laborPensionDeduct + nhi;
+            return { gip, pension, laborInsurance, laborPensionDeduct, nhi, total };
         }
 
         // Helper: Calculate Estimated Income Tax (中華民國綜合所得稅預估)
@@ -1894,12 +2099,13 @@
 
         // Centralized sync and calculation event handler
         function syncAndRecalculate(sourceId) {
-            let deg, pt, role, seniority, specialEd, tutor, dependents, taxStatus, spouseIncome, taxDependents, taxAges = [], statusT;
+            let deg, pt, role, seniority, specialEd, tutor, dependents, taxStatus, spouseIncome, taxDependents, taxAges = [], statusT, lpRate;
 
             // Fetch values from whichever inputs triggered the event
             if (sourceId.startsWith('prog')) {
                 deg = progDegree.value;
                 statusT = progTeacherStatus.value;
+                lpRate = progLaborPensionRate.value;
                 pt = progCurrentPoint.value;
                 role = progAdminRole.value;
                 seniority = progAdminSeniority.value;
@@ -1915,6 +2121,7 @@
             } else if (sourceId.startsWith('proj') && sourceId !== 'projAge') {
                 deg = projDegree.value;
                 statusT = projTeacherStatus.value;
+                lpRate = projLaborPensionRate.value;
                 pt = projCurrentPoint.value;
                 role = projAdminRole.value;
                 seniority = projAdminSeniority.value;
@@ -1930,6 +2137,7 @@
             } else {
                 deg = degreeSelect.value;
                 statusT = teacherStatus.value;
+                lpRate = laborPensionRate.value;
                 pt = pointSelect.value;
                 role = adminRole.value;
                 seniority = adminSeniority.value;
@@ -1947,6 +2155,7 @@
             // Sync Tab 1 Basic
             degreeSelect.value = deg;
             teacherStatus.value = statusT;
+            laborPensionRate.value = lpRate;
             populatePoints(deg);
             pointSelect.value = pt;
             adminRole.value = role;
@@ -1971,6 +2180,7 @@
             // Sync Tab 2 progression
             progDegree.value = deg;
             progTeacherStatus.value = statusT;
+            progLaborPensionRate.value = lpRate;
             populateProgressionPoints(deg);
             progCurrentPoint.value = pt;
             progAdminRole.value = role;
@@ -1997,6 +2207,7 @@
             // Sync Tab 3 lifetime
             projDegree.value = deg;
             projTeacherStatus.value = statusT;
+            projLaborPensionRate.value = lpRate;
             populateProjPoints(deg);
             projCurrentPoint.value = pt;
             projAdminRole.value = role;
@@ -2019,6 +2230,18 @@
 
             if (tutor) projTutorCard.classList.add('active');
             else projTutorCard.classList.remove('active');
+
+            // Sync visibility of Labor Pension self-contribution rate cards
+            const isSub = (statusT === 'sub_with_cert' || statusT === 'sub_no_cert');
+            if (isSub) {
+                document.getElementById('laborPensionSelfCard').style.display = 'block';
+                document.getElementById('progLaborPensionSelfCard').style.display = 'block';
+                document.getElementById('projLaborPensionSelfCard').style.display = 'block';
+            } else {
+                document.getElementById('laborPensionSelfCard').style.display = 'none';
+                document.getElementById('progLaborPensionSelfCard').style.display = 'none';
+                document.getElementById('projLaborPensionSelfCard').style.display = 'none';
+            }
 
             // Dynamic visibility for admin seniority groups
             const sGroup = document.getElementById('adminSeniorityGroup');
@@ -2061,6 +2284,7 @@
         });
         degreeSelect.addEventListener('change', () => syncAndRecalculate('degree'));
         teacherStatus.addEventListener('change', () => syncAndRecalculate('teacherStatus'));
+        laborPensionRate.addEventListener('change', () => syncAndRecalculate('laborPensionRate'));
         pointSelect.addEventListener('change', () => syncAndRecalculate('salaryPoint'));
         hasAdvancedQual.addEventListener('change', () => {
             if (hasAdvancedQual.checked) advQualCard.classList.add('active');
@@ -2076,6 +2300,7 @@
         // Setup listeners for Tab 2
         progDegree.addEventListener('change', () => syncAndRecalculate('progDegree'));
         progTeacherStatus.addEventListener('change', () => syncAndRecalculate('progTeacherStatus'));
+        progLaborPensionRate.addEventListener('change', () => syncAndRecalculate('progLaborPensionRate'));
         progCurrentPoint.addEventListener('change', () => syncAndRecalculate('progCurrentPoint'));
         progAdminRole.addEventListener('change', () => syncAndRecalculate('progAdminRole'));
         progAdminSeniority.addEventListener('change', () => syncAndRecalculate('progAdminSeniority'));
@@ -2094,6 +2319,7 @@
         // Setup listeners for Tab 3
         projDegree.addEventListener('change', () => syncAndRecalculate('projDegree'));
         projTeacherStatus.addEventListener('change', () => syncAndRecalculate('projTeacherStatus'));
+        projLaborPensionRate.addEventListener('change', () => syncAndRecalculate('projLaborPensionRate'));
         projCurrentPoint.addEventListener('change', () => syncAndRecalculate('projCurrentPoint'));
         projAdminRole.addEventListener('change', () => syncAndRecalculate('projAdminRole'));
         projAdminSeniority.addEventListener('change', () => syncAndRecalculate('projAdminSeniority'));
@@ -2108,6 +2334,8 @@
                 syncAndRecalculate('projDepAges');
             }
         });
+
+        document.getElementById('btnExportExcel').addEventListener('click', exportToExcel);
 
         // Helper: Get active points set for Tab 1
         function getSalaryData() {
@@ -2132,7 +2360,7 @@
                 else if (item.isMscStart && selectedDegree === 'master') suffix = ' (碩士起敘)';
                 else if (item.isBscStart && selectedDegree === 'bachelor') suffix = ' (學士起敘)';
 
-                opt.textContent = `${item.point} 薪點 - 薪額 NT$${item.pay.toLocaleString()}${suffix}`;
+                opt.textContent = `${item.point} 薪點 - 薪額 $${item.pay.toLocaleString()}${suffix}`;
                 pointSelect.appendChild(opt);
             });
 
@@ -2296,29 +2524,45 @@
             const grossSalary = basicPay + researchPay + tutorPay + adminPay + specialEdPay;
 
             // Deductions
-            const gip = Math.round(basicPay * 0.0722 * 0.35);
-            const pension = Math.round(basicPay * 0.30 * 0.35);
+            const lpRateVal = parseInt(laborPensionRate.value) || 0;
+            const calYearNum = is113 ? 113 : (is114 ? 114 : 116);
+            const deducts = computeDeductions(basicPay, grossSalary, parseInt(nhiDependents.value), teacherStatus.value, calYearNum, lpRateVal);
 
-            const activeNHIList = is113 ? NHI_BRACKETS_113 : NHI_BRACKETS_114;
+            const isSub = (teacherStatus.value === 'sub_with_cert' || teacherStatus.value === 'sub_no_cert');
+
+            if (isSub) {
+                document.getElementById('rowGIP').firstElementChild.textContent = "勞工保險費 (勞保)";
+                valGIP.textContent = `-$${deducts.laborInsurance.toLocaleString()}`;
+                
+                document.getElementById('rowPension').firstElementChild.textContent = "勞工退休金自提 (勞退)";
+                valPension.textContent = `-$${deducts.laborPensionDeduct.toLocaleString()}`;
+                if (lpRateVal === 0) {
+                    document.getElementById('rowPension').style.display = 'none';
+                } else {
+                    document.getElementById('rowPension').style.display = 'flex';
+                }
+            } else {
+                document.getElementById('rowGIP').firstElementChild.textContent = "公教人員保險費 (公保)";
+                valGIP.textContent = `-$${deducts.gip.toLocaleString()}`;
+                
+                document.getElementById('rowPension').firstElementChild.textContent = "公務人員退撫基金 (退撫)";
+                valPension.textContent = `-$${deducts.pension.toLocaleString()}`;
+                document.getElementById('rowPension').style.display = 'flex';
+            }
+
+            const activeNHIList = calYearNum === 113 ? NHI_BRACKETS_113 : NHI_BRACKETS_114;
             let nhiBracket = activeNHIList.find(b => grossSalary <= b.maxSalary);
             if (!nhiBracket) nhiBracket = activeNHIList[activeNHIList.length - 1];
             const premiumSalary = nhiBracket.premiumSalary;
+            lblNHIPoint.textContent = `(級距:${premiumSalary.toLocaleString()}元, 眷屬:${nhiDependents.value}口)`;
 
-            const dependentsCount = parseInt(nhiDependents.value);
-            const nhi = Math.round(premiumSalary * 0.0517 * 0.3 * (1 + dependentsCount));
-            lblNHIPoint.textContent = `(級距:${premiumSalary.toLocaleString()}元, 眷屬:${dependentsCount}口)`;
-
-            const totalDeduct = gip + pension + nhi;
-            const netSalary = grossSalary - totalDeduct;
-
-            // Render Values
             valBasicPay.textContent = `+$${basicPay.toLocaleString()}`;
             valResearchPay.textContent = `+$${researchPay.toLocaleString()}`;
             valGrossSalary.textContent = `$${grossSalary.toLocaleString()}`;
-            valGIP.textContent = `-$${gip.toLocaleString()}`;
-            valPension.textContent = `-$${pension.toLocaleString()}`;
-            valNHI.textContent = `-$${nhi.toLocaleString()}`;
-            valTotalDeduct.textContent = `$${totalDeduct.toLocaleString()}`;
+            valNHI.textContent = `-$${deducts.nhi.toLocaleString()}`;
+            valTotalDeduct.textContent = `$${deducts.total.toLocaleString()}`;
+            const netSalary = grossSalary - deducts.total;
+            const totalDeduct = deducts.total;
             netSalaryText.textContent = `$${netSalary.toLocaleString()}`;
 
             // Render Chart percentages
@@ -2348,7 +2592,7 @@
                 else if (item.isMscMax && selectedDegree === 'master') suffix = ' (碩士最高本俸)';
                 else if (item.isBscMax && selectedDegree === 'bachelor') suffix = ' (學士最高本俸)';
 
-                opt.textContent = `${item.point} 薪點 - 薪額 NT$${item.pay.toLocaleString()}${suffix}`;
+                opt.textContent = `${item.point} 薪點 - 薪額 $${item.pay.toLocaleString()}${suffix}`;
                 progCurrentPoint.appendChild(opt);
             });
 
@@ -2410,33 +2654,42 @@
 
             // Calculate Stage 1 Jan (for cumulative annual calculations later)
             const s1GrossJan = s1Basic + s1Research + s1Admin + tutorPay + s1SpecialEdJan;
-            const s1DeductsJan = computeDeductions(s1Basic, s1GrossJan, dependents);
+            const s1DeductsJan = computeDeductions(s1Basic, s1GrossJan, dependents, progTeacherStatus.value, 115, parseInt(progLaborPensionRate.value) || 0);
             const s1NetJan = s1GrossJan - s1DeductsJan.total;
 
             // Calculate Stage 1 Feb-Jun (representing June and displayed as s1Gross)
             const s1Gross = s1Basic + s1Research + s1Admin + tutorPay + s1SpecialEdFebJune;
-            const s1Deducts = computeDeductions(s1Basic, s1Gross, dependents);
+            const s1Deducts = computeDeductions(s1Basic, s1Gross, dependents, progTeacherStatus.value, 115, parseInt(progLaborPensionRate.value) || 0);
             const s1Net = s1Gross - s1Deducts.total;
 
             document.getElementById('s1Point').textContent = `${startPoint} 薪點`;
-            document.getElementById('s1Gross').textContent = `NT$${s1Gross.toLocaleString()}`;
-            document.getElementById('s1Deduct').textContent = `NT$${s1Deducts.total.toLocaleString()}`;
-            document.getElementById('s1Net').textContent = `NT$${s1Net.toLocaleString()}`;
+            document.getElementById('s1Gross').textContent = `${s1Gross.toLocaleString()}`;
+            document.getElementById('s1Deduct').textContent = `${s1Deducts.total.toLocaleString()}`;
+            document.getElementById('s1Net').textContent = `${s1Net.toLocaleString()}`;
 
             // --- STAGE 2: 115年7月起 (加給加薪 $2000) ---
             const s2Basic = s1Basic;
-            const s2Research = s1Research + (progTeacherStatus.value === 'sub_no_cert' ? 1600 : 2000);
+            let s2ResearchBase = 0;
+            if (startPoint >= 475) s2ResearchBase = hasAdvQual ? 35780 : 30140;
+            else if (startPoint >= 350) s2ResearchBase = 30140;
+            else if (startPoint >= 245) s2ResearchBase = 26560;
+            else s2ResearchBase = 23080;
+
+            let s2Research = s2ResearchBase + 2000;
+            if (progTeacherStatus.value === 'sub_no_cert') {
+                s2Research = Math.round(s2Research * 0.8);
+            }
             const s2Admin = s1Admin + (role !== 'none' ? 2000 : 0);
             const s2SpecialEd = (specialEd === 'special_cert') ? 2800 : (specialEd === 'special_no_cert' ? 900 : 0);
 
             const s2Gross = s2Basic + s2Research + s2Admin + tutorPay + s2SpecialEd;
-            const s2Deducts = computeDeductions(s2Basic, s2Gross, dependents);
+            const s2Deducts = computeDeductions(s2Basic, s2Gross, dependents, progTeacherStatus.value, 115, parseInt(progLaborPensionRate.value) || 0);
             const s2Net = s2Gross - s2Deducts.total;
 
-            document.getElementById('s2Research').textContent = `NT$${s2Research.toLocaleString()} (+$2K)`;
-            document.getElementById('s2Admin').textContent = role !== 'none' ? `NT$${s2Admin.toLocaleString()} (+$2K)` : 'NT$0';
-            document.getElementById('s2Gross').textContent = `NT$${s2Gross.toLocaleString()}`;
-            document.getElementById('s2Net').textContent = `NT$${s2Net.toLocaleString()}`;
+            document.getElementById('s2Research').textContent = `${s2Research.toLocaleString()} (+$2K)`;
+            document.getElementById('s2Admin').textContent = role !== 'none' ? `${s2Admin.toLocaleString()} (+$2K)` : '0';
+            document.getElementById('s2Gross').textContent = `${s2Gross.toLocaleString()}`;
+            document.getElementById('s2Net').textContent = `${s2Net.toLocaleString()}`;
 
             // --- STAGE 3: 115年8月1日起 (晉薪1級) ---
             let s3Point = startPoint;
@@ -2478,13 +2731,13 @@
             const s3SpecialEd = (specialEd === 'special_cert') ? 2800 : (specialEd === 'special_no_cert' ? 900 : 0);
 
             const s3Gross = s3Basic + s3Research + s3Admin + tutorPay + s3SpecialEd;
-            const s3Deducts = computeDeductions(s3Basic, s3Gross, dependents);
+            const s3Deducts = computeDeductions(s3Basic, s3Gross, dependents, progTeacherStatus.value, 115, parseInt(progLaborPensionRate.value) || 0);
             const s3Net = s3Gross - s3Deducts.total;
 
             document.getElementById('s3Point').innerHTML = `${s3Point} 薪點 ${s3ReachedMax ? '<span style="color:var(--accent-danger); font-size:0.7rem;">(已達學歷頂額)</span>' : ''}`;
-            document.getElementById('s3Gross').textContent = `NT$${s3Gross.toLocaleString()}`;
-            document.getElementById('s3Deduct').textContent = `NT$${s3Deducts.total.toLocaleString()}`;
-            document.getElementById('s3Net').textContent = `NT$${s3Net.toLocaleString()}`;
+            document.getElementById('s3Gross').textContent = `${s3Gross.toLocaleString()}`;
+            document.getElementById('s3Deduct').textContent = `${s3Deducts.total.toLocaleString()}`;
+            document.getElementById('s3Net').textContent = `${s3Net.toLocaleString()}`;
 
             // --- STAGE 4: 116年1月起 (全面調薪 4%) ---
             const s4Basic = Math.round(s3Basic * 1.04);
@@ -2493,13 +2746,13 @@
             const s4SpecialEd = (specialEd === 'special_cert') ? 2800 : (specialEd === 'special_no_cert' ? 900 : 0);
 
             const s4Gross = s4Basic + s4Research + s4Admin + tutorPay + s4SpecialEd;
-            const s4Deducts = computeDeductions(s4Basic, s4Gross, dependents);
+            const s4Deducts = computeDeductions(s4Basic, s4Gross, dependents, progTeacherStatus.value, 116, parseInt(progLaborPensionRate.value) || 0);
             const s4Net = s4Gross - s4Deducts.total;
 
-            document.getElementById('s4Basic').textContent = `NT$${s4Basic.toLocaleString()}`;
-            document.getElementById('s4Research').textContent = `NT$${s4Research.toLocaleString()}`;
-            document.getElementById('s4Gross').textContent = `NT$${s4Gross.toLocaleString()}`;
-            document.getElementById('s4Net').textContent = `NT$${s4Net.toLocaleString()}`;
+            document.getElementById('s4Basic').textContent = `${s4Basic.toLocaleString()}`;
+            document.getElementById('s4Research').textContent = `${s4Research.toLocaleString()}`;
+            document.getElementById('s4Gross').textContent = `${s4Gross.toLocaleString()}`;
+            document.getElementById('s4Net').textContent = `${s4Net.toLocaleString()}`;
 
             // --- 115年度年薪計算 (2026年 1月至12月同一年) ---
             const totalMonthlyNet = s1NetJan + (5 * s1Net) + s2Net + (5 * s3Net);
@@ -2541,7 +2794,7 @@
 
                 rowAnnualUnusedLeave.style.display = 'flex';
                 document.getElementById('lblAnnualUnusedLeaveDetail').textContent = `行政年資滿 ${seniority} 年，特休 ${leaveDays} 天，可請領 ${unusedLeaveDays} 天特休加班費`;
-                document.getElementById('valAnnualUnusedLeave').textContent = `NT$${unusedLeaveCompensation.toLocaleString()}`;
+                document.getElementById('valAnnualUnusedLeave').textContent = `${unusedLeaveCompensation.toLocaleString()}`;
             } else {
                 rowAnnualUnusedLeave.style.display = 'none';
             }
@@ -2563,23 +2816,23 @@
             const rowSpouse = document.getElementById('rowAnnualSpouseIncome');
             if (taxStatusVal === 'married') {
                 rowSpouse.style.display = 'flex';
-                document.getElementById('valAnnualSpouseIncome').textContent = `NT$${spouseIncomeVal.toLocaleString()}`;
+                document.getElementById('valAnnualSpouseIncome').textContent = `${spouseIncomeVal.toLocaleString()}`;
             } else {
                 rowSpouse.style.display = 'none';
             }
 
             // Render Annual elements
-            document.getElementById('valAnnualTotal').textContent = `NT$${annualGrandTotal.toLocaleString()}`;
-            document.getElementById('valAnnualMonthlyNet').textContent = `NT$${totalMonthlyNet.toLocaleString()} (12個月累計)`;
-            document.getElementById('valAnnualYearEnd').textContent = `NT$${yearEndBonus.toLocaleString()}`;
-            document.getElementById('valAnnualPerformance').textContent = `NT$${performanceBonus.toLocaleString()}`;
+            document.getElementById('valAnnualTotal').textContent = `${annualGrandTotal.toLocaleString()}`;
+            document.getElementById('valAnnualMonthlyNet').textContent = `${totalMonthlyNet.toLocaleString()} (12個月累計)`;
+            document.getElementById('valAnnualYearEnd').textContent = `${yearEndBonus.toLocaleString()}`;
+            document.getElementById('valAnnualPerformance').textContent = `${performanceBonus.toLocaleString()}`;
             document.getElementById('lblPerformanceMonths').textContent = (performanceMonths === 0) ? '0 (代理無)' : performanceMonths;
-            document.getElementById('valAnnualTotalDeduct').textContent = `NT$${totalDeductsCumulative.toLocaleString()}`;
+            document.getElementById('valAnnualTotalDeduct').textContent = `${totalDeductsCumulative.toLocaleString()}`;
 
             // Consolidated tax detail message
-            const grossMsg = taxStatusVal === 'married' ? `家庭課稅總額 NT$${taxResult.consolidatedGross.toLocaleString()} 元` : `課稅年所得 NT$${taxableGross.toLocaleString()} 元`;
-            document.getElementById('lblAnnualTaxDetail').textContent = `${grossMsg}，淨額 NT$${taxResult.netTaxable.toLocaleString()} 元 (稅率 ${Math.round(taxResult.rate * 100)}%)`;
-            document.getElementById('valAnnualTax').textContent = `NT$${taxResult.tax.toLocaleString()}`;
+            const grossMsg = taxStatusVal === 'married' ? `家庭課稅總額 ${taxResult.consolidatedGross.toLocaleString()} 元` : `課稅年所得 ${taxableGross.toLocaleString()} 元`;
+            document.getElementById('lblAnnualTaxDetail').textContent = `${grossMsg}，淨額 ${taxResult.netTaxable.toLocaleString()} 元 (稅率 ${Math.round(taxResult.rate * 100)}%)`;
+            document.getElementById('valAnnualTax').textContent = `${taxResult.tax.toLocaleString()}`;
 
             // Render Net After Tax (Family vs Personal)
             const labelAnnualTotalAfterTax = document.getElementById('valAnnualTotalAfterTax');
@@ -2589,11 +2842,11 @@
                 rowTotalAfterTax.firstElementChild.textContent = "115年度家庭稅後合併淨所得 (落袋金額)";
                 const familyPreTaxTotal = annualGrandTotal + spouseIncomeVal;
                 const familyNet = familyPreTaxTotal - taxResult.tax;
-                labelAnnualTotalAfterTax.textContent = `NT$${familyNet.toLocaleString()}`;
+                labelAnnualTotalAfterTax.textContent = `${familyNet.toLocaleString()}`;
             } else {
                 rowTotalAfterTax.firstElementChild.textContent = "115年度個人稅後淨實領總年薪 (落袋金額)";
                 const netAfterTax = annualGrandTotal - taxResult.tax;
-                labelAnnualTotalAfterTax.textContent = `NT$${netAfterTax.toLocaleString()}`;
+                labelAnnualTotalAfterTax.textContent = `${netAfterTax.toLocaleString()}`;
             }
         }
 
@@ -2649,7 +2902,7 @@
                 else if (item.isMscMax && selectedDegree === 'master') suffix = ' (碩士最高本俸)';
                 else if (item.isBscMax && selectedDegree === 'bachelor') suffix = ' (學士最高本俸)';
 
-                opt.textContent = `${item.point} 薪點 - 薪額 NT$${item.pay.toLocaleString()}${suffix}`;
+                opt.textContent = `${item.point} 薪點 - 薪額 $${item.pay.toLocaleString()}${suffix}`;
                 projCurrentPoint.appendChild(opt);
             });
 
@@ -2684,14 +2937,15 @@
             const tutorPay = tutor ? 4000 : 0;
             const taxStatusVal = projTaxStatus.value;
             const spouseIncomeVal = taxStatusVal === 'married' ? (parseInt(projSpouseIncome.value) || 0) : 0;
+            const lpRateVal = parseInt(projLaborPensionRate.value) || 0;
             const initialAges = [];
             const inputs = projTaxDepAgesContainer.querySelectorAll('.dep-age-input');
             inputs.forEach(input => initialAges.push(parseInt(input.value) || 0));
 
             const yearsCount = 65 - startAge;
             if (yearsCount < 0) {
-                lifetimeTableBody.innerHTML = '<tr><td colspan="11" style="text-align:center;">您已達到或超過 65 歲退休年齡。</td></tr>';
-                valLifetimeTotal.textContent = 'NT$0';
+                lifetimeTableBody.innerHTML = '<tr><td colspan="13" style="text-align:center;">您已達到或超過 65 歲退休年齡。</td></tr>';
+                valLifetimeTotal.textContent = '0 元';
                 valLifetimeMeta.textContent = '教學生涯已達退休階段。';
                 return;
             }
@@ -2700,6 +2954,10 @@
             let currentDegree = degree;
             let cumulativeTotal = 0;
             let lifetimeTableHTML = '';
+
+            let chartYears = [];
+            let chartAnnuals = [];
+            let chartMonthlies = [];
 
             // Calculate calendar years from 115 up to retirement
             for (let i = 0; i <= yearsCount; i++) {
@@ -2728,45 +2986,62 @@
                 if (i > 0) {
                     p_jan_jul = currentPoint;
                     
-                    let jumpCount = 1;
-                    if (gradMaster !== 'none' && gradMaster !== 'already' && parseInt(gradMaster) === year) {
-                        jumpCount = 4; // Master graduation = 3 (degree) + 1 (annual) = 4 steps
-                    } else if (gradDoctor !== 'none' && gradDoctor !== 'already' && parseInt(gradDoctor) === year) {
-                        jumpCount = 3; // PhD graduation = 2 (degree) + 1 (annual) = 3 steps
-                    }
-
                     if (projTeacherStatus.value === 'sub_no_cert') {
-                        jumpCount = 0; // Lock point progression
-                    }
+                        // For uncertified teachers: jump to minimum on graduation, but no annual steps.
+                        const isGradMaster = (gradMaster !== 'none' && gradMaster !== 'already' && parseInt(gradMaster) === year);
+                        const isGradDoctor = (gradDoctor !== 'none' && gradDoctor !== 'already' && parseInt(gradDoctor) === year);
+                        if (isGradMaster) {
+                            p_aug_dec = Math.max(p_jan_jul, 245);
+                        } else if (isGradDoctor) {
+                            p_aug_dec = Math.max(p_jan_jul, 330);
+                        } else {
+                            p_aug_dec = p_jan_jul;
+                        }
+                    } else {
+                        let jumpCount = 1;
+                        if (gradMaster !== 'none' && gradMaster !== 'already' && parseInt(gradMaster) === year) {
+                            jumpCount = 4; // Master graduation = 3 (degree) + 1 (annual) = 4 steps
+                        } else if (gradDoctor !== 'none' && gradDoctor !== 'already' && parseInt(gradDoctor) === year) {
+                            jumpCount = 3; // PhD graduation = 2 (degree) + 1 (annual) = 3 steps
+                        }
 
-                    let tempPoint = p_jan_jul;
-                    for (let j = 0; j < jumpCount; j++) {
-                        const next = getNextPoint(tempPoint, currentDegree);
-                        tempPoint = next.point;
-                        reachedMax_aug_dec = next.reachedMax;
+                        let tempPoint = p_jan_jul;
+                        for (let j = 0; j < jumpCount; j++) {
+                            const next = getNextPoint(tempPoint, currentDegree);
+                            tempPoint = next.point;
+                            reachedMax_aug_dec = next.reachedMax;
+                        }
+                        p_aug_dec = tempPoint;
                     }
-                    p_aug_dec = tempPoint;
                     currentPoint = p_aug_dec; // update for next iteration
                 } else {
                     p_jan_jul = startPoint;
-                    let jumpCount = 1;
-                    if (gradMaster !== 'none' && gradMaster !== 'already' && parseInt(gradMaster) === 115) {
-                        jumpCount = 4; // Master graduation = 3 (degree) + 1 (annual) = 4 steps
-                    } else if (gradDoctor !== 'none' && gradDoctor !== 'already' && parseInt(gradDoctor) === 115) {
-                        jumpCount = 3; // PhD graduation = 2 (degree) + 1 (annual) = 3 steps
-                    }
-
                     if (projTeacherStatus.value === 'sub_no_cert') {
-                        jumpCount = 0; // Lock point progression
-                    }
+                        const isGradMaster = (gradMaster !== 'none' && gradMaster !== 'already' && parseInt(gradMaster) === 115);
+                        const isGradDoctor = (gradDoctor !== 'none' && gradDoctor !== 'already' && parseInt(gradDoctor) === 115);
+                        if (isGradMaster) {
+                            p_aug_dec = Math.max(startPoint, 245);
+                        } else if (isGradDoctor) {
+                            p_aug_dec = Math.max(startPoint, 330);
+                        } else {
+                            p_aug_dec = startPoint;
+                        }
+                    } else {
+                        let jumpCount = 1;
+                        if (gradMaster !== 'none' && gradMaster !== 'already' && parseInt(gradMaster) === 115) {
+                            jumpCount = 4; // Master graduation = 3 (degree) + 1 (annual) = 4 steps
+                        } else if (gradDoctor !== 'none' && gradDoctor !== 'already' && parseInt(gradDoctor) === 115) {
+                            jumpCount = 3; // PhD graduation = 2 (degree) + 1 (annual) = 3 steps
+                        }
 
-                    let tempPoint = startPoint;
-                    for (let j = 0; j < jumpCount; j++) {
-                        const next = getNextPoint(tempPoint, currentDegree);
-                        tempPoint = next.point;
-                        reachedMax_aug_dec = next.reachedMax;
+                        let tempPoint = startPoint;
+                        for (let j = 0; j < jumpCount; j++) {
+                            const next = getNextPoint(tempPoint, currentDegree);
+                            tempPoint = next.point;
+                            reachedMax_aug_dec = next.reachedMax;
+                        }
+                        p_aug_dec = tempPoint;
                     }
-                    p_aug_dec = tempPoint;
                     currentPoint = p_aug_dec;
                 }
 
@@ -2790,7 +3065,7 @@
                     else if (pt >= 245) research = 26560;
                     else research = 23080;
 
-                    if (!hasAllowanceAdd && !applyScale) research -= 2000;
+                    if (hasAllowanceAdd && !applyScale) research += 2000;
                     if (applyScale) research = Math.round((research + 2000) * 1.04);
 
                     if (projTeacherStatus.value === 'sub_no_cert') {
@@ -2810,13 +3085,16 @@
                         admin = 4320;
                     }
 
-                    if (!hasAllowanceAdd && !applyScale) admin = admin > 0 ? admin - 2000 : 0;
+                    if (hasAllowanceAdd && !applyScale) admin = admin > 0 ? admin + 2000 : 0;
                     if (applyScale) admin = admin > 0 ? Math.round((admin + 2000) * 1.04) : 0;
 
                     const MathGross = basic + research + admin + tutorPay + specialEdRate;
-                    const deducts = computeDeductions(basic, MathGross, dependents);
+                    const deducts = computeDeductions(basic, MathGross, dependents, projTeacherStatus.value, year, lpRateVal);
                     return { gross: MathGross, net: MathGross - deducts.total };
                 };
+
+                let net_jan_jul_single = 0;
+                let net_aug_dec_single = 0;
 
                 if (is115) {
                     const m1_jan = getYearlyValuesLocal(p_jan_jul, currentDegree, false, false, sEdJan);
@@ -2828,6 +3106,9 @@
                     gross_jan = m1_jan.gross;
                     gross_aug = m8_12.gross;
                     gross_total_annual = m1_jan.gross + (5 * m1_6_other.gross) + m7.gross + (5 * m8_12.gross);
+
+                    net_jan_jul_single = m1_6_other.net;
+                    net_aug_dec_single = m8_12.net;
                 } else {
                     const m1_7 = getYearlyValuesLocal(p_jan_jul, currentDegree, true, true, sEdFebDec);
                     const m8_12 = getYearlyValuesLocal(p_aug_dec, currentDegree, true, true, sEdFebDec);
@@ -2836,6 +3117,9 @@
                     gross_jan = m1_7.gross;
                     gross_aug = m8_12.gross;
                     gross_total_annual = (7 * m1_7.gross) + (5 * m8_12.gross);
+
+                    net_jan_jul_single = m1_7.net;
+                    net_aug_dec_single = m8_12.net;
                 }
 
                 // Bonuses
@@ -2883,9 +3167,35 @@
 
                 cumulativeTotal += netAfterTax;
 
+                // Calculate Differences (Within same year: Jump after vs Jump before)
+                let monthlyDiffStr = '-';
+                let annualDiffStr = '-';
+
+                const monthlyDiff = net_aug_dec_single - net_jan_jul_single;
+
+                if (monthlyDiff > 0) {
+                    monthlyDiffStr = `<span style="color: var(--accent-success); font-weight: 600;">+${monthlyDiff.toLocaleString()}</span>`;
+                } else if (monthlyDiff < 0) {
+                    monthlyDiffStr = `<span style="color: var(--accent-danger); font-weight: 600;">-${Math.abs(monthlyDiff).toLocaleString()}</span>`;
+                } else {
+                    monthlyDiffStr = `<span style="color: var(--text-secondary);">0</span>`;
+                }
+
+                if (i > 0) {
+                    const annualDiff = netAfterTax - chartAnnuals[i - 1];
+
+                    if (annualDiff > 0) {
+                        annualDiffStr = `<span style="color: var(--accent-success); font-weight: 600;">+${annualDiff.toLocaleString()}</span>`;
+                    } else if (annualDiff < 0) {
+                        annualDiffStr = `<span style="color: var(--accent-danger); font-weight: 600;">-${Math.abs(annualDiff).toLocaleString()}</span>`;
+                    } else {
+                        annualDiffStr = `<span style="color: var(--text-secondary);">0</span>`;
+                    }
+                }
+
                 const degLabel = currentDegree === 'doctor' ? '博士' : currentDegree === 'master' ? '碩士' : '學士';
                 const unusedLeaveText = role !== 'none' 
-                    ? `NT$${unusedLeaveCompensation.toLocaleString()} <span style="font-size:0.7rem; color:var(--text-secondary); display:block;">(特休${leaveDays}天, 補貼${unusedLeaveDays}天)</span>` 
+                    ? `${unusedLeaveCompensation.toLocaleString()} <span style="font-size:0.7rem; color:var(--text-secondary); display:block;">(特休${leaveDays}天, 補貼${unusedLeaveDays}天)</span>` 
                     : '<span style="color:var(--text-secondary); font-size:0.8rem;">-</span>';
 
                 lifetimeTableHTML += `
@@ -2894,15 +3204,21 @@
                         <td>${age} 歲</td>
                         <td>${degLabel}</td>
                         <td>${p_jan_jul} → ${p_aug_dec} ${reachedMax_aug_dec ? '👑' : ''}</td>
-                        <td>NT$${net_monthly_total.toLocaleString()}</td>
-                        <td>NT$${yearEndBonus.toLocaleString()} <span style="font-size:0.7rem; color:var(--text-secondary);">(1.5M)</span></td>
-                        <td>NT$${performanceBonus.toLocaleString()} <span style="font-size:0.7rem; color:var(--text-secondary);">(${perfMonths}M)</span></td>
+                        <td>${net_aug_dec_single.toLocaleString()}</td>
+                        <td>${monthlyDiffStr}</td>
+                        <td>${yearEndBonus.toLocaleString()} <span style="font-size:0.7rem; color:var(--text-secondary);">(1.5M)</span></td>
+                        <td>${performanceBonus.toLocaleString()} <span style="font-size:0.7rem; color:var(--text-secondary);">(${perfMonths}M)</span></td>
                         <td>${unusedLeaveText}</td>
-                        <td>NT$${preTaxDisplay.toLocaleString()}</td>
-                        <td style="color:var(--accent-danger);">NT$${taxResult.tax.toLocaleString()} <span style="font-size:0.7rem; color:var(--text-secondary); display:block;">(稅率 ${Math.round(taxResult.rate * 100)}%)</span></td>
-                        <td style="font-weight:700; color:var(--accent-glow);">NT$${netAfterTax.toLocaleString()}</td>
+                        <td>${preTaxDisplay.toLocaleString()}</td>
+                        <td style="color:var(--accent-danger);">${taxResult.tax.toLocaleString()} <span style="font-size:0.7rem; color:var(--text-secondary); display:block;">(稅率 ${Math.round(taxResult.rate * 100)}%)</span></td>
+                        <td style="font-weight:700; color:var(--accent-glow);">${netAfterTax.toLocaleString()}</td>
+                        <td>${annualDiffStr}</td>
                     </tr>
                 `;
+
+                chartYears.push(`民國 ${year} 年 (${age}歲)`);
+                chartAnnuals.push(netAfterTax);
+                chartMonthlies.push(net_aug_dec_single);
             }
 
             // --- Baseline Simulation: No degree progression (Maintain initial degree) ---
@@ -2959,7 +3275,7 @@
                      else if (pt >= 245) research = 26560;
                      else research = 23080;
 
-                     if (!hasAllowanceAdd && !applyScale) research -= 2000;
+                     if (hasAllowanceAdd && !applyScale) research += 2000;
                      if (applyScale) research = Math.round((research + 2000) * 1.04);
 
                      if (projTeacherStatus.value === 'sub_no_cert') {
@@ -2979,11 +3295,11 @@
                          admin = 4320;
                      }
 
-                     if (!hasAllowanceAdd && !applyScale) admin = admin > 0 ? admin - 2000 : 0;
+                     if (hasAllowanceAdd && !applyScale) admin = admin > 0 ? admin + 2000 : 0;
                      if (applyScale) admin = admin > 0 ? Math.round((admin + 2000) * 1.04) : 0;
 
                      const gross = basic + research + admin + tutorPay + specialEdRate;
-                     const deducts = computeDeductions(basic, gross, dependents);
+                     const deducts = computeDeductions(basic, gross, dependents, projTeacherStatus.value, year, lpRateVal);
                      return { gross, net: gross - deducts.total };
                  };
 
@@ -3054,7 +3370,7 @@
 
             // Render Output & Incremental Earnings
             lifetimeTableBody.innerHTML = lifetimeTableHTML;
-            valLifetimeTotal.textContent = `NT$ ${cumulativeTotal.toLocaleString()} 元`;
+            valLifetimeTotal.textContent = `${cumulativeTotal.toLocaleString()} 元`;
             valLifetimeMeta.textContent = `從 115 年 (${startAge}歲) 投教至 65 歲退休，教學生涯總計共 ${yearsCount + 1} 年。`;
 
             const deltaTotal = cumulativeTotal - baselineTotal;
@@ -3062,11 +3378,126 @@
 
             if (deltaTotal > 0) {
                 incrementalCard.style.display = 'flex';
-                valIncrementalTotal.textContent = `+NT$ ${deltaTotal.toLocaleString()} 元`;
-                valIncrementalMeta.innerHTML = `相較於維持現有<b>「${startDegreeLabel}」</b>學歷教到 65 歲退休，進修新學位將使您的生涯累計實領淨所得增加 <b>NT$ ${deltaTotal.toLocaleString()} 元</b>。`;
+                valIncrementalTotal.textContent = `+${deltaTotal.toLocaleString()} 元`;
+                valIncrementalMeta.innerHTML = `相較於維持現有<b>「${startDegreeLabel}」</b>學歷教到 65 歲退休，進修新學位將使您的生涯累計實領淨所得增加 <b>${deltaTotal.toLocaleString()} 元</b>。`;
             } else {
                 incrementalCard.style.display = 'none';
             }
+
+            // Update Chart.js Instance
+            updateLifetimeChart(chartYears, chartAnnuals, chartMonthlies);
+        }
+
+        // Global variables for Chart
+        let myLifetimeChart = null;
+        let activeChartView = 'annual'; // 'annual' or 'monthly'
+
+        function updateLifetimeChart(years, annuals, monthlies) {
+            const ctx = document.getElementById('lifetimeChart');
+            if (!ctx) return;
+
+            const offlineMsg = document.getElementById('chartOfflineMessage');
+            if (typeof Chart === 'undefined') {
+                if (offlineMsg) offlineMsg.style.display = 'flex';
+                return;
+            } else {
+                if (offlineMsg) offlineMsg.style.display = 'none';
+            }
+
+            if (myLifetimeChart) {
+                myLifetimeChart.destroy();
+            }
+
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            const gridColor = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(226, 218, 203, 0.3)';
+            const textColor = isDark ? '#a8a29e' : '#64748b';
+            const accentColor = isDark ? '#fb923c' : '#f97316';
+            const fillBg = isDark ? 'rgba(251, 146, 60, 0.05)' : 'rgba(249, 115, 22, 0.03)';
+
+            const data = activeChartView === 'annual' ? annuals : monthlies;
+            const label = activeChartView === 'annual' ? '預估年實領薪資' : '預估月實領薪資 (平均)';
+            const yMin = Math.min(...data) * 0.95;
+            const yMax = Math.max(...data) * 1.05;
+
+            myLifetimeChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: years,
+                    datasets: [{
+                        label: label,
+                        data: data,
+                        borderColor: accentColor,
+                        backgroundColor: fillBg,
+                        borderWidth: 3,
+                        pointBackgroundColor: accentColor,
+                        pointBorderColor: isDark ? '#2a2521' : '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        tension: 0.35,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: isDark ? '#2a2521' : '#ffffff',
+                            titleColor: isDark ? '#f7f5f3' : '#334155',
+                            bodyColor: isDark ? '#f7f5f3' : '#334155',
+                            borderColor: accentColor,
+                            borderWidth: 1,
+                            callbacks: {
+                                label: function(context) {
+                                    return ` ${context.dataset.label}: ${context.raw.toLocaleString()} 元`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                color: textColor,
+                                font: {
+                                    family: "'Outfit', 'Noto Sans TC', sans-serif",
+                                    size: 11
+                                }
+                            }
+                        },
+                        y: {
+                            min: Math.floor(yMin / 10000) * 10000,
+                            max: Math.ceil(yMax / 10000) * 10000,
+                            grid: {
+                                color: gridColor
+                            },
+                            ticks: {
+                                color: textColor,
+                                font: {
+                                    family: "'Outfit', 'Noto Sans TC', sans-serif",
+                                    size: 11
+                                },
+                                callback: function(value) {
+                                    return (value / 10000) + '萬';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function setChartView(view) {
+            activeChartView = view;
+            document.getElementById('chartViewAnnual').classList.toggle('active', view === 'annual');
+            document.getElementById('chartViewMonthly').classList.toggle('active', view === 'monthly');
+            calculateLifetimeProjection();
         }
 
         // Helper: Get next point based on degree caps
@@ -3121,6 +3552,7 @@
                 // Ignore
             }
             updateThemeUI(currentTheme);
+            calculateLifetimeProjection(); // Redraw chart for the new theme
         });
 
         function updateThemeUI(theme) {
@@ -3194,6 +3626,51 @@
 
         // Run sync visibility helper manually once to display the correct cards
         syncAndRecalculate('degree');
+
+        function exportToExcel() {
+            const table = document.querySelector('.proj-table');
+            if (!table) return;
+
+            let csvContent = '\ufeff'; // Add BOM for Excel to open UTF-8 CSV correctly
+            
+            // Get table headers
+            const headers = Array.from(table.querySelectorAll('thead th')).map(th => {
+                return th.innerText.replace(/\n/g, ' ');
+            });
+            csvContent += headers.join(',') + '\n';
+
+            // Get table rows
+            const rows = table.querySelectorAll('tbody tr');
+            rows.forEach(row => {
+                const rowData = Array.from(row.querySelectorAll('td')).map(td => {
+                    let text = td.innerText.trim();
+                    text = text.replace(/"/g, '""'); // Escape double quotes
+                    
+                    // If it contains comma or newline, wrap in double quotes
+                    if (text.includes(',') || text.includes('\n')) {
+                        return `"${text}"`;
+                    }
+                    return text;
+                });
+                csvContent += rowData.join(',') + '\n';
+            });
+
+            // Create blob and download
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            
+            const degree = projDegree.value === 'doctor' ? '博士' : projDegree.value === 'master' ? '碩士' : '學士';
+            const status = projTeacherStatus.value === 'cert' ? '合格教師' : (projTeacherStatus.value === 'sub_with_cert' ? '代理教師-有證' : '代理教師-無證');
+            const filename = `教師生涯薪資投影試算_${degree}_${status}.csv`;
+            
+            link.setAttribute('download', filename);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
     </script>
 </body>
 </html>
