@@ -809,9 +809,22 @@
                 <div class="select-wrapper">
                     <select id="teacherStatus">
                         <option value="regular" selected>正式教師</option>
-                        <option value="sub_with_cert">代理教師 (有教師證)</option>
-                        <option value="sub_no_cert">代理教師 (無教師證)</option>
+                        <option value="substitute">代理教師</option>
                     </select>
+                </div>
+            </div>
+
+            <div class="form-group" id="subLicenseGroup" style="display: none; margin-top: -0.5rem; margin-bottom: 1.5rem;">
+                <label>代理教師資格</label>
+                <div style="display: flex; gap: 0.75rem; width: 100%;">
+                    <div class="checkbox-card active" style="flex: 1; padding: 0.75rem; justify-content: center;" id="cardSubHasCert">
+                        <input type="radio" name="subLicenseType" id="subHasCert" value="has_cert" checked style="width: 1.1rem; height: 1.1rem; margin-right: 0.25rem; accent-color: var(--accent-glow);">
+                        <span style="font-size: 0.85rem; font-weight: 500;">具備合格教師證</span>
+                    </div>
+                    <div class="checkbox-card" style="flex: 1; padding: 0.75rem; justify-content: center;" id="cardSubNoCert">
+                        <input type="radio" name="subLicenseType" id="subNoCert" value="no_cert" style="width: 1.1rem; height: 1.1rem; margin-right: 0.25rem; accent-color: var(--accent-glow);">
+                        <span style="font-size: 0.85rem; font-weight: 500;">無合格教師證</span>
+                    </div>
                 </div>
             </div>
 
@@ -853,26 +866,38 @@
             </div>
 
             <div class="form-group">
-                <label for="adminRole">行政職務主管加給</label>
-                <div class="select-wrapper">
-                    <select id="adminRole">
-                        <option value="none" selected>無行政職務</option>
-                        <option value="principal">校長</option>
-                        <option value="director_70plus">處、室、部、館主任 (70班以上)</option>
-                        <option value="director_under70">處、室、部、館主任 (未滿70班)</option>
-                        <option value="department_head">科主任</option>
-                        <option value="section_chief">組長</option>
-                        <option value="sub_section_chief">國中副組長</option>
-                    </select>
+                <div class="checkbox-card" id="supervisorCard">
+                    <input type="checkbox" id="isSupervisor">
+                    <div class="checkbox-label">
+                        <span class="checkbox-title">兼任行政主管（免稅）</span>
+                        <span class="checkbox-desc">兼任處室主任、組長等行政職務</span>
+                    </div>
                 </div>
             </div>
 
-            <div class="form-group" id="adminSeniorityGroup">
-                <label for="adminSeniority">行政累計年資 (特休計算)</label>
-                <div class="select-wrapper">
-                    <select id="adminSeniority">
-                        <!-- Populated by JS -->
-                    </select>
+            <div id="adminRoleFields" style="display: none;">
+                <div class="form-group">
+                    <label for="adminRole">行政職務主管加給</label>
+                    <div class="select-wrapper">
+                        <select id="adminRole">
+                            <option value="none">無行政職務</option>
+                            <option value="principal">校長</option>
+                            <option value="director_70plus">處、室、部、館主任 (70班以上)</option>
+                            <option value="director_under70">處、室、部、館主任 (未滿70班)</option>
+                            <option value="department_head">科主任</option>
+                            <option value="section_chief" selected>組長</option>
+                            <option value="sub_section_chief">國中副組長</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group" id="adminSeniorityGroup">
+                    <label for="adminSeniority">行政累計年資 (特休計算)</label>
+                    <div class="select-wrapper">
+                        <select id="adminSeniority">
+                            <!-- Populated by JS -->
+                        </select>
+                    </div>
                 </div>
             </div>
 
@@ -887,11 +912,45 @@
                 </div>
             </div>
 
+            <div class="form-section-title">兼代課與超時授課 (鐘點費)</div>
+
+            <div class="form-group">
+                <label for="hourlyRateLevel">兼代課鐘點費標準</label>
+                <div class="select-wrapper">
+                    <select id="hourlyRateLevel">
+                        <option value="high" selected>高中 (505 元/節)</option>
+                        <option value="junior">國中 (455 元/節)</option>
+                        <option value="elementary">國小 (405 元/節)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="overtimeMonthType">月份性質 (超鐘點免稅限額)</label>
+                <div class="select-wrapper">
+                    <select id="overtimeMonthType">
+                        <option value="regular" selected>學期中 (每月免稅上限 70 節)</option>
+                        <option value="summer">暑假 (每月免稅上限 25 節)</option>
+                        <option value="winter">寒假 (每月免稅上限 15 節)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="weekdayPeriods">平日一般兼代課節數 / 月 (應稅)</label>
+                <input type="number" id="weekdayPeriods" min="0" value="0" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.75rem; background-color: var(--bg-secondary); color: var(--text-primary); font-family: var(--font-family);" class="input-number">
+            </div>
+
+            <div class="form-group">
+                <label for="overtimePeriods">課後輔導超鐘點節數 / 月 (額度內免稅)</label>
+                <input type="number" id="overtimePeriods" min="0" value="0" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.75rem; background-color: var(--bg-secondary); color: var(--text-primary); font-family: var(--font-family);" class="input-number">
+            </div>
+
             <div class="checkbox-group">
                 <div class="checkbox-card" id="tutorCard">
                     <input type="checkbox" id="isTutor">
                     <div class="checkbox-label">
-                        <span class="checkbox-title">兼任導師</span>
+                        <span class="checkbox-title">兼任導師（免稅）</span>
                         <span id="lblTutorDesc" class="checkbox-desc">導師費每月 $4,000 元</span>
                     </div>
                 </div>
@@ -944,35 +1003,62 @@
                 </div>
 
                 <div class="breakdown-section">
-                    <div class="section-header">應領經費項目 (加項)</div>
+                    <div class="section-header">應領薪資項目 (加項)</div>
+                    
+                    <!-- Taxable Items Sub-group -->
+                    <div style="font-size: 0.8rem; color: var(--accent-glow); font-weight: 600; margin-bottom: 0.25rem; padding-left: 0.5rem;">【應稅薪資明細】</div>
                     <div class="row-item highlight-add">
-                        <span class="item-label">教師基本本俸 (薪額) <span id="lblPointDetail" style="font-size:0.75rem; color:var(--text-secondary);"></span></span>
+                        <span class="item-label" style="padding-left: 0.5rem;">教師基本本俸 (薪額) <span id="lblPointDetail" style="font-size:0.75rem; color:var(--text-secondary);"></span></span>
                         <span class="item-val text-add" id="valBasicPay">$0</span>
                     </div>
                     <div class="row-item highlight-add">
-                        <span class="item-label">學術研究費 (研究加給)</span>
+                        <span class="item-label" style="padding-left: 0.5rem;">學術研究費 (研究加給)</span>
                         <span class="item-val text-add" id="valResearchPay">$0</span>
                     </div>
+                    <div class="row-item highlight-add" id="rowSpecialEd" style="display: none;">
+                        <span class="item-label" style="padding-left: 0.5rem;">特殊教育加給 <span id="lblSpecialEdDetail" style="font-size:0.75rem; color:var(--text-secondary);"></span></span>
+                        <span class="item-val text-add" id="valSpecialEdPay">$0</span>
+                    </div>
+                    <div class="row-item highlight-add" id="rowWeekdayClass" style="display: none;">
+                        <span class="item-label" style="padding-left: 0.5rem;">平日一般兼代課費</span>
+                        <span class="item-val text-add" id="valWeekdayClassPay">$0</span>
+                    </div>
+                    <div class="row-item highlight-add" id="rowOvertimeClassTaxable" style="display: none;">
+                        <span class="item-label" style="padding-left: 0.5rem;">課後輔導超鐘點 (應稅)</span>
+                        <span class="item-val text-add" id="valOvertimeClassTaxablePay">$0</span>
+                    </div>
+                    <div class="row-item" style="border-bottom: 1px dashed var(--border-color); margin-bottom: 0.75rem; font-weight: 600; font-size: 0.9rem; background-color: rgba(249, 115, 22, 0.02);">
+                        <span style="padding-left: 0.5rem; color: var(--accent-glow);">應稅薪資小計</span>
+                        <span id="valTaxableGrossSubtotal">$0</span>
+                    </div>
+
+                    <!-- Exempt Items Sub-group -->
+                    <div style="font-size: 0.8rem; color: var(--accent-success); font-weight: 600; margin-top: 0.75rem; margin-bottom: 0.25rem; padding-left: 0.5rem;">【免稅薪資明細】</div>
                     <div class="row-item highlight-add" id="rowTutor" style="display: none;">
-                        <span class="item-label">導師費加給</span>
+                        <span class="item-label" style="padding-left: 0.5rem;">導師費加給 (免稅)</span>
                         <span class="item-val text-add" id="valTutorPay">$0</span>
                     </div>
                     <div class="row-item highlight-add" id="rowAdmin" style="display: none;">
-                        <span class="item-label">主管職務加給 <span id="lblAdminDetail" style="font-size:0.75rem; color:var(--text-secondary);"></span></span>
+                        <span class="item-label" style="padding-left: 0.5rem;">主管職務加給 (免稅) <span id="lblAdminDetail" style="font-size:0.75rem; color:var(--text-secondary);"></span></span>
                         <span class="item-val text-add" id="valAdminPay">$0</span>
                     </div>
-                    <div class="row-item highlight-add" id="rowSpecialEd" style="display: none;">
-                        <span class="item-label">特殊教育加給 <span id="lblSpecialEdDetail" style="font-size:0.75rem; color:var(--text-secondary);"></span></span>
-                        <span class="item-val text-add" id="valSpecialEdPay">$0</span>
+                    <div class="row-item highlight-add" id="rowOvertimeClassExempt" style="display: none;">
+                        <span class="item-label" style="padding-left: 0.5rem;">課後輔導超鐘點 (免稅)</span>
+                        <span class="item-val text-add" id="valOvertimeClassExemptPay">$0</span>
                     </div>
-                    <div class="row-item" style="background-color: rgba(249, 115, 22, 0.04); font-weight: 700;">
+                    <div class="row-item" style="border-bottom: 1px dashed var(--border-color); margin-bottom: 0.75rem; font-weight: 600; font-size: 0.9rem; background-color: rgba(16, 185, 129, 0.02);">
+                        <span style="padding-left: 0.5rem; color: var(--accent-success);">免稅薪資小計</span>
+                        <span id="valExemptGrossSubtotal">$0</span>
+                    </div>
+
+                    <div class="row-item" style="background-color: rgba(249, 115, 22, 0.04); font-weight: 700; margin-top: 1rem;">
                         <span>應領月薪總額</span>
                         <span id="valGrossSalary">$0</span>
                     </div>
                 </div>
 
                 <div class="breakdown-section">
-                    <div class="section-header">扣繳經費項目 (減項)</div>
+                    <div class="section-header">法定扣繳經費項目 (減項)</div>
                     <div class="row-item highlight-sub" id="rowGIP">
                         <span class="item-label">公教人員保險費 (公保)</span>
                         <span class="item-val text-sub" id="valGIP">$0</span>
@@ -985,7 +1071,11 @@
                         <span class="item-label">全民健康保險費 (健保) <span id="lblNHIPoint" style="font-size:0.75rem; color:var(--text-secondary);"></span></span>
                         <span class="item-val text-sub" id="valNHI">$0</span>
                     </div>
-                    <div class="row-item" style="background-color: rgba(244, 63, 94, 0.04); font-weight: 700;">
+                    <div class="row-item highlight-sub" id="rowWithholdingTax" style="display: none;">
+                        <span class="item-label" style="color: var(--accent-danger); font-weight: 500;">預扣綜合所得稅 (5%)</span>
+                        <span class="item-val text-sub" id="valWithholdingTax">$0</span>
+                    </div>
+                    <div class="row-item" style="background-color: rgba(244, 63, 94, 0.04); font-weight: 700; margin-top: 1rem;">
                         <span>扣繳合計總額</span>
                         <span class="text-sub" id="valTotalDeduct">$0</span>
                     </div>
@@ -1025,9 +1115,22 @@
                     <div class="select-wrapper">
                         <select id="progTeacherStatus">
                             <option value="regular" selected>正式教師</option>
-                            <option value="sub_with_cert">代理教師 (有教師證)</option>
-                            <option value="sub_no_cert">代理教師 (無教師證)</option>
+                            <option value="substitute">代理教師</option>
                         </select>
+                    </div>
+                </div>
+
+                <div class="form-group" id="progSubLicenseGroup" style="display: none; margin-top: -0.5rem; margin-bottom: 1.5rem;">
+                    <label>代理教師資格</label>
+                    <div style="display: flex; gap: 0.75rem; width: 100%;">
+                        <div class="checkbox-card active" style="flex: 1; padding: 0.75rem; justify-content: center;" id="cardProgSubHasCert">
+                            <input type="radio" name="progSubLicenseType" id="progSubHasCert" value="has_cert" checked style="width: 1.1rem; height: 1.1rem; margin-right: 0.25rem; accent-color: var(--accent-glow);">
+                            <span style="font-size: 0.85rem; font-weight: 500;">具備合格教師證</span>
+                        </div>
+                        <div class="checkbox-card" style="flex: 1; padding: 0.75rem; justify-content: center;" id="cardProgSubNoCert">
+                            <input type="radio" name="progSubLicenseType" id="progSubNoCert" value="no_cert" style="width: 1.1rem; height: 1.1rem; margin-right: 0.25rem; accent-color: var(--accent-glow);">
+                            <span style="font-size: 0.85rem; font-weight: 500;">無合格教師證</span>
+                        </div>
                     </div>
                 </div>
 
@@ -1056,26 +1159,38 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="progAdminRole">行政職務主管加給</label>
-                    <div class="select-wrapper">
-                        <select id="progAdminRole">
-                            <option value="none" selected>無行政職務</option>
-                            <option value="principal">校長</option>
-                            <option value="director_70plus">處、室、部、館主任 (70班以上)</option>
-                            <option value="director_under70">處、室、部、館主任 (未滿70班)</option>
-                            <option value="department_head">科主任</option>
-                            <option value="section_chief">組長</option>
-                            <option value="sub_section_chief">國中副組長</option>
-                        </select>
+                    <div class="checkbox-card" id="progSupervisorCard">
+                        <input type="checkbox" id="progIsSupervisor">
+                        <div class="checkbox-label">
+                            <span class="checkbox-title">兼任行政主管（免稅）</span>
+                            <span class="checkbox-desc">兼任處室主任、組長等行政職務</span>
+                        </div>
                     </div>
                 </div>
 
-                <div class="form-group" id="progAdminSeniorityGroup">
-                    <label for="progAdminSeniority">行政累計年資 (特休計算)</label>
-                    <div class="select-wrapper">
-                        <select id="progAdminSeniority">
-                            <!-- Populated by JS -->
-                        </select>
+                <div id="progAdminRoleFields" style="display: none;">
+                    <div class="form-group">
+                        <label for="progAdminRole">行政職務主管加給</label>
+                        <div class="select-wrapper">
+                            <select id="progAdminRole">
+                                <option value="none">無行政職務</option>
+                                <option value="principal">校長</option>
+                                <option value="director_70plus">處、室、部、館主任 (70班以上)</option>
+                                <option value="director_under70">處、室、部、館主任 (未滿70班)</option>
+                                <option value="department_head">科主任</option>
+                                <option value="section_chief" selected>組長</option>
+                                <option value="sub_section_chief">國中副組長</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="progAdminSeniorityGroup">
+                        <label for="progAdminSeniority">行政累計年資 (特休計算)</label>
+                        <div class="select-wrapper">
+                            <select id="progAdminSeniority">
+                                <!-- Populated by JS -->
+                            </select>
+                        </div>
                     </div>
                 </div>
 
@@ -1090,11 +1205,51 @@
                     </div>
                 </div>
 
+                <div class="form-section-title">兼代課與超時授課 (年試算以學年9個月計)</div>
+
+                 <div class="form-group">
+                    <label for="progHourlyRateLevel">兼代課鐘點費標準</label>
+                    <div class="select-wrapper">
+                        <select id="progHourlyRateLevel">
+                            <option value="high" selected>高中 (505 元/節)</option>
+                            <option value="junior">國中 (455 元/節)</option>
+                            <option value="elementary">國小 (405 元/節)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label for="progWeekdayPeriodsS1">上學期平日兼課/週</label>
+                        <input type="number" id="progWeekdayPeriodsS1" min="0" value="0" class="input-number" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.75rem; background-color: var(--bg-secondary); color: var(--text-primary); font-family: var(--font-family);">
+                    </div>
+                    <div class="form-group">
+                        <label for="progOvertimePeriodsS1">上學期超鐘點/週</label>
+                        <input type="number" id="progOvertimePeriodsS1" min="0" value="0" class="input-number" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.75rem; background-color: var(--bg-secondary); color: var(--text-primary); font-family: var(--font-family);">
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 0.5rem; margin-bottom: 0.5rem;">
+                    <div class="form-group">
+                        <label for="progWeekdayPeriodsS2">下學期平日兼課/週</label>
+                        <input type="number" id="progWeekdayPeriodsS2" min="0" value="0" class="input-number" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.75rem; background-color: var(--bg-secondary); color: var(--text-primary); font-family: var(--font-family);">
+                    </div>
+                    <div class="form-group">
+                        <label for="progOvertimePeriodsS2">下學期超鐘點/週</label>
+                        <input type="number" id="progOvertimePeriodsS2" min="0" value="0" class="input-number" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.75rem; background-color: var(--bg-secondary); color: var(--text-primary); font-family: var(--font-family);">
+                    </div>
+                </div>
+                <div class="form-group" style="margin-bottom: 1rem; margin-top: 0.5rem;">
+                    <div class="checkbox-card" id="progGraduatingClassCard" style="width: 100%; padding: 0.75rem; display: flex; align-items: center; gap: 0.5rem; border: 1px solid var(--border-color); border-radius: 0.75rem; background-color: var(--bg-secondary); cursor: pointer; transition: all 0.3s ease;">
+                        <input type="checkbox" id="progIsGraduatingClass" style="cursor: pointer;">
+                        <label for="progIsGraduatingClass" style="margin-bottom: 0; cursor: pointer; color: var(--text-primary); font-weight: 500;">任教畢業班 (國三/高三，六月僅計 1 週課程)</label>
+                    </div>
+                </div>
+
                 <div class="checkbox-group">
                     <div class="checkbox-card" id="progTutorCard">
                         <input type="checkbox" id="progIsTutor">
                         <div class="checkbox-label">
-                            <span class="checkbox-title">兼任導師</span>
+                            <span class="checkbox-title">兼任導師（免稅）</span>
                             <span class="checkbox-desc">導師費每月 $4,000 元</span>
                         </div>
                     </div>
@@ -1388,9 +1543,22 @@
                     <div class="select-wrapper">
                         <select id="projTeacherStatus">
                             <option value="regular" selected>正式教師</option>
-                            <option value="sub_with_cert">代理教師 (有教師證)</option>
-                            <option value="sub_no_cert">代理教師 (無教師證)</option>
+                            <option value="substitute">代理教師</option>
                         </select>
+                    </div>
+                </div>
+
+                <div class="form-group" id="projSubLicenseGroup" style="display: none; margin-top: -0.5rem; margin-bottom: 1.5rem;">
+                    <label>代理教師資格</label>
+                    <div style="display: flex; gap: 0.75rem; width: 100%;">
+                        <div class="checkbox-card active" style="flex: 1; padding: 0.75rem; justify-content: center;" id="cardProjSubHasCert">
+                            <input type="radio" name="projSubLicenseType" id="projSubHasCert" value="has_cert" checked style="width: 1.1rem; height: 1.1rem; margin-right: 0.25rem; accent-color: var(--accent-glow);">
+                            <span style="font-size: 0.85rem; font-weight: 500;">具備合格教師證</span>
+                        </div>
+                        <div class="checkbox-card" style="flex: 1; padding: 0.75rem; justify-content: center;" id="cardProjSubNoCert">
+                            <input type="radio" name="projSubLicenseType" id="projSubNoCert" value="no_cert" style="width: 1.1rem; height: 1.1rem; margin-right: 0.25rem; accent-color: var(--accent-glow);">
+                            <span style="font-size: 0.85rem; font-weight: 500;">無合格教師證</span>
+                        </div>
                     </div>
                 </div>
 
@@ -1419,26 +1587,38 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="projAdminRole">行政職務主管加給</label>
-                    <div class="select-wrapper">
-                        <select id="projAdminRole">
-                            <option value="none" selected>無行政職務</option>
-                            <option value="principal">校長</option>
-                            <option value="director_70plus">處、室、部、館主任 (70班以上)</option>
-                            <option value="director_under70">處、室、部、館主任 (未滿70班)</option>
-                            <option value="department_head">科主任</option>
-                            <option value="section_chief">組長</option>
-                            <option value="sub_section_chief">國中副組長</option>
-                        </select>
+                    <div class="checkbox-card" id="projSupervisorCard">
+                        <input type="checkbox" id="projIsSupervisor">
+                        <div class="checkbox-label">
+                            <span class="checkbox-title">兼任行政主管（免稅）</span>
+                            <span class="checkbox-desc">兼任處室主任、組長等行政職務</span>
+                        </div>
                     </div>
                 </div>
 
-                <div class="form-group" id="projAdminSeniorityGroup">
-                    <label for="projAdminSeniority">行政累計年資 (特休計算)</label>
-                    <div class="select-wrapper">
-                        <select id="projAdminSeniority">
-                            <!-- Populated by JS -->
-                        </select>
+                <div id="projAdminRoleFields" style="display: none;">
+                    <div class="form-group">
+                        <label for="projAdminRole">行政職務主管加給</label>
+                        <div class="select-wrapper">
+                            <select id="projAdminRole">
+                                <option value="none">無行政職務</option>
+                                <option value="principal">校長</option>
+                                <option value="director_70plus">處、室、部、館主任 (70班以上)</option>
+                                <option value="director_under70">處、室、部、館主任 (未滿70班)</option>
+                                <option value="department_head">科主任</option>
+                                <option value="section_chief" selected>組長</option>
+                                <option value="sub_section_chief">國中副組長</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="projAdminSeniorityGroup">
+                        <label for="projAdminSeniority">行政累計年資 (特休計算)</label>
+                        <div class="select-wrapper">
+                            <select id="projAdminSeniority">
+                                <!-- Populated by JS -->
+                            </select>
+                        </div>
                     </div>
                 </div>
 
@@ -1453,11 +1633,51 @@
                     </div>
                 </div>
 
+                <div class="form-section-title">兼代課與超時授課 (年試算以學年9個月計)</div>
+
+                 <div class="form-group">
+                    <label for="projHourlyRateLevel">兼代課鐘點費標準</label>
+                    <div class="select-wrapper">
+                        <select id="projHourlyRateLevel">
+                            <option value="high" selected>高中 (505 元/節)</option>
+                            <option value="junior">國中 (455 元/節)</option>
+                            <option value="elementary">國小 (405 元/節)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label for="projWeekdayPeriodsS1">上學期平日兼課/週</label>
+                        <input type="number" id="projWeekdayPeriodsS1" min="0" value="0" class="input-number" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.75rem; background-color: var(--bg-secondary); color: var(--text-primary); font-family: var(--font-family);">
+                    </div>
+                    <div class="form-group">
+                        <label for="projOvertimePeriodsS1">上學期超鐘點/週</label>
+                        <input type="number" id="projOvertimePeriodsS1" min="0" value="0" class="input-number" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.75rem; background-color: var(--bg-secondary); color: var(--text-primary); font-family: var(--font-family);">
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 0.5rem; margin-bottom: 0.5rem;">
+                    <div class="form-group">
+                        <label for="projWeekdayPeriodsS2">下學期平日兼課/週</label>
+                        <input type="number" id="projWeekdayPeriodsS2" min="0" value="0" class="input-number" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.75rem; background-color: var(--bg-secondary); color: var(--text-primary); font-family: var(--font-family);">
+                    </div>
+                    <div class="form-group">
+                        <label for="projOvertimePeriodsS2">下學期超鐘點/週</label>
+                        <input type="number" id="projOvertimePeriodsS2" min="0" value="0" class="input-number" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.75rem; background-color: var(--bg-secondary); color: var(--text-primary); font-family: var(--font-family);">
+                    </div>
+                </div>
+                <div class="form-group" style="margin-bottom: 1rem; margin-top: 0.5rem;">
+                    <div class="checkbox-card" id="projGraduatingClassCard" style="width: 100%; padding: 0.75rem; display: flex; align-items: center; gap: 0.5rem; border: 1px solid var(--border-color); border-radius: 0.75rem; background-color: var(--bg-secondary); cursor: pointer; transition: all 0.3s ease;">
+                        <input type="checkbox" id="projIsGraduatingClass" style="cursor: pointer;">
+                        <label for="projIsGraduatingClass" style="margin-bottom: 0; cursor: pointer; color: var(--text-primary); font-weight: 500;">任教畢業班 (國三/高三，六月僅計 1 週課程)</label>
+                    </div>
+                </div>
+
                 <div class="checkbox-group" style="margin-bottom: 1.5rem;">
                     <div class="checkbox-card" id="projTutorCard">
                         <input type="checkbox" id="projIsTutor">
                         <div class="checkbox-label">
-                            <span class="checkbox-title">兼任導師</span>
+                            <span class="checkbox-title">兼任導師（免稅）</span>
                             <span class="checkbox-desc">導師費每月 $4,000 元</span>
                         </div>
                     </div>
@@ -1770,7 +1990,12 @@
             { minSalary: 164101, maxSalary: 169500, premiumSalary: 169500 }, { minSalary: 169501, maxSalary: 175000, premiumSalary: 175000 },
             { minSalary: 175001, maxSalary: 182000, premiumSalary: 182000 }, { minSalary: 182001, maxSalary: 189000, premiumSalary: 189000 },
             { minSalary: 189001, maxSalary: 196000, premiumSalary: 196000 }, { minSalary: 196001, maxSalary: 203000, premiumSalary: 203000 },
-            { minSalary: 203001, maxSalary: 210000, premiumSalary: 210000 }, { minSalary: 210001, maxSalary: Infinity, premiumSalary: 219500 }
+            { minSalary: 203001, maxSalary: 210000, premiumSalary: 210000 }, { minSalary: 210001, maxSalary: 219500, premiumSalary: 219500 },
+            { minSalary: 219501, maxSalary: 228200, premiumSalary: 228200 }, { minSalary: 228201, maxSalary: 236900, premiumSalary: 236900 },
+            { minSalary: 236901, maxSalary: 245600, premiumSalary: 245600 }, { minSalary: 245601, maxSalary: 254300, premiumSalary: 254300 },
+            { minSalary: 254301, maxSalary: 263000, premiumSalary: 263000 }, { minSalary: 263001, maxSalary: 271700, premiumSalary: 271700 },
+            { minSalary: 271701, maxSalary: 280400, premiumSalary: 280400 }, { minSalary: 280401, maxSalary: 289100, premiumSalary: 289100 },
+            { minSalary: 289101, maxSalary: 297800, premiumSalary: 297800 }, { minSalary: 297801, maxSalary: Infinity, premiumSalary: 313000 }
         ];
 
         // 114 NHI
@@ -1781,7 +2006,7 @@
             { minSalary: 34801, maxSalary: 36300, premiumSalary: 36300 }, { minSalary: 36301, maxSalary: 38200, premiumSalary: 38200 },
             { minSalary: 38201, maxSalary: 40100, premiumSalary: 40100 }, { minSalary: 40101, maxSalary: 42000, premiumSalary: 42000 },
             { minSalary: 42001, maxSalary: 43900, premiumSalary: 43900 }, { minSalary: 43901, maxSalary: 45800, premiumSalary: 45800 },
-            { minSalary: 43901, maxSalary: 48200, premiumSalary: 48200 }, { minSalary: 48201, maxSalary: 50600, premiumSalary: 50600 },
+            { minSalary: 45801, maxSalary: 48200, premiumSalary: 48200 }, { minSalary: 48201, maxSalary: 50600, premiumSalary: 50600 },
             { minSalary: 50601, maxSalary: 53000, premiumSalary: 53000 }, { minSalary: 53001, maxSalary: 55400, premiumSalary: 55400 },
             { minSalary: 55401, maxSalary: 57800, premiumSalary: 57800 }, { minSalary: 57801, maxSalary: 60800, premiumSalary: 60800 },
             { minSalary: 60801, maxSalary: 63800, premiumSalary: 63800 }, { minSalary: 63801, maxSalary: 66800, premiumSalary: 66800 },
@@ -1811,10 +2036,15 @@
         const yearSelect = document.getElementById('salaryYear');
         const degreeSelect = document.getElementById('degree');
         const teacherStatus = document.getElementById('teacherStatus');
+        const subLicenseGroup = document.getElementById('subLicenseGroup');
+        const subHasCert = document.getElementById('subHasCert');
+        const subNoCert = document.getElementById('subNoCert');
         const laborPensionRate = document.getElementById('laborPensionRate');
         const pointSelect = document.getElementById('salaryPoint');
         const advQualCard = document.getElementById('advQualCard');
         const hasAdvancedQual = document.getElementById('hasAdvancedQual');
+        const isSupervisor = document.getElementById('isSupervisor');
+        const adminRoleFields = document.getElementById('adminRoleFields');
         const adminRole = document.getElementById('adminRole');
         const adminSeniority = document.getElementById('adminSeniority');
         const specialEdRole = document.getElementById('specialEdRole');
@@ -1822,10 +2052,21 @@
         const tutorCard = document.getElementById('tutorCard');
         const nhiDependents = document.getElementById('nhiDependents');
 
+        // Overtime class fields Tab 1
+        const hourlyRateLevel = document.getElementById('hourlyRateLevel');
+        const overtimeMonthType = document.getElementById('overtimeMonthType');
+        const weekdayPeriods = document.getElementById('weekdayPeriods');
+        const overtimePeriods = document.getElementById('overtimePeriods');
+
         const progDegree = document.getElementById('progDegree');
         const progTeacherStatus = document.getElementById('progTeacherStatus');
+        const progSubLicenseGroup = document.getElementById('progSubLicenseGroup');
+        const progSubHasCert = document.getElementById('progSubHasCert');
+        const progSubNoCert = document.getElementById('progSubNoCert');
         const progLaborPensionRate = document.getElementById('progLaborPensionRate');
         const progCurrentPoint = document.getElementById('progCurrentPoint');
+        const progIsSupervisor = document.getElementById('progIsSupervisor');
+        const progAdminRoleFields = document.getElementById('progAdminRoleFields');
         const progAdminRole = document.getElementById('progAdminRole');
         const progAdminSeniority = document.getElementById('progAdminSeniority');
         const progSpecialEdRole = document.getElementById('progSpecialEdRole');
@@ -1836,12 +2077,23 @@
         const progSpouseIncome = document.getElementById('progSpouseIncome');
         const progTaxDependents = document.getElementById('progTaxDependents');
         const progTaxDepAgesContainer = document.getElementById('progTaxDepAgesContainer');
+        const progHourlyRateLevel = document.getElementById('progHourlyRateLevel');
+        const progWeekdayPeriodsS1 = document.getElementById('progWeekdayPeriodsS1');
+        const progOvertimePeriodsS1 = document.getElementById('progOvertimePeriodsS1');
+        const progWeekdayPeriodsS2 = document.getElementById('progWeekdayPeriodsS2');
+        const progOvertimePeriodsS2 = document.getElementById('progOvertimePeriodsS2');
+        const progIsGraduatingClass = document.getElementById('progIsGraduatingClass');
 
         const projAge = document.getElementById('projAge');
         const projDegree = document.getElementById('projDegree');
         const projTeacherStatus = document.getElementById('projTeacherStatus');
+        const projSubLicenseGroup = document.getElementById('projSubLicenseGroup');
+        const projSubHasCert = document.getElementById('projSubHasCert');
+        const projSubNoCert = document.getElementById('projSubNoCert');
         const projLaborPensionRate = document.getElementById('projLaborPensionRate');
         const projCurrentPoint = document.getElementById('projCurrentPoint');
+        const projIsSupervisor = document.getElementById('projIsSupervisor');
+        const projAdminRoleFields = document.getElementById('projAdminRoleFields');
         const projAdminRole = document.getElementById('projAdminRole');
         const projAdminSeniority = document.getElementById('projAdminSeniority');
         const projSpecialEdRole = document.getElementById('projSpecialEdRole');
@@ -1852,6 +2104,12 @@
         const projSpouseIncome = document.getElementById('projSpouseIncome');
         const projTaxDependents = document.getElementById('projTaxDependents');
         const projTaxDepAgesContainer = document.getElementById('projTaxDepAgesContainer');
+        const projHourlyRateLevel = document.getElementById('projHourlyRateLevel');
+        const projWeekdayPeriodsS1 = document.getElementById('projWeekdayPeriodsS1');
+        const projOvertimePeriodsS1 = document.getElementById('projOvertimePeriodsS1');
+        const projWeekdayPeriodsS2 = document.getElementById('projWeekdayPeriodsS2');
+        const projOvertimePeriodsS2 = document.getElementById('projOvertimePeriodsS2');
+        const projIsGraduatingClass = document.getElementById('projIsGraduatingClass');
         const gradMasterYear = document.getElementById('gradMasterYear');
         const gradDoctorYear = document.getElementById('gradDoctorYear');
 
@@ -1868,6 +2126,18 @@
         const valPension = document.getElementById('valPension');
         const valNHI = document.getElementById('valNHI');
         const valTotalDeduct = document.getElementById('valTotalDeduct');
+
+        // Taxable and exempt subtotal displays
+        const valTaxableGrossSubtotal = document.getElementById('valTaxableGrossSubtotal');
+        const valExemptGrossSubtotal = document.getElementById('valExemptGrossSubtotal');
+        const rowWeekdayClass = document.getElementById('rowWeekdayClass');
+        const valWeekdayClassPay = document.getElementById('valWeekdayClassPay');
+        const rowOvertimeClassTaxable = document.getElementById('rowOvertimeClassTaxable');
+        const valOvertimeClassTaxablePay = document.getElementById('valOvertimeClassTaxablePay');
+        const rowOvertimeClassExempt = document.getElementById('rowOvertimeClassExempt');
+        const valOvertimeClassExemptPay = document.getElementById('valOvertimeClassExemptPay');
+        const rowWithholdingTax = document.getElementById('rowWithholdingTax');
+        const valWithholdingTax = document.getElementById('valWithholdingTax');
         
         const lblPointDetail = document.getElementById('lblPointDetail');
         const lblAdminDetail = document.getElementById('lblAdminDetail');
@@ -1881,6 +2151,7 @@
 
         const netSegment = document.getElementById('netSegment');
         const deductSegment = document.getElementById('deductSegment');
+
         const netPercentageText = document.getElementById('netPercentage');
         const deductPercentageText = document.getElementById('deductPercentage');
 
@@ -1957,6 +2228,13 @@
             
             let grade = activeGrades.find(g => gross <= g);
             return grade || 150000;
+        }
+
+        // Helper: Get hourly rate based on level
+        function getHourlyRate(level, year = 115, month = 9) {
+            if (level === 'high') return 505;
+            if (level === 'junior') return 455;
+            return 405;
         }
 
         // Helper: Compute GIP, Pension and NHI deductions
@@ -2100,14 +2378,30 @@
         // Centralized sync and calculation event handler
         function syncAndRecalculate(sourceId) {
             let deg, pt, role, seniority, specialEd, tutor, dependents, taxStatus, spouseIncome, taxDependents, taxAges = [], statusT, lpRate;
+            let isSup, baseRole;
+            let hRate, wPeriods, oPeriods;
+            let wPeriodsS1 = 0, oPeriodsS1 = 0, wPeriodsS2 = 0, oPeriodsS2 = 0;
+            let isGraduating = false;
 
             // Fetch values from whichever inputs triggered the event
             if (sourceId.startsWith('prog')) {
                 deg = progDegree.value;
-                statusT = progTeacherStatus.value;
+                
+                // Teacher Status translation
+                if (progTeacherStatus.value === 'substitute') {
+                    statusT = progSubHasCert.checked ? 'sub_with_cert' : 'sub_no_cert';
+                } else {
+                    statusT = 'regular';
+                }
+                
                 lpRate = progLaborPensionRate.value;
                 pt = progCurrentPoint.value;
-                role = progAdminRole.value;
+                
+                // Supervisor translation
+                isSup = progIsSupervisor.checked;
+                baseRole = progAdminRole.value;
+                role = isSup ? baseRole : 'none';
+                
                 seniority = progAdminSeniority.value;
                 specialEd = progSpecialEdRole.value;
                 tutor = progIsTutor.checked;
@@ -2116,14 +2410,36 @@
                 spouseIncome = progSpouseIncome.value;
                 taxDependents = parseInt(progTaxDependents.value) || 0;
                 
+                // Hourly rate settings
+                hRate = progHourlyRateLevel.value;
+                wPeriodsS1 = parseFloat(progWeekdayPeriodsS1.value) || 0;
+                oPeriodsS1 = parseFloat(progOvertimePeriodsS1.value) || 0;
+                wPeriodsS2 = parseFloat(progWeekdayPeriodsS2.value) || 0;
+                oPeriodsS2 = parseFloat(progOvertimePeriodsS2.value) || 0;
+                isGraduating = progIsGraduatingClass.checked;
+
+                // Tab 1 single month defaults to S1 for display
+                wPeriods = wPeriodsS1;
+                oPeriods = oPeriodsS1;
+                
                 const inputs = progTaxDepAgesContainer.querySelectorAll('.dep-age-input');
                 inputs.forEach(input => taxAges.push(parseInt(input.value) || 0));
             } else if (sourceId.startsWith('proj') && sourceId !== 'projAge') {
                 deg = projDegree.value;
-                statusT = projTeacherStatus.value;
+                
+                if (projTeacherStatus.value === 'substitute') {
+                    statusT = projSubHasCert.checked ? 'sub_with_cert' : 'sub_no_cert';
+                } else {
+                    statusT = 'regular';
+                }
+                
                 lpRate = projLaborPensionRate.value;
                 pt = projCurrentPoint.value;
-                role = projAdminRole.value;
+                
+                isSup = projIsSupervisor.checked;
+                baseRole = projAdminRole.value;
+                role = isSup ? baseRole : 'none';
+                
                 seniority = projAdminSeniority.value;
                 specialEd = projSpecialEdRole.value;
                 tutor = projIsTutor.checked;
@@ -2132,14 +2448,35 @@
                 spouseIncome = projSpouseIncome.value;
                 taxDependents = parseInt(projTaxDependents.value) || 0;
                 
+                hRate = projHourlyRateLevel.value;
+                wPeriodsS1 = parseFloat(projWeekdayPeriodsS1.value) || 0;
+                oPeriodsS1 = parseFloat(projOvertimePeriodsS1.value) || 0;
+                wPeriodsS2 = parseFloat(projWeekdayPeriodsS2.value) || 0;
+                oPeriodsS2 = parseFloat(projOvertimePeriodsS2.value) || 0;
+                isGraduating = projIsGraduatingClass.checked;
+
+                wPeriods = wPeriodsS1;
+                oPeriods = oPeriodsS1;
+                
                 const inputs = projTaxDepAgesContainer.querySelectorAll('.dep-age-input');
                 inputs.forEach(input => taxAges.push(parseInt(input.value) || 0));
             } else {
+                // Tab 1 source
                 deg = degreeSelect.value;
-                statusT = teacherStatus.value;
+                
+                if (teacherStatus.value === 'substitute') {
+                    statusT = subHasCert.checked ? 'sub_with_cert' : 'sub_no_cert';
+                } else {
+                    statusT = 'regular';
+                }
+                
                 lpRate = laborPensionRate.value;
                 pt = pointSelect.value;
-                role = adminRole.value;
+                
+                isSup = isSupervisor.checked;
+                baseRole = adminRole.value;
+                role = isSup ? baseRole : 'none';
+                
                 seniority = adminSeniority.value;
                 specialEd = specialEdRole.value;
                 tutor = isTutor.checked;
@@ -2148,21 +2485,65 @@
                 spouseIncome = progSpouseIncome.value;
                 taxDependents = parseInt(progTaxDependents.value) || 0;
                 
+                hRate = hourlyRateLevel.value;
+                wPeriods = parseFloat(weekdayPeriods.value) || 0;
+                oPeriods = parseFloat(overtimePeriods.value) || 0;
+                isGraduating = false;
+
+                // Sync Tab 1 to S1 & S2
+                wPeriodsS1 = wPeriods;
+                wPeriodsS2 = wPeriods;
+                oPeriodsS1 = oPeriods;
+                oPeriodsS2 = oPeriods;
+                
                 const inputs = progTaxDepAgesContainer.querySelectorAll('.dep-age-input');
                 inputs.forEach(input => taxAges.push(parseInt(input.value) || 0));
             }
 
-            // Sync Tab 1 Basic
+            // Sync Tab 1 Basic UI
             degreeSelect.value = deg;
-            teacherStatus.value = statusT;
+            
+            if (statusT.startsWith('sub')) {
+                teacherStatus.value = 'substitute';
+                subLicenseGroup.style.display = 'block';
+                if (statusT === 'sub_with_cert') {
+                    subHasCert.checked = true;
+                    document.getElementById('cardSubHasCert').classList.add('active');
+                    document.getElementById('cardSubNoCert').classList.remove('active');
+                } else {
+                    subNoCert.checked = true;
+                    document.getElementById('cardSubNoCert').classList.add('active');
+                    document.getElementById('cardSubHasCert').classList.remove('active');
+                }
+                document.getElementById('laborPensionSelfCard').style.display = 'block';
+            } else {
+                teacherStatus.value = 'regular';
+                subLicenseGroup.style.display = 'none';
+                document.getElementById('laborPensionSelfCard').style.display = 'none';
+            }
+            
             laborPensionRate.value = lpRate;
             populatePoints(deg);
             pointSelect.value = pt;
-            adminRole.value = role;
+            
+            isSupervisor.checked = isSup;
+            if (isSup) {
+                document.getElementById('supervisorCard').classList.add('active');
+                adminRoleFields.style.display = 'block';
+                adminRole.value = baseRole;
+            } else {
+                document.getElementById('supervisorCard').classList.remove('active');
+                adminRoleFields.style.display = 'none';
+            }
+            
             adminSeniority.value = seniority;
             specialEdRole.value = specialEd;
             isTutor.checked = tutor;
             nhiDependents.value = dependents;
+            
+            hourlyRateLevel.value = hRate;
+            weekdayPeriods.value = wPeriods;
+            overtimePeriods.value = oPeriods;
             
             if (tutor) tutorCard.classList.add('active');
             else tutorCard.classList.remove('active');
@@ -2177,13 +2558,42 @@
                 advQualCard.classList.remove('active');
             }
 
-            // Sync Tab 2 progression
+            // Sync Tab 2 progression UI
             progDegree.value = deg;
-            progTeacherStatus.value = statusT;
+            
+            if (statusT.startsWith('sub')) {
+                progTeacherStatus.value = 'substitute';
+                progSubLicenseGroup.style.display = 'block';
+                if (statusT === 'sub_with_cert') {
+                    progSubHasCert.checked = true;
+                    document.getElementById('cardProgSubHasCert').classList.add('active');
+                    document.getElementById('cardProgSubNoCert').classList.remove('active');
+                } else {
+                    progSubNoCert.checked = true;
+                    document.getElementById('cardProgSubNoCert').classList.add('active');
+                    document.getElementById('cardProgSubHasCert').classList.remove('active');
+                }
+                document.getElementById('progLaborPensionSelfCard').style.display = 'block';
+            } else {
+                progTeacherStatus.value = 'regular';
+                progSubLicenseGroup.style.display = 'none';
+                document.getElementById('progLaborPensionSelfCard').style.display = 'none';
+            }
+            
             progLaborPensionRate.value = lpRate;
             populateProgressionPoints(deg);
             progCurrentPoint.value = pt;
-            progAdminRole.value = role;
+            
+            progIsSupervisor.checked = isSup;
+            if (isSup) {
+                document.getElementById('progSupervisorCard').classList.add('active');
+                progAdminRoleFields.style.display = 'block';
+                progAdminRole.value = baseRole;
+            } else {
+                document.getElementById('progSupervisorCard').classList.remove('active');
+                progAdminRoleFields.style.display = 'none';
+            }
+            
             progAdminSeniority.value = seniority;
             progSpecialEdRole.value = specialEd;
             progIsTutor.checked = tutor;
@@ -2191,6 +2601,19 @@
             progTaxStatus.value = taxStatus;
             progSpouseIncome.value = spouseIncome;
             progTaxDependents.value = taxDependents;
+            
+            progHourlyRateLevel.value = hRate;
+            progWeekdayPeriodsS1.value = wPeriodsS1;
+            progOvertimePeriodsS1.value = oPeriodsS1;
+            progWeekdayPeriodsS2.value = wPeriodsS2;
+            progOvertimePeriodsS2.value = oPeriodsS2;
+            progIsGraduatingClass.checked = isGraduating;
+            
+            if (tutor) progTutorCard.classList.add('active');
+            else progTutorCard.classList.remove('active');
+
+            if (progIsGraduatingClass.checked) document.getElementById('progGraduatingClassCard').classList.add('active');
+            else document.getElementById('progGraduatingClassCard').classList.remove('active');
 
             if (progTaxDepAgesContainer.querySelectorAll('.dep-age-input').length !== taxDependents) {
                 renderDepAges(progTaxDepAgesContainer, taxDependents, taxAges);
@@ -2201,16 +2624,42 @@
                 });
             }
 
-            if (tutor) progTutorCard.classList.add('active');
-            else progTutorCard.classList.remove('active');
-
-            // Sync Tab 3 lifetime
+            // Sync Tab 3 projection UI
             projDegree.value = deg;
-            projTeacherStatus.value = statusT;
+            
+            if (statusT.startsWith('sub')) {
+                projTeacherStatus.value = 'substitute';
+                projSubLicenseGroup.style.display = 'block';
+                if (statusT === 'sub_with_cert') {
+                    projSubHasCert.checked = true;
+                    document.getElementById('cardProjSubHasCert').classList.add('active');
+                    document.getElementById('cardProjSubNoCert').classList.remove('active');
+                } else {
+                    projSubNoCert.checked = true;
+                    document.getElementById('cardProjSubNoCert').classList.add('active');
+                    document.getElementById('cardProjSubHasCert').classList.remove('active');
+                }
+                document.getElementById('projLaborPensionSelfCard').style.display = 'block';
+            } else {
+                projTeacherStatus.value = 'regular';
+                projSubLicenseGroup.style.display = 'none';
+                document.getElementById('projLaborPensionSelfCard').style.display = 'none';
+            }
+            
             projLaborPensionRate.value = lpRate;
             populateProjPoints(deg);
             projCurrentPoint.value = pt;
-            projAdminRole.value = role;
+            
+            projIsSupervisor.checked = isSup;
+            if (isSup) {
+                document.getElementById('projSupervisorCard').classList.add('active');
+                projAdminRoleFields.style.display = 'block';
+                projAdminRole.value = baseRole;
+            } else {
+                document.getElementById('projSupervisorCard').classList.remove('active');
+                projAdminRoleFields.style.display = 'none';
+            }
+            
             projAdminSeniority.value = seniority;
             projSpecialEdRole.value = specialEd;
             projIsTutor.checked = tutor;
@@ -2218,6 +2667,19 @@
             projTaxStatus.value = taxStatus;
             projSpouseIncome.value = spouseIncome;
             projTaxDependents.value = taxDependents;
+            
+            projHourlyRateLevel.value = hRate;
+            projWeekdayPeriodsS1.value = wPeriodsS1;
+            projOvertimePeriodsS1.value = oPeriodsS1;
+            projWeekdayPeriodsS2.value = wPeriodsS2;
+            projOvertimePeriodsS2.value = oPeriodsS2;
+            projIsGraduatingClass.checked = isGraduating;
+            
+            if (tutor) projTutorCard.classList.add('active');
+            else projTutorCard.classList.remove('active');
+
+            if (projIsGraduatingClass.checked) document.getElementById('projGraduatingClassCard').classList.add('active');
+            else document.getElementById('projGraduatingClassCard').classList.remove('active');
 
             if (projTaxDepAgesContainer.querySelectorAll('.dep-age-input').length !== taxDependents) {
                 renderDepAges(projTaxDepAgesContainer, taxDependents, taxAges);
@@ -2226,21 +2688,6 @@
                 inputs.forEach((input, index) => {
                     if (taxAges[index] !== undefined) input.value = taxAges[index];
                 });
-            }
-
-            if (tutor) projTutorCard.classList.add('active');
-            else projTutorCard.classList.remove('active');
-
-            // Sync visibility of Labor Pension self-contribution rate cards
-            const isSub = (statusT === 'sub_with_cert' || statusT === 'sub_no_cert');
-            if (isSub) {
-                document.getElementById('laborPensionSelfCard').style.display = 'block';
-                document.getElementById('progLaborPensionSelfCard').style.display = 'block';
-                document.getElementById('projLaborPensionSelfCard').style.display = 'block';
-            } else {
-                document.getElementById('laborPensionSelfCard').style.display = 'none';
-                document.getElementById('progLaborPensionSelfCard').style.display = 'none';
-                document.getElementById('projLaborPensionSelfCard').style.display = 'none';
             }
 
             // Dynamic visibility for admin seniority groups
@@ -2266,12 +2713,10 @@
                 projSpouseIncomeGroup.style.display = 'block';
             } else {
                 progSpouseIncomeGroup.style.display = 'none';
-                projSpouseIncomeGroup.style.display = 'none';
+                progSpouseIncomeGroup.style.display = 'none';
             }
 
             updateBadgeText();
-
-            // Run calculations
             calculateSalary();
             calculateProgression();
             calculateLifetimeProjection();
@@ -2284,6 +2729,8 @@
         });
         degreeSelect.addEventListener('change', () => syncAndRecalculate('degree'));
         teacherStatus.addEventListener('change', () => syncAndRecalculate('teacherStatus'));
+        subHasCert.addEventListener('change', () => syncAndRecalculate('subHasCert'));
+        subNoCert.addEventListener('change', () => syncAndRecalculate('subNoCert'));
         laborPensionRate.addEventListener('change', () => syncAndRecalculate('laborPensionRate'));
         pointSelect.addEventListener('change', () => syncAndRecalculate('salaryPoint'));
         hasAdvancedQual.addEventListener('change', () => {
@@ -2292,16 +2739,26 @@
             calculateSalary();
         });
         isTutor.addEventListener('change', () => syncAndRecalculate('isTutor'));
+        isSupervisor.addEventListener('change', () => syncAndRecalculate('isSupervisor'));
         adminRole.addEventListener('change', () => syncAndRecalculate('adminRole'));
         adminSeniority.addEventListener('change', () => syncAndRecalculate('adminSeniority'));
         specialEdRole.addEventListener('change', () => syncAndRecalculate('specialEdRole'));
         nhiDependents.addEventListener('change', () => syncAndRecalculate('nhiDependents'));
 
+        // Overtime class listeners Tab 1
+        hourlyRateLevel.addEventListener('change', () => syncAndRecalculate('hourlyRateLevel'));
+        overtimeMonthType.addEventListener('change', () => calculateSalary());
+        weekdayPeriods.addEventListener('input', () => syncAndRecalculate('weekdayPeriods'));
+        overtimePeriods.addEventListener('input', () => syncAndRecalculate('overtimePeriods'));
+
         // Setup listeners for Tab 2
         progDegree.addEventListener('change', () => syncAndRecalculate('progDegree'));
         progTeacherStatus.addEventListener('change', () => syncAndRecalculate('progTeacherStatus'));
+        progSubHasCert.addEventListener('change', () => syncAndRecalculate('progSubHasCert'));
+        progSubNoCert.addEventListener('change', () => syncAndRecalculate('progSubNoCert'));
         progLaborPensionRate.addEventListener('change', () => syncAndRecalculate('progLaborPensionRate'));
         progCurrentPoint.addEventListener('change', () => syncAndRecalculate('progCurrentPoint'));
+        progIsSupervisor.addEventListener('change', () => syncAndRecalculate('progIsSupervisor'));
         progAdminRole.addEventListener('change', () => syncAndRecalculate('progAdminRole'));
         progAdminSeniority.addEventListener('change', () => syncAndRecalculate('progAdminSeniority'));
         progSpecialEdRole.addEventListener('change', () => syncAndRecalculate('progSpecialEdRole'));
@@ -2315,12 +2772,21 @@
                 syncAndRecalculate('progDepAges');
             }
         });
+        progHourlyRateLevel.addEventListener('change', () => syncAndRecalculate('progHourlyRateLevel'));
+        progWeekdayPeriodsS1.addEventListener('input', () => syncAndRecalculate('progWeekdayPeriodsS1'));
+        progOvertimePeriodsS1.addEventListener('input', () => syncAndRecalculate('progOvertimePeriodsS1'));
+        progWeekdayPeriodsS2.addEventListener('input', () => syncAndRecalculate('progWeekdayPeriodsS2'));
+        progOvertimePeriodsS2.addEventListener('input', () => syncAndRecalculate('progOvertimePeriodsS2'));
+        progIsGraduatingClass.addEventListener('change', () => syncAndRecalculate('progIsGraduatingClass'));
 
         // Setup listeners for Tab 3
         projDegree.addEventListener('change', () => syncAndRecalculate('projDegree'));
         projTeacherStatus.addEventListener('change', () => syncAndRecalculate('projTeacherStatus'));
+        projSubHasCert.addEventListener('change', () => syncAndRecalculate('projSubHasCert'));
+        projSubNoCert.addEventListener('change', () => syncAndRecalculate('projSubNoCert'));
         projLaborPensionRate.addEventListener('change', () => syncAndRecalculate('projLaborPensionRate'));
         projCurrentPoint.addEventListener('change', () => syncAndRecalculate('projCurrentPoint'));
+        projIsSupervisor.addEventListener('change', () => syncAndRecalculate('projIsSupervisor'));
         projAdminRole.addEventListener('change', () => syncAndRecalculate('projAdminRole'));
         projAdminSeniority.addEventListener('change', () => syncAndRecalculate('projAdminSeniority'));
         projSpecialEdRole.addEventListener('change', () => syncAndRecalculate('projSpecialEdRole'));
@@ -2334,6 +2800,12 @@
                 syncAndRecalculate('projDepAges');
             }
         });
+        projHourlyRateLevel.addEventListener('change', () => syncAndRecalculate('projHourlyRateLevel'));
+        projWeekdayPeriodsS1.addEventListener('input', () => syncAndRecalculate('projWeekdayPeriodsS1'));
+        projOvertimePeriodsS1.addEventListener('input', () => syncAndRecalculate('projOvertimePeriodsS1'));
+        projWeekdayPeriodsS2.addEventListener('input', () => syncAndRecalculate('projWeekdayPeriodsS2'));
+        projOvertimePeriodsS2.addEventListener('input', () => syncAndRecalculate('projOvertimePeriodsS2'));
+        projIsGraduatingClass.addEventListener('change', () => syncAndRecalculate('projIsGraduatingClass'));
 
         document.getElementById('btnExportExcel').addEventListener('click', exportToExcel);
 
@@ -2504,6 +2976,7 @@
             } else {
                 rowAdmin.style.display = 'none';
             }
+            
             // 4. Special Education Allowance
             const specialEd = specialEdRole.value;
             let specialEdPay = 0;
@@ -2521,20 +2994,62 @@
                 rowSpecialEd.style.display = 'none';
             }
 
-            const grossSalary = basicPay + researchPay + tutorPay + adminPay + specialEdPay;
+            // 5. Weekday classes and Overtime classes calculations
+            const calYearNum = is113 ? 113 : (is114 ? 114 : 116);
+            const hourlyRate = getHourlyRate(hourlyRateLevel.value, calYearNum, 9);
+            const weekdayPeriodsVal = parseFloat(weekdayPeriods.value) || 0;
+            const overtimePeriodsVal = parseFloat(overtimePeriods.value) || 0;
+
+            let overtimeLimit = 70;
+            if (overtimeMonthType.value === 'summer') overtimeLimit = 25;
+            else if (overtimeMonthType.value === 'winter') overtimeLimit = 15;
+
+            const weekdayClassPay = weekdayPeriodsVal * hourlyRate;
+            const overtimePeriodsExempt = Math.min(overtimePeriodsVal, overtimeLimit);
+            const overtimePeriodsExemptPay = overtimePeriodsExempt * hourlyRate;
+            const overtimePeriodsTaxable = Math.max(0, overtimePeriodsVal - overtimeLimit);
+            const overtimePeriodsTaxablePay = overtimePeriodsTaxable * hourlyRate;
+
+            // Visibility and Values for Class items
+            if (weekdayClassPay > 0) {
+                rowWeekdayClass.style.display = 'flex';
+                valWeekdayClassPay.textContent = `+$${weekdayClassPay.toLocaleString()}`;
+            } else {
+                rowWeekdayClass.style.display = 'none';
+            }
+
+            if (overtimePeriodsTaxablePay > 0) {
+                rowOvertimeClassTaxable.style.display = 'flex';
+                valOvertimeClassTaxablePay.textContent = `+$${overtimePeriodsTaxablePay.toLocaleString()}`;
+            } else {
+                rowOvertimeClassTaxable.style.display = 'none';
+            }
+
+            if (overtimePeriodsExemptPay > 0) {
+                rowOvertimeClassExempt.style.display = 'flex';
+                valOvertimeClassExemptPay.textContent = `+$${overtimePeriodsExemptPay.toLocaleString()}`;
+            } else {
+                rowOvertimeClassExempt.style.display = 'none';
+            }
+
+            const taxableGrossSubtotal = basicPay + researchPay + specialEdPay + weekdayClassPay + overtimePeriodsTaxablePay;
+            const exemptGrossSubtotal = tutorPay + adminPay + overtimePeriodsExemptPay;
+            const grossSalary = taxableGrossSubtotal + exemptGrossSubtotal;
+
+            valTaxableGrossSubtotal.textContent = `$${taxableGrossSubtotal.toLocaleString()}`;
+            valExemptGrossSubtotal.textContent = `$${exemptGrossSubtotal.toLocaleString()}`;
 
             // Deductions
             const lpRateVal = parseInt(laborPensionRate.value) || 0;
-            const calYearNum = is113 ? 113 : (is114 ? 114 : 116);
             const deducts = computeDeductions(basicPay, grossSalary, parseInt(nhiDependents.value), teacherStatus.value, calYearNum, lpRateVal);
 
             const isSub = (teacherStatus.value === 'sub_with_cert' || teacherStatus.value === 'sub_no_cert');
 
             if (isSub) {
-                document.getElementById('rowGIP').firstElementChild.textContent = "勞工保險費 (勞保)";
+                document.getElementById('rowGIP').firstElementChild.textContent = "勞保保險費 (勞保)";
                 valGIP.textContent = `-$${deducts.laborInsurance.toLocaleString()}`;
                 
-                document.getElementById('rowPension').firstElementChild.textContent = "勞工退休金自提 (勞退)";
+                document.getElementById('rowPension').firstElementChild.textContent = "勞退金自提 (勞退)";
                 valPension.textContent = `-$${deducts.laborPensionDeduct.toLocaleString()}`;
                 if (lpRateVal === 0) {
                     document.getElementById('rowPension').style.display = 'none';
@@ -2550,6 +3065,17 @@
                 document.getElementById('rowPension').style.display = 'flex';
             }
 
+            // Withholding Tax calculation
+            const taxableForWithholding = taxableGrossSubtotal - deducts.laborPensionDeduct;
+            const withholdingTax = taxableForWithholding >= 88500 ? Math.round(taxableForWithholding * 0.05) : 0;
+
+            if (withholdingTax > 0) {
+                rowWithholdingTax.style.display = 'flex';
+                valWithholdingTax.textContent = `-$${withholdingTax.toLocaleString()}`;
+            } else {
+                rowWithholdingTax.style.display = 'none';
+            }
+
             const activeNHIList = calYearNum === 113 ? NHI_BRACKETS_113 : NHI_BRACKETS_114;
             let nhiBracket = activeNHIList.find(b => grossSalary <= b.maxSalary);
             if (!nhiBracket) nhiBracket = activeNHIList[activeNHIList.length - 1];
@@ -2560,9 +3086,10 @@
             valResearchPay.textContent = `+$${researchPay.toLocaleString()}`;
             valGrossSalary.textContent = `$${grossSalary.toLocaleString()}`;
             valNHI.textContent = `-$${deducts.nhi.toLocaleString()}`;
-            valTotalDeduct.textContent = `$${deducts.total.toLocaleString()}`;
-            const netSalary = grossSalary - deducts.total;
-            const totalDeduct = deducts.total;
+            
+            const totalDeduct = deducts.total + withholdingTax;
+            valTotalDeduct.textContent = `$${totalDeduct.toLocaleString()}`;
+            const netSalary = grossSalary - totalDeduct;
             netSalaryText.textContent = `$${netSalary.toLocaleString()}`;
 
             // Render Chart percentages
@@ -2755,8 +3282,100 @@
             document.getElementById('s4Net').textContent = `${s4Net.toLocaleString()}`;
 
             // --- 115年度年薪計算 (2026年 1月至12月同一年) ---
-            const totalMonthlyNet = s1NetJan + (5 * s1Net) + s2Net + (5 * s3Net);
-            const totalDeductsCumulative = s1DeductsJan.total + (5 * s1Deducts.total) + s2Deducts.total + (5 * s3Deducts.total);
+            let totalMonthlyNet = 0;
+            let totalDeductsCumulative = 0;
+            let taxableGross = 0;
+            let totalPensionSelf = 0;
+
+            // Monthly breakdown for Year 115 (Jan to Dec)
+            for (let m = 1; m <= 12; m++) {
+                const isJanJul = (m <= 7);
+                const pt = isJanJul ? startPoint : s3Point;
+                
+                let spEd = s1SpecialEdFebJune;
+                if (m === 1) spEd = s1SpecialEdJan;
+
+                const hasAllowanceAdd = (m >= 7);
+
+                const dataItem = salaryData114.find(d => d.point === pt) || salaryData114[salaryData114.length - 1];
+                let basic = dataItem.pay;
+
+                let research = 0;
+                const hasQual_local = (degree === 'master' || degree === 'doctor');
+                if (pt >= 475) research = hasQual_local ? 35780 : 30140;
+                else if (pt >= 350) research = 30140;
+                else if (pt >= 245) research = 26560;
+                else research = 23080;
+
+                if (hasAllowanceAdd) research += 2000;
+                if (progTeacherStatus.value === 'sub_no_cert') {
+                    research = Math.round(research * 0.8);
+                }
+
+                let admin = 0;
+                if (role === 'principal') admin = 13110;
+                else if (role === 'director_70plus') admin = 7750;
+                else if (role === 'director_under70') admin = 5930;
+                else if (role === 'department_head') admin = 5930;
+                else if (role === 'section_chief') {
+                    if (pt >= 475) admin = 7750;
+                    else if (pt >= 290) admin = 5930;
+                    else admin = 4320;
+                } else if (role === 'sub_section_chief') {
+                    admin = 4320;
+                }
+
+                if (hasAllowanceAdd) admin = admin > 0 ? admin + 2000 : 0;
+
+                // Determine hourly rate and periods for the current month
+                const hourlyRate = getHourlyRate(progHourlyRateLevel.value, 115, m);
+                const isS1 = (m === 9 || m === 10 || m === 11 || m === 12 || m === 1);
+                const weekdayPeriodsWeekly = isS1 ? (parseFloat(progWeekdayPeriodsS1.value) || 0) : (parseFloat(progWeekdayPeriodsS2.value) || 0);
+                const overtimePeriodsWeekly = isS1 ? (parseFloat(progOvertimePeriodsS1.value) || 0) : (parseFloat(progOvertimePeriodsS2.value) || 0);
+
+                let weeks = 0;
+                let overtimeLimit = 70;
+                
+                if (m === 1) {
+                    weeks = 2; // only up to 2nd week
+                    overtimeLimit = 15; // winter vacation
+                } else if (m === 2) {
+                    weeks = 2; // starts from 3rd week
+                    overtimeLimit = 15; // winter vacation
+                } else if (m === 6) {
+                    weeks = progIsGraduatingClass.checked ? 1 : 4; // graduating classes only 1 week
+                    overtimeLimit = 70;
+                } else if (m === 7 || m === 8) {
+                    weeks = 0; // vacation, no classes
+                    overtimeLimit = 25; // summer vacation
+                } else {
+                    weeks = 4; // normal term month
+                    overtimeLimit = 70;
+                }
+
+                const monthlyWeekdayPeriods = weekdayPeriodsWeekly * weeks;
+                const monthlyOvertimePeriods = overtimePeriodsWeekly * weeks;
+
+                const classPayTaxableWeekday = monthlyWeekdayPeriods * hourlyRate;
+                const overtimeExempt = Math.min(monthlyOvertimePeriods, overtimeLimit);
+                const overtimeTaxable = Math.max(0, monthlyOvertimePeriods - overtimeLimit);
+
+                const classPayTaxableOvertime = overtimeTaxable * hourlyRate;
+                const classPayExempt = overtimeExempt * hourlyRate;
+                const classPayTaxable = classPayTaxableWeekday + classPayTaxableOvertime;
+
+                const monthlyTaxableGross = basic + research + spEd + classPayTaxable;
+                const monthlyExemptGross = tutorPay + admin + classPayExempt;
+                const monthlyGross = monthlyTaxableGross + monthlyExemptGross;
+
+                const lpRateVal = parseInt(progLaborPensionRate.value) || 0;
+                const deducts = computeDeductions(basic, monthlyGross, dependents, progTeacherStatus.value, 115, lpRateVal);
+
+                totalMonthlyNet += (monthlyGross - deducts.total);
+                totalDeductsCumulative += deducts.total;
+                taxableGross += monthlyTaxableGross;
+                totalPensionSelf += deducts.laborPensionDeduct;
+            }
 
             // Bonuses
             const yearEndBonus = Math.round(1.5 * s1Gross);
@@ -2801,8 +3420,8 @@
 
             const annualGrandTotal = totalMonthlyNet + yearEndBonus + performanceBonus + unusedLeaveCompensation;
 
-            // Calculate Estimated Income Tax
-            const taxableGross = s1GrossJan + (5 * s1Gross) + s2Gross + (5 * s3Gross) + yearEndBonus + performanceBonus;
+            // Calculate Estimated Income Tax (annual consolidation)
+            const finalConsolidatedTaxableGross = taxableGross + yearEndBonus + performanceBonus;
             const taxStatusVal = progTaxStatus.value;
             const spouseIncomeVal = taxStatusVal === 'married' ? (parseInt(progSpouseIncome.value) || 0) : 0;
 
@@ -2810,7 +3429,10 @@
             const inputs = progTaxDepAgesContainer.querySelectorAll('.dep-age-input');
             inputs.forEach(input => ages.push(parseInt(input.value) || 0));
 
-            const taxResult = computeIncomeTax(taxableGross, taxStatusVal, ages, spouseIncomeVal);
+            // Subtract labor pension self contribution from taxable gross
+            const consolidatedTaxableNet = finalConsolidatedTaxableGross - totalPensionSelf;
+
+            const taxResult = computeIncomeTax(consolidatedTaxableNet, taxStatusVal, ages, spouseIncomeVal);
 
             // Render spouse income row
             const rowSpouse = document.getElementById('rowAnnualSpouseIncome');
@@ -2830,7 +3452,7 @@
             document.getElementById('valAnnualTotalDeduct').textContent = `${totalDeductsCumulative.toLocaleString()}`;
 
             // Consolidated tax detail message
-            const grossMsg = taxStatusVal === 'married' ? `家庭課稅總額 ${taxResult.consolidatedGross.toLocaleString()} 元` : `課稅年所得 ${taxableGross.toLocaleString()} 元`;
+            const grossMsg = taxStatusVal === 'married' ? `家庭課稅總額 ${(consolidatedTaxableNet + spouseIncomeVal).toLocaleString()} 元 (已扣勞退自提)` : `課稅年所得 ${consolidatedTaxableNet.toLocaleString()} 元 (已扣勞退自提)`;
             document.getElementById('lblAnnualTaxDetail').textContent = `${grossMsg}，淨額 ${taxResult.netTaxable.toLocaleString()} 元 (稅率 ${Math.round(taxResult.rate * 100)}%)`;
             document.getElementById('valAnnualTax').textContent = `${taxResult.tax.toLocaleString()}`;
 
@@ -2942,6 +3564,13 @@
             const inputs = projTaxDepAgesContainer.querySelectorAll('.dep-age-input');
             inputs.forEach(input => initialAges.push(parseInt(input.value) || 0));
 
+            // Class pay settings
+            const projHourlyRateLevelVal = projHourlyRateLevel.value;
+            const projWeekdayPeriodsS1Val = parseFloat(projWeekdayPeriodsS1.value) || 0;
+            const projOvertimePeriodsS1Val = parseFloat(projOvertimePeriodsS1.value) || 0;
+            const projWeekdayPeriodsS2Val = parseFloat(projWeekdayPeriodsS2.value) || 0;
+            const projOvertimePeriodsS2Val = parseFloat(projOvertimePeriodsS2.value) || 0;
+
             const yearsCount = 65 - startAge;
             if (yearsCount < 0) {
                 lifetimeTableBody.innerHTML = '<tr><td colspan="13" style="text-align:center;">您已達到或超過 65 歲退休年齡。</td></tr>';
@@ -3047,19 +3676,36 @@
 
                 // 3. Resolve Monthly rates (115 mixed scale vs 116+ 4% adjustments)
                 let net_monthly_total = 0;
+                let gross_total_annual = 0;
+                let taxable_gross_total_annual = 0;
+                let annualDeductTotal = 0;
+                let annualPensionSelf = 0;
+
                 let gross_jan = 0;
                 let gross_aug = 0;
-                let gross_total_annual = 0;
+                let net_jan_jul_single_actual = 0;
+                let net_jan_jul_single_pure = 0;
+                let net_aug_dec_single_actual = 0;
+                let net_aug_dec_single_pure = 0;
 
                 const is115 = (year === 115);
-                
-                const getYearlyValuesLocal = (pt, deg, hasAllowanceAdd, applyScale, specialEdRate) => {
+
+                for (let m = 1; m <= 12; m++) {
+                    const isJanJul = (m <= 7);
+                    const pt = isJanJul ? p_jan_jul : p_aug_dec;
+                    
+                    let spEd = sEdFebDec;
+                    if (is115 && m === 1) spEd = sEdJan;
+
+                    const hasAllowanceAdd = is115 ? (m >= 7) : true;
+                    const applyScale = !is115;
+
                     const dataItem = salaryData114.find(d => d.point === pt) || salaryData114[salaryData114.length - 1];
                     let basic = dataItem.pay;
                     if (applyScale) basic = Math.round(basic * 1.04);
 
                     let research = 0;
-                    const hasQual_local = (deg === 'master' || deg === 'doctor');
+                    const hasQual_local = (currentDegree === 'master' || currentDegree === 'doctor');
                     if (pt >= 475) research = hasQual_local ? 35780 : 30140;
                     else if (pt >= 350) research = 30140;
                     else if (pt >= 245) research = 26560;
@@ -3088,38 +3734,75 @@
                     if (hasAllowanceAdd && !applyScale) admin = admin > 0 ? admin + 2000 : 0;
                     if (applyScale) admin = admin > 0 ? Math.round((admin + 2000) * 1.04) : 0;
 
-                    const MathGross = basic + research + admin + tutorPay + specialEdRate;
-                    const deducts = computeDeductions(basic, MathGross, dependents, projTeacherStatus.value, year, lpRateVal);
-                    return { gross: MathGross, net: MathGross - deducts.total };
-                };
+                    // Determine hourly rate and periods for the current month
+                    const hourlyRate = getHourlyRate(projHourlyRateLevelVal, year, m);
+                    const isS1 = (m === 9 || m === 10 || m === 11 || m === 12 || m === 1);
+                    const weekdayPeriodsWeekly = isS1 ? projWeekdayPeriodsS1Val : projWeekdayPeriodsS2Val;
+                    const overtimePeriodsWeekly = isS1 ? projOvertimePeriodsS1Val : projOvertimePeriodsS2Val;
 
-                let net_jan_jul_single = 0;
-                let net_aug_dec_single = 0;
+                    let weeks = 0;
+                    let overtimeLimit = 70;
+                    
+                    if (m === 1) {
+                        weeks = 2; // only up to 2nd week
+                        overtimeLimit = 15; // winter vacation
+                    } else if (m === 2) {
+                        weeks = 2; // starts from 3rd week
+                        overtimeLimit = 15; // winter vacation
+                    } else if (m === 6) {
+                        weeks = projIsGraduatingClass.checked ? 1 : 4; // graduating classes only 1 week
+                        overtimeLimit = 70;
+                    } else if (m === 7 || m === 8) {
+                        weeks = 0; // vacation, no classes
+                        overtimeLimit = 25; // summer vacation
+                    } else {
+                        weeks = 4; // normal term month
+                        overtimeLimit = 70;
+                    }
 
-                if (is115) {
-                    const m1_jan = getYearlyValuesLocal(p_jan_jul, currentDegree, false, false, sEdJan);
-                    const m1_6_other = getYearlyValuesLocal(p_jan_jul, currentDegree, false, false, sEdFebDec);
-                    const m7 = getYearlyValuesLocal(p_jan_jul, currentDegree, true, false, sEdFebDec);
-                    const m8_12 = getYearlyValuesLocal(p_aug_dec, currentDegree, true, false, sEdFebDec);
+                    const monthlyWeekdayPeriods = weekdayPeriodsWeekly * weeks;
+                    const monthlyOvertimePeriods = overtimePeriodsWeekly * weeks;
 
-                    net_monthly_total = m1_jan.net + (5 * m1_6_other.net) + m7.net + (5 * m8_12.net);
-                    gross_jan = m1_jan.gross;
-                    gross_aug = m8_12.gross;
-                    gross_total_annual = m1_jan.gross + (5 * m1_6_other.gross) + m7.gross + (5 * m8_12.gross);
+                    const classPayTaxableWeekday = monthlyWeekdayPeriods * hourlyRate;
+                    const overtimeExempt = Math.min(monthlyOvertimePeriods, overtimeLimit);
+                    const overtimeTaxable = Math.max(0, monthlyOvertimePeriods - overtimeLimit);
 
-                    net_jan_jul_single = m1_6_other.net;
-                    net_aug_dec_single = m8_12.net;
-                } else {
-                    const m1_7 = getYearlyValuesLocal(p_jan_jul, currentDegree, true, true, sEdFebDec);
-                    const m8_12 = getYearlyValuesLocal(p_aug_dec, currentDegree, true, true, sEdFebDec);
+                    const classPayTaxableOvertime = overtimeTaxable * hourlyRate;
+                    const classPayExempt = overtimeExempt * hourlyRate;
+                    const classPayTaxable = classPayTaxableWeekday + classPayTaxableOvertime;
 
-                    net_monthly_total = (7 * m1_7.net) + (5 * m8_12.net);
-                    gross_jan = m1_7.gross;
-                    gross_aug = m8_12.gross;
-                    gross_total_annual = (7 * m1_7.gross) + (5 * m8_12.gross);
+                    const monthlyTaxableGross = basic + research + spEd + classPayTaxable;
+                    const monthlyExemptGross = tutorPay + admin + classPayExempt;
+                    const monthlyGross = monthlyTaxableGross + monthlyExemptGross;
 
-                    net_jan_jul_single = m1_7.net;
-                    net_aug_dec_single = m8_12.net;
+                    const deducts = computeDeductions(basic, monthlyGross, dependents, projTeacherStatus.value, year, lpRateVal);
+
+                    net_monthly_total += (monthlyGross - deducts.total);
+                    gross_total_annual += monthlyTaxableGross + monthlyExemptGross;
+                    taxable_gross_total_annual += monthlyTaxableGross;
+                    annualDeductTotal += deducts.total;
+                    annualPensionSelf += deducts.laborPensionDeduct;
+
+                    // Track base monthly rates for display or comparison
+                    const baseGrossForBonus = basic + research + admin + tutorPay + spEd;
+                    const pureDeducts = computeDeductions(basic, baseGrossForBonus, dependents, projTeacherStatus.value, year, lpRateVal);
+                    const pureBaseNet = baseGrossForBonus - pureDeducts.total;
+                    const actualNet = monthlyGross - deducts.total;
+
+                    if (m === 1) {
+                        gross_jan = baseGrossForBonus;
+                    }
+                    if (m === 8) {
+                        gross_aug = baseGrossForBonus;
+                    }
+                    if (m === 6) {
+                        net_jan_jul_single_actual = actualNet;
+                        net_jan_jul_single_pure = pureBaseNet;
+                    }
+                    if (m === 12) {
+                        net_aug_dec_single_actual = actualNet;
+                        net_aug_dec_single_pure = pureBaseNet;
+                    }
                 }
 
                 // Bonuses
@@ -3158,9 +3841,10 @@
                 // Calculate current ages of dependents dynamically for year (115 + i)
                 const currentAges = initialAges.map(initialAge => initialAge + i);
 
-                // Calculate Income Tax
-                const taxableGross = gross_total_annual + yearEndBonus + performanceBonus;
-                const taxResult = computeIncomeTax(taxableGross, taxStatusVal, currentAges, spouseIncomeVal);
+                // Calculate Income Tax (annual consolidation)
+                const consolidatedTaxableGross = taxable_gross_total_annual + yearEndBonus + performanceBonus;
+                const consolidatedTaxableNet = consolidatedTaxableGross - annualPensionSelf;
+                const taxResult = computeIncomeTax(consolidatedTaxableNet, taxStatusVal, currentAges, spouseIncomeVal);
                 
                 const preTaxDisplay = taxStatusVal === 'married' ? annualTotal + spouseIncomeVal : annualTotal;
                 const netAfterTax = preTaxDisplay - taxResult.tax;
@@ -3171,7 +3855,7 @@
                 let monthlyDiffStr = '-';
                 let annualDiffStr = '-';
 
-                const monthlyDiff = net_aug_dec_single - net_jan_jul_single;
+                const monthlyDiff = net_aug_dec_single_pure - net_jan_jul_single_pure;
 
                 if (monthlyDiff > 0) {
                     monthlyDiffStr = `<span style="color: var(--accent-success); font-weight: 600;">+${monthlyDiff.toLocaleString()}</span>`;
@@ -3204,7 +3888,7 @@
                         <td>${age} 歲</td>
                         <td>${degLabel}</td>
                         <td>${p_jan_jul} → ${p_aug_dec} ${reachedMax_aug_dec ? '👑' : ''}</td>
-                        <td>${net_aug_dec_single.toLocaleString()}</td>
+                        <td>${net_aug_dec_single_actual.toLocaleString()}</td>
                         <td>${monthlyDiffStr}</td>
                         <td>${yearEndBonus.toLocaleString()} <span style="font-size:0.7rem; color:var(--text-secondary);">(1.5M)</span></td>
                         <td>${performanceBonus.toLocaleString()} <span style="font-size:0.7rem; color:var(--text-secondary);">(${perfMonths}M)</span></td>
@@ -3218,7 +3902,7 @@
 
                 chartYears.push(`民國 ${year} 年 (${age}歲)`);
                 chartAnnuals.push(netAfterTax);
-                chartMonthlies.push(net_aug_dec_single);
+                chartMonthlies.push(net_aug_dec_single_actual);
             }
 
             // --- Baseline Simulation: No degree progression (Maintain initial degree) ---
@@ -3259,69 +3943,116 @@
                 }
 
                 let net_monthly_total_b = 0;
+                let gross_total_annual_b = 0;
+                let taxable_gross_total_annual_b = 0;
+                let annualDeductTotal_b = 0;
+                let annualPensionSelf_b = 0;
+
                 let gross_jan_b = 0;
                 let gross_aug_b = 0;
-                let gross_total_annual_b = 0;
 
-                 const getYearlyValuesLocalB = (pt, deg, hasAllowanceAdd, applyScale, specialEdRate) => {
-                     const dataItem = salaryData114.find(d => d.point === pt) || salaryData114[salaryData114.length - 1];
-                     let basic = dataItem.pay;
-                     if (applyScale) basic = Math.round(basic * 1.04);
+                for (let m = 1; m <= 12; m++) {
+                    const isJanJul = (m <= 7);
+                    const pt = isJanJul ? p_jan_jul_b : p_aug_dec_b;
+                    
+                    let spEd = sEdFebDec;
+                    if (is115 && m === 1) spEd = sEdJan;
 
-                     let research = 0;
-                     const hasQual_local = (deg === 'master' || deg === 'doctor');
-                     if (pt >= 475) research = hasQual_local ? 35780 : 30140;
-                     else if (pt >= 350) research = 30140;
-                     else if (pt >= 245) research = 26560;
-                     else research = 23080;
+                    const hasAllowanceAdd = is115 ? (m >= 7) : true;
+                    const applyScale = !is115;
 
-                     if (hasAllowanceAdd && !applyScale) research += 2000;
-                     if (applyScale) research = Math.round((research + 2000) * 1.04);
+                    const dataItem = salaryData114.find(d => d.point === pt) || salaryData114[salaryData114.length - 1];
+                    let basic = dataItem.pay;
+                    if (applyScale) basic = Math.round(basic * 1.04);
 
-                     if (projTeacherStatus.value === 'sub_no_cert') {
-                         research = Math.round(research * 0.8);
-                     }
+                    let research = 0;
+                    const hasQual_local = (currentDegreeB === 'master' || currentDegreeB === 'doctor');
+                    if (pt >= 475) research = hasQual_local ? 35780 : 30140;
+                    else if (pt >= 350) research = 30140;
+                    else if (pt >= 245) research = 26560;
+                    else research = 23080;
 
-                     let admin = 0;
-                     if (role === 'principal') admin = 13110;
-                     else if (role === 'director_70plus') admin = 7750;
-                     else if (role === 'director_under70') admin = 5930;
-                     else if (role === 'department_head') admin = 5930;
-                     else if (role === 'section_chief') {
-                          if (pt >= 475) admin = 7750;
-                          else if (pt >= 290) admin = 5930;
-                         else admin = 4320;
-                     } else if (role === 'sub_section_chief') {
-                         admin = 4320;
-                     }
+                    if (hasAllowanceAdd && !applyScale) research += 2000;
+                    if (applyScale) research = Math.round((research + 2000) * 1.04);
 
-                     if (hasAllowanceAdd && !applyScale) admin = admin > 0 ? admin + 2000 : 0;
-                     if (applyScale) admin = admin > 0 ? Math.round((admin + 2000) * 1.04) : 0;
+                    if (projTeacherStatus.value === 'sub_no_cert') {
+                        research = Math.round(research * 0.8);
+                    }
 
-                     const gross = basic + research + admin + tutorPay + specialEdRate;
-                     const deducts = computeDeductions(basic, gross, dependents, projTeacherStatus.value, year, lpRateVal);
-                     return { gross, net: gross - deducts.total };
-                 };
+                    let admin = 0;
+                    if (role === 'principal') admin = 13110;
+                    else if (role === 'director_70plus') admin = 7750;
+                    else if (role === 'director_under70') admin = 5930;
+                    else if (role === 'department_head') admin = 5930;
+                    else if (role === 'section_chief') {
+                        if (pt >= 475) admin = 7750;
+                        else if (pt >= 290) admin = 5930;
+                        else admin = 4320;
+                    } else if (role === 'sub_section_chief') {
+                        admin = 4320;
+                    }
 
-                 if (is115) {
-                     const m1_jan_b = getYearlyValuesLocalB(p_jan_jul_b, currentDegreeB, false, false, sEdJan);
-                     const m1_6_other_b = getYearlyValuesLocalB(p_jan_jul_b, currentDegreeB, false, false, sEdFebDec);
-                     const m7_b = getYearlyValuesLocalB(p_jan_jul_b, currentDegreeB, true, false, sEdFebDec);
-                     const m8_12_b = getYearlyValuesLocalB(p_aug_dec_b, currentDegreeB, true, false, sEdFebDec);
+                    if (hasAllowanceAdd && !applyScale) admin = admin > 0 ? admin + 2000 : 0;
+                    if (applyScale) admin = admin > 0 ? Math.round((admin + 2000) * 1.04) : 0;
 
-                     net_monthly_total_b = m1_jan_b.net + (5 * m1_6_other_b.net) + m7_b.net + (5 * m8_12_b.net);
-                     gross_jan_b = m1_jan_b.gross;
-                     gross_aug_b = m8_12_b.gross;
-                     gross_total_annual_b = m1_jan_b.gross + (5 * m1_6_other_b.gross) + m7_b.gross + (5 * m8_12_b.gross);
-                 } else {
-                     const m1_7_b = getYearlyValuesLocalB(p_jan_jul_b, currentDegreeB, true, true, sEdFebDec);
-                     const m8_12_b = getYearlyValuesLocalB(p_aug_dec_b, currentDegreeB, true, true, sEdFebDec);
+                    // Determine hourly rate and periods for the current month
+                    const hourlyRate = getHourlyRate(projHourlyRateLevelVal, year, m);
+                    const isS1 = (m === 9 || m === 10 || m === 11 || m === 12 || m === 1);
+                    const weekdayPeriodsWeekly = isS1 ? projWeekdayPeriodsS1Val : projWeekdayPeriodsS2Val;
+                    const overtimePeriodsWeekly = isS1 ? projOvertimePeriodsS1Val : projOvertimePeriodsS2Val;
 
-                     net_monthly_total_b = (7 * m1_7_b.net) + (5 * m8_12_b.net);
-                     gross_jan_b = m1_7_b.gross;
-                     gross_aug_b = m8_12_b.gross;
-                     gross_total_annual_b = (7 * m1_7_b.gross) + (5 * m8_12_b.gross);
-                 }
+                    let weeks = 0;
+                    let overtimeLimit = 70;
+                    
+                    if (m === 1) {
+                        weeks = 2; // only up to 2nd week
+                        overtimeLimit = 15; // winter vacation
+                    } else if (m === 2) {
+                        weeks = 2; // starts from 3rd week
+                        overtimeLimit = 15; // winter vacation
+                    } else if (m === 6) {
+                        weeks = projIsGraduatingClass.checked ? 1 : 4; // graduating classes only 1 week
+                        overtimeLimit = 70;
+                    } else if (m === 7 || m === 8) {
+                        weeks = 0; // vacation, no classes
+                        overtimeLimit = 25; // summer vacation
+                    } else {
+                        weeks = 4; // normal term month
+                        overtimeLimit = 70;
+                    }
+
+                    const monthlyWeekdayPeriods = weekdayPeriodsWeekly * weeks;
+                    const monthlyOvertimePeriods = overtimePeriodsWeekly * weeks;
+
+                    const classPayTaxableWeekday = monthlyWeekdayPeriods * hourlyRate;
+                    const overtimeExempt = Math.min(monthlyOvertimePeriods, overtimeLimit);
+                    const overtimeTaxable = Math.max(0, monthlyOvertimePeriods - overtimeLimit);
+
+                    const classPayTaxableOvertime = overtimeTaxable * hourlyRate;
+                    const classPayExempt = overtimeExempt * hourlyRate;
+                    const classPayTaxable = classPayTaxableWeekday + classPayTaxableOvertime;
+
+                    const monthlyTaxableGross = basic + research + spEd + classPayTaxable;
+                    const monthlyExemptGross = tutorPay + admin + classPayExempt;
+                    const monthlyGross = monthlyTaxableGross + monthlyExemptGross;
+
+                    const deducts = computeDeductions(basic, monthlyGross, dependents, projTeacherStatus.value, year, lpRateVal);
+
+                    net_monthly_total_b += (monthlyGross - deducts.total);
+                    gross_total_annual_b += monthlyTaxableGross + monthlyExemptGross;
+                    taxable_gross_total_annual_b += monthlyTaxableGross;
+                    annualDeductTotal_b += deducts.total;
+                    annualPensionSelf_b += deducts.laborPensionDeduct;
+
+                    // Track base monthly rates for display or comparison
+                    const baseGrossForBonus = basic + research + admin + tutorPay + spEd;
+                    if (m === 1) {
+                        gross_jan_b = baseGrossForBonus;
+                    }
+                    if (m === 8) {
+                        gross_aug_b = baseGrossForBonus;
+                    }
+                }
 
                 const yearEndBonus_b = Math.round(1.5 * gross_jan_b);
                 let perfMonths_b = reachedMax_aug_dec_b ? 2.0 : 1.0;
@@ -3358,9 +4089,10 @@
                 // Calculate current ages of dependents dynamically for baseline year (115 + i)
                 const currentAges_b = initialAges.map(initialAge => initialAge + i);
 
-                // Calculate Income Tax for baseline
-                const taxableGross_b = gross_total_annual_b + yearEndBonus_b + performanceBonus_b;
-                const taxResult_b = computeIncomeTax(taxableGross_b, taxStatusVal, currentAges_b, spouseIncomeVal);
+                // Calculate Income Tax for baseline (annual consolidation)
+                const consolidatedTaxableGross_b = taxable_gross_total_annual_b + yearEndBonus_b + performanceBonus_b;
+                const consolidatedTaxableNet_b = consolidatedTaxableGross_b - annualPensionSelf_b;
+                const taxResult_b = computeIncomeTax(consolidatedTaxableNet_b, taxStatusVal, currentAges_b, spouseIncomeVal);
                 
                 const preTaxDisplay_b = taxStatusVal === 'married' ? annualTotal_b + spouseIncomeVal : annualTotal_b;
                 const netAfterTax_b = preTaxDisplay_b - taxResult_b.tax;
