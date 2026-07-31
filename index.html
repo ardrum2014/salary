@@ -219,9 +219,9 @@
             padding: 0 1rem;
         }
 
-        @media (min-width: 968px) {
+        @media (min-width: 1024px) {
             .container {
-                grid-template-columns: 1.1fr 0.9fr;
+                grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
             }
         }
 
@@ -229,14 +229,15 @@
         .tab-content {
             display: none;
             width: 100%;
+            max-width: 1200px;
             grid-column: 1 / -1;
             grid-template-columns: 1fr;
             gap: 2rem;
         }
 
-        @media (min-width: 968px) {
+        @media (min-width: 1024px) {
             .tab-content.grid-split {
-                grid-template-columns: 1.1fr 0.9fr;
+                grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
             }
         }
 
@@ -622,13 +623,66 @@
 
         .timeline-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr;
             gap: 0.5rem;
             margin-top: 0.5rem;
             border-top: 1px solid var(--border-color);
             padding-top: 0.5rem;
             font-size: 0.8rem;
             color: var(--text-secondary);
+        }
+
+        @media (min-width: 480px) {
+            .timeline-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        /* 響應式雙欄輸入網格 (Responsive 2-column input grid) */
+        .responsive-grid-2 {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        @media (min-width: 480px) {
+            .responsive-grid-2 {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        /* 窄螢幕下的頁籤按鈕與頁首自適應調整 */
+        @media (max-width: 600px) {
+            .tab-container {
+                flex-wrap: wrap;
+                border-radius: 1rem;
+                padding: 0.5rem;
+                justify-content: center;
+                width: 100%;
+                max-width: 100%;
+            }
+            .tab-button {
+                padding: 0.4rem 1rem;
+                font-size: 0.82rem;
+                flex: 1 1 auto;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            .logo-container {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            #subLicenseGroup > div, #progSubLicenseGroup > div, #projSubLicenseGroup > div {
+                flex-direction: column !important;
+                gap: 0.5rem !important;
+            }
         }
 
         .timeline-grid-item span {
@@ -718,6 +772,8 @@
         footer {
             margin-top: 3rem;
             padding: 1.5rem;
+            width: 100%;
+            max-width: 1200px;
             background-color: #1e293b; /* Deep dark slate for gold pop */
             border: 1px solid rgba(226, 218, 203, 0.1);
             border-radius: 1rem;
@@ -827,6 +883,30 @@
             .print-header {
                 display: none !important;
             }
+        }
+
+        /* 全螢幕模式 (Fullscreen Card Mode) */
+        .card.fullscreen-mode {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            z-index: 99999 !important;
+            margin: 0 !important;
+            border-radius: 0 !important;
+            padding: 2.5rem !important;
+            overflow-y: auto !important;
+            background-color: var(--bg-card) !important;
+            box-shadow: none !important;
+        }
+
+        .card.fullscreen-mode .table-scrollable {
+            max-height: calc(100vh - 150px) !important;
+        }
+
+        .card.fullscreen-mode .chart-wrapper-div {
+            height: calc(100vh - 180px) !important;
         }
     </style>
     <!-- Chart.js CDN -->
@@ -1313,7 +1393,7 @@
                     </div>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 0.5rem; margin-bottom: 0.5rem;">
+                <div class="responsive-grid-2" style="margin-top: 0.5rem; margin-bottom: 0.5rem;">
                     <div class="form-group">
                         <label for="progOvertimePeriodsS1">上學期超時授課 (超鐘點) / 週</label>
                         <input type="number" id="progOvertimePeriodsS1" min="0" value="0" class="input-number" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.75rem; background-color: var(--bg-secondary); color: var(--text-primary); font-family: var(--font-family);">
@@ -1733,7 +1813,7 @@
                     </div>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 0.5rem; margin-bottom: 0.5rem;">
+                <div class="responsive-grid-2" style="margin-top: 0.5rem; margin-bottom: 0.5rem;">
                     <div class="form-group">
                         <label for="projOvertimePeriodsS1">上學期超時授課 (超鐘點) / 週</label>
                         <input type="number" id="projOvertimePeriodsS1" min="0" value="0" class="input-number" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.75rem; background-color: var(--bg-secondary); color: var(--text-primary); font-family: var(--font-family);">
@@ -1920,9 +2000,8 @@
                     </div>
                 </div>
             </div>
-
             <!-- Scrollable Lifetime Table -->
-            <div class="card">
+            <div class="card" id="table-card-id">
                 <div class="card-title" style="display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 1rem; flex-wrap: wrap;">
                     <div style="display: flex; align-items: center; gap: 0.5rem;">
                         <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -1930,12 +2009,20 @@
                         </svg>
                         歷年年薪投影詳細明細表
                     </div>
-                    <button id="btnExportExcel" class="btn-export" style="background-color: var(--accent-success); color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 0.375rem; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 0.25rem; font-weight: 600; box-shadow: 0 2px 6px rgba(16, 185, 129, 0.2); transition: all 0.2s ease;">
-                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                        </svg>
-                        匯出 Excel (.csv)
-                    </button>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <button onclick="toggleFullscreen('table-card-id')" class="btn-export" style="background-color: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border-color); padding: 0.4rem 0.8rem; border-radius: 0.375rem; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 0.25rem; font-weight: 600; box-shadow: none;">
+                            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" id="tableFsIcon">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4h4m12 4V4h-4M4 16v4h4m12-4v4h-4"></path>
+                            </svg>
+                            <span id="tableFsText">全螢幕</span>
+                        </button>
+                        <button id="btnExportExcel" class="btn-export" style="background-color: var(--accent-success); color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 0.375rem; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 0.25rem; font-weight: 600; box-shadow: 0 2px 6px rgba(16, 185, 129, 0.2); transition: all 0.2s ease;">
+                            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                            </svg>
+                            匯出 Excel (.csv)
+                        </button>
+                    </div>
                 </div>
                 <div class="table-scrollable">
                     <table class="proj-table">
@@ -1964,20 +2051,28 @@
             </div>
 
             <!-- Career Salary Growth Trend Chart -->
-            <div class="card" style="grid-column: 1 / -1; margin-top: 1rem;">
-                <div class="card-title" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <div class="card" id="chart-card-id">
+                <div class="card-title" style="display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 1rem; flex-wrap: wrap;">
                     <div style="display: flex; align-items: center; gap: 0.5rem;">
                         <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M7 12l3-3 3 3 4-4M8 21h12a2 2 0 002-2V7a2 2 0 00-2-2H8a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                         </svg>
                         生涯薪資成長趨勢圖
                     </div>
-                    <div style="display: flex; gap: 0.5rem; font-size: 0.8rem;">
-                        <button id="chartViewAnnual" class="tab-button active" style="padding: 0.25rem 0.75rem; font-size: 0.8rem; height: auto;" onclick="setChartView('annual')">年實領薪資</button>
-                        <button id="chartViewMonthly" class="tab-button" style="padding: 0.25rem 0.75rem; font-size: 0.8rem; height: auto;" onclick="setChartView('monthly')">月實領薪資</button>
+                    <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+                        <button onclick="toggleFullscreen('chart-card-id')" class="btn-export" style="background-color: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border-color); padding: 0.4rem 0.8rem; border-radius: 0.375rem; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 0.25rem; font-weight: 600; box-shadow: none;">
+                            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" id="chartFsIcon">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4h4m12 4V4h-4M4 16v4h4m12-4v4h-4"></path>
+                            </svg>
+                            <span id="chartFsText">全螢幕</span>
+                        </button>
+                        <div style="display: flex; gap: 0.5rem; font-size: 0.8rem;">
+                            <button id="chartViewAnnual" class="tab-button active" style="padding: 0.25rem 0.75rem; font-size: 0.8rem; height: auto;" onclick="setChartView('annual')">年實領薪資</button>
+                            <button id="chartViewMonthly" class="tab-button" style="padding: 0.25rem 0.75rem; font-size: 0.8rem; height: auto;" onclick="setChartView('monthly')">月實領薪資</button>
+                        </div>
                     </div>
                 </div>
-                <div style="width: 100%; height: 350px; position: relative; margin-top: 1rem;">
+                <div class="chart-wrapper-div" style="width: 100%; height: 350px; position: relative; margin-top: 1rem;">
                     <canvas id="lifetimeChart"></canvas>
                     <div id="chartOfflineMessage" style="display: none; position: absolute; inset: 0; align-items: center; justify-content: center; background: var(--bg-card); color: var(--text-secondary); text-align: center; border: 1px dashed var(--border-color); border-radius: 8px; z-index: 10;">
                         <div style="display: flex; flex-direction: column; align-items: center; gap: 0.75rem; padding: 1.5rem; max-width: 400px; margin: auto;">
@@ -2426,6 +2521,47 @@
             } catch (e) {
                 console.error("Failed to load settings:", e);
                 return false;
+            }
+        }
+
+        // Toggle fullscreen view for table/chart cards
+        function toggleFullscreen(cardId) {
+            const card = document.getElementById(cardId);
+            if (!card) return;
+            
+            const isFs = card.classList.toggle('fullscreen-mode');
+            
+            // Toggle body scrolling so user doesn't scroll background page
+            if (isFs) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = '';
+            }
+            
+            // If it is the chart card, resize Chart.js instance to update canvas sizes
+            if (cardId === 'chart-card-id' && typeof myLifetimeChart !== 'undefined' && myLifetimeChart) {
+                setTimeout(() => {
+                    myLifetimeChart.resize();
+                }, 80);
+            }
+            
+            // Update button texts and icons
+            const textId = cardId === 'table-card-id' ? 'tableFsText' : 'chartFsText';
+            const iconId = cardId === 'table-card-id' ? 'tableFsIcon' : 'chartFsIcon';
+            
+            const textEl = document.getElementById(textId);
+            const iconEl = document.getElementById(iconId);
+            
+            if (isFs) {
+                if (textEl) textEl.textContent = '離開全螢幕';
+                if (iconEl) {
+                    iconEl.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" d="M9 9V5m0 4H5m4 0L3 3m12 6v4m0-4h4m-4 0l6-6M9 15v4m0-4H5m4 0l-6 6m12-6v-4m0 4h4m-4 0l6 6"></path>`;
+                }
+            } else {
+                if (textEl) textEl.textContent = '全螢幕';
+                if (iconEl) {
+                    iconEl.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4h4m12 4V4h-4M4 16v4h4m12-4v4h-4"></path>`;
+                }
             }
         }
 
