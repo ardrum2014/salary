@@ -937,13 +937,9 @@
             </div>
 
             <div class="form-group">
-                <label for="weekdayPeriods">平日一般兼代課節數 / 月 (應稅)</label>
-                <input type="number" id="weekdayPeriods" min="0" value="0" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.75rem; background-color: var(--bg-secondary); color: var(--text-primary); font-family: var(--font-family);" class="input-number">
-            </div>
-
-            <div class="form-group">
-                <label for="overtimePeriods">課後輔導超鐘點節數 / 月 (額度內免稅)</label>
+                <label for="overtimePeriods">超時授課 (超鐘點) / 週</label>
                 <input type="number" id="overtimePeriods" min="0" value="0" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.75rem; background-color: var(--bg-secondary); color: var(--text-primary); font-family: var(--font-family);" class="input-number">
+                <input type="number" id="weekdayPeriods" value="0" style="display: none;" aria-hidden="true">
             </div>
 
             <div class="checkbox-group">
@@ -1020,11 +1016,11 @@
                         <span class="item-val text-add" id="valSpecialEdPay">$0</span>
                     </div>
                     <div class="row-item highlight-add" id="rowWeekdayClass" style="display: none;">
-                        <span class="item-label" style="padding-left: 0.5rem;">平日一般兼代課費</span>
+                        <span class="item-label" style="padding-left: 0.5rem;">平日兼代課鐘點費</span>
                         <span class="item-val text-add" id="valWeekdayClassPay">$0</span>
                     </div>
                     <div class="row-item highlight-add" id="rowOvertimeClassTaxable" style="display: none;">
-                        <span class="item-label" style="padding-left: 0.5rem;">課後輔導超鐘點 (應稅)</span>
+                        <span class="item-label" style="padding-left: 0.5rem;">超時授課 (超鐘點) (應稅)</span>
                         <span class="item-val text-add" id="valOvertimeClassTaxablePay">$0</span>
                     </div>
                     <div class="row-item" style="border-bottom: 1px dashed var(--border-color); margin-bottom: 0.75rem; font-weight: 600; font-size: 0.9rem; background-color: rgba(249, 115, 22, 0.02);">
@@ -1043,7 +1039,7 @@
                         <span class="item-val text-add" id="valAdminPay">$0</span>
                     </div>
                     <div class="row-item highlight-add" id="rowOvertimeClassExempt" style="display: none;">
-                        <span class="item-label" style="padding-left: 0.5rem;">課後輔導超鐘點 (免稅)</span>
+                        <span class="item-label" style="padding-left: 0.5rem;">超時授課 (超鐘點) (免稅)</span>
                         <span class="item-val text-add" id="valOvertimeClassExemptPay">$0</span>
                     </div>
                     <div class="row-item" style="border-bottom: 1px dashed var(--border-color); margin-bottom: 0.75rem; font-weight: 600; font-size: 0.9rem; background-color: rgba(16, 185, 129, 0.02);">
@@ -1218,24 +1214,16 @@
                     </div>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                    <div class="form-group">
-                        <label for="progWeekdayPeriodsS1">上學期平日兼課/週</label>
-                        <input type="number" id="progWeekdayPeriodsS1" min="0" value="0" class="input-number" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.75rem; background-color: var(--bg-secondary); color: var(--text-primary); font-family: var(--font-family);">
-                    </div>
-                    <div class="form-group">
-                        <label for="progOvertimePeriodsS1">上學期超鐘點/週</label>
-                        <input type="number" id="progOvertimePeriodsS1" min="0" value="0" class="input-number" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.75rem; background-color: var(--bg-secondary); color: var(--text-primary); font-family: var(--font-family);">
-                    </div>
-                </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 0.5rem; margin-bottom: 0.5rem;">
                     <div class="form-group">
-                        <label for="progWeekdayPeriodsS2">下學期平日兼課/週</label>
-                        <input type="number" id="progWeekdayPeriodsS2" min="0" value="0" class="input-number" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.75rem; background-color: var(--bg-secondary); color: var(--text-primary); font-family: var(--font-family);">
+                        <label for="progOvertimePeriodsS1">上學期超時授課 (超鐘點) / 週</label>
+                        <input type="number" id="progOvertimePeriodsS1" min="0" value="0" class="input-number" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.75rem; background-color: var(--bg-secondary); color: var(--text-primary); font-family: var(--font-family);">
+                        <input type="number" id="progWeekdayPeriodsS1" value="0" style="display: none;" aria-hidden="true">
                     </div>
                     <div class="form-group">
-                        <label for="progOvertimePeriodsS2">下學期超鐘點/週</label>
+                        <label for="progOvertimePeriodsS2">下學期超時授課 (超鐘點) / 週</label>
                         <input type="number" id="progOvertimePeriodsS2" min="0" value="0" class="input-number" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.75rem; background-color: var(--bg-secondary); color: var(--text-primary); font-family: var(--font-family);">
+                        <input type="number" id="progWeekdayPeriodsS2" value="0" style="display: none;" aria-hidden="true">
                     </div>
                 </div>
                 <div class="form-group" style="margin-bottom: 1rem; margin-top: 0.5rem;">
@@ -1646,24 +1634,16 @@
                     </div>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                    <div class="form-group">
-                        <label for="projWeekdayPeriodsS1">上學期平日兼課/週</label>
-                        <input type="number" id="projWeekdayPeriodsS1" min="0" value="0" class="input-number" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.75rem; background-color: var(--bg-secondary); color: var(--text-primary); font-family: var(--font-family);">
-                    </div>
-                    <div class="form-group">
-                        <label for="projOvertimePeriodsS1">上學期超鐘點/週</label>
-                        <input type="number" id="projOvertimePeriodsS1" min="0" value="0" class="input-number" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.75rem; background-color: var(--bg-secondary); color: var(--text-primary); font-family: var(--font-family);">
-                    </div>
-                </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 0.5rem; margin-bottom: 0.5rem;">
                     <div class="form-group">
-                        <label for="projWeekdayPeriodsS2">下學期平日兼課/週</label>
-                        <input type="number" id="projWeekdayPeriodsS2" min="0" value="0" class="input-number" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.75rem; background-color: var(--bg-secondary); color: var(--text-primary); font-family: var(--font-family);">
+                        <label for="projOvertimePeriodsS1">上學期超時授課 (超鐘點) / 週</label>
+                        <input type="number" id="projOvertimePeriodsS1" min="0" value="0" class="input-number" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.75rem; background-color: var(--bg-secondary); color: var(--text-primary); font-family: var(--font-family);">
+                        <input type="number" id="projWeekdayPeriodsS1" value="0" style="display: none;" aria-hidden="true">
                     </div>
                     <div class="form-group">
-                        <label for="projOvertimePeriodsS2">下學期超鐘點/週</label>
+                        <label for="projOvertimePeriodsS2">下學期超時授課 (超鐘點) / 週</label>
                         <input type="number" id="projOvertimePeriodsS2" min="0" value="0" class="input-number" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.75rem; background-color: var(--bg-secondary); color: var(--text-primary); font-family: var(--font-family);">
+                        <input type="number" id="projWeekdayPeriodsS2" value="0" style="display: none;" aria-hidden="true">
                     </div>
                 </div>
                 <div class="form-group" style="margin-bottom: 1rem; margin-top: 0.5rem;">
@@ -2917,7 +2897,7 @@
             }
 
             // 3. Supervisor Fee
-            const role = adminRole.value;
+            const role = isSupervisor.checked ? adminRole.value : 'none';
             let adminPay = 0;
             if (is116) {
                 if (role === 'principal') adminPay = 13110;
@@ -2998,7 +2978,7 @@
             const calYearNum = is113 ? 113 : (is114 ? 114 : 116);
             const hourlyRate = getHourlyRate(hourlyRateLevel.value, calYearNum, 9);
             const weekdayPeriodsVal = parseFloat(weekdayPeriods.value) || 0;
-            const overtimePeriodsVal = parseFloat(overtimePeriods.value) || 0;
+            const overtimePeriodsVal = (parseFloat(overtimePeriods.value) || 0) * 4;
 
             let overtimeLimit = 70;
             if (overtimeMonthType.value === 'summer') overtimeLimit = 25;
@@ -3139,7 +3119,7 @@
         function calculateProgression() {
             const degree = progDegree.value;
             const startPoint = parseInt(progCurrentPoint.value);
-            const role = progAdminRole.value;
+            const role = progIsSupervisor.checked ? progAdminRole.value : 'none';
             const tutor = progIsTutor.checked;
             const dependents = parseInt(progNHIDependents.value);
             const specialEd = progSpecialEdRole.value;
@@ -3549,7 +3529,7 @@
             // Basic configuration synced
             const startPoint = parseInt(projCurrentPoint.value);
             const degree = projDegree.value;
-            const role = projAdminRole.value;
+            const role = projIsSupervisor.checked ? projAdminRole.value : 'none';
             const startSeniority = parseInt(projAdminSeniority.value) || 0;
             const tutor = projIsTutor.checked;
             const dependents = parseInt(projNHIDependents.value);
