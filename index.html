@@ -960,9 +960,34 @@
                 <div class="select-wrapper">
                     <select id="salaryYear">
                         <option value="116" selected>民國 116 年版 (115年加薪後展望)</option>
-                        <option value="114">民國 114 年版 </option>
+                        <option value="115">民國 115 年版 (7月起加給調升)</option>
+                        <option value="114">民國 114 年版 (114.01.01 基準)</option>
                         <option value="113">民國 113 年版 (舊制)</option>
                     </select>
+                </div>
+            </div>
+
+            <!-- Budget Pending Option (Tab 1) -->
+            <div class="form-group" id="budgetPendingGroupTab1">
+                <div class="checkbox-card" id="budgetPendingCard" style="border-color: rgba(217, 83, 79, 0.35); background-color: rgba(217, 83, 79, 0.03);">
+                    <input type="checkbox" id="isBudgetPending" style="accent-color: var(--accent-danger);">
+                    <div class="checkbox-label">
+                        <span class="checkbox-title" style="color: var(--accent-danger); font-weight: 700;">🚨 追加預算還沒過！(算政府欠我多少錢 XD)</span>
+                        <span class="checkbox-desc">勾選後，115年7月後之「學術研究費+$2,000」與「主管加給+$2,000」暫不列入實發，改列政府欠款試算</span>
+                    </div>
+                </div>
+                <div id="arrearsMonthGroupTab1" style="display: none; margin-top: 0.75rem; padding: 0.75rem; border-radius: 0.75rem; background: rgba(217, 83, 79, 0.06); border: 1px dashed rgba(217, 83, 79, 0.35);">
+                    <label for="arrearsCurrentMonth" style="font-size: 0.85rem; color: var(--accent-danger); font-weight: 600; margin-bottom: 0.35rem; display: block;">📅 計算欠款截至月份 (115年)</label>
+                    <div class="select-wrapper">
+                        <select id="arrearsCurrentMonth">
+                            <option value="7">截至 115 年 7 月 (累積 1 個月)</option>
+                            <option value="8">截至 115 年 8 月 (累積 2 個月)</option>
+                            <option value="9">截至 115 年 9 月 (累積 3 個月)</option>
+                            <option value="10" selected>截至 115 年 10 月 (累積 4 個月 + 考績獎金差額)</option>
+                            <option value="11">截至 115 年 11 月 (累積 5 個月 + 考績獎金差額)</option>
+                            <option value="12">截至 115 年 12 月 (累積 6 個月 + 考績與特休差額)</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 
@@ -1021,13 +1046,23 @@
 
             <div class="form-group">
                 <div class="flex-between">
-                    <label for="salaryPoint">目前薪點</label>
+                    <label for="salaryPoint">目前薪級 (115年8月後現支薪點)</label>
                     <span id="pointMetaBadge" class="info-badge">學士起敘</span>
                 </div>
                 <div class="select-wrapper">
                     <select id="salaryPoint">
                         <!-- Populated by JS -->
                     </select>
+                </div>
+                <div class="checkbox-card active" id="promotedAug115Card" style="margin-top: 0.65rem; padding: 0.65rem 0.85rem;">
+                    <input type="checkbox" id="hasPromotedAug115" checked>
+                    <div class="checkbox-label">
+                        <span class="checkbox-title" style="font-size: 0.85rem;">今年 (115年) 8 月有例行晉級 1 級</span>
+                        <span class="checkbox-desc" style="font-size: 0.75rem;">勾選後，年薪與生涯試算會自動將「115年1~7月（含7月）」回推降 1 級計算；若您去年早已封頂或今年8月未跳級請取消勾選</span>
+                    </div>
+                </div>
+                <div id="tab1DateHelper" style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.5rem; padding: 0.65rem 0.85rem; border-radius: 0.65rem; background: rgba(217, 119, 6, 0.07); border: 1px dashed rgba(217, 119, 6, 0.35); line-height: 1.5;">
+                    <!-- Populated dynamically by JS -->
                 </div>
             </div>
 
@@ -1057,12 +1092,13 @@
                     <div class="select-wrapper">
                         <select id="adminRole">
                             <option value="none">無行政職務</option>
-                            <option value="principal">校長</option>
-                            <option value="director_70plus">處、室、部、館主任 (70班以上)</option>
-                            <option value="director_under70">處、室、部、館主任 (未滿70班)</option>
-                            <option value="department_head">科主任</option>
-                            <option value="section_chief" selected>組長</option>
-                            <option value="sub_section_chief">國中副組長</option>
+                            <option value="principal">校長 (高中職 - 簡任十等)</option>
+                            <option value="principal_jr">校長 (國中/國小 - 薦任九等)</option>
+                            <option value="director_70plus">高中主任 / 國中70班以上主任 (薦任八等)</option>
+                            <option value="director_under70">處、室、部、館主任 (未滿70班 / 薦任七等)</option>
+                            <option value="department_head">科主任 (薦任七等)</option>
+                            <option value="section_chief" selected>組長 (依薪點 290+ / 245-275 / 230以下)</option>
+                            <option value="sub_section_chief">國中副組長 (委任五等)</option>
                         </select>
                     </div>
                 </div>
@@ -1151,9 +1187,24 @@
 
             <div class="dashboard">
                 <div class="main-stat">
-                    <div class="stat-label">每月實領薪資 (預估)</div>
+                    <div class="stat-label" id="lblTab1MainStat">每月實領薪資 (預估)</div>
                     <div class="stat-val" id="netSalaryText">$0</div>
-                    <div class="stat-meta">實領金額 = 應領月薪 - 保費與退撫扣繳額</div>
+                    <div class="stat-meta" id="lblTab1StatMeta">實領金額 = 應領月薪 - 保費與退撫扣繳額</div>
+                </div>
+
+                <!-- Tab 1 Government Owes Me Banner -->
+                <div id="tab1ArrearsBanner" style="display: none; background: rgba(217, 83, 79, 0.08); border: 1.5px dashed var(--accent-danger); border-radius: 1rem; padding: 1rem 1.25rem; margin-bottom: 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+                        <div>
+                            <div style="font-size: 0.85rem; font-weight: 700; color: var(--accent-danger);">🚨 追加預算還沒過！單月少發金額（政府每月欠我 XD）</div>
+                            <div id="tab1ArrearsDetail" style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 0.25rem;">--</div>
+                        </div>
+                        <div id="tab1ArrearsVal" style="font-size: 1.5rem; font-weight: 700; color: var(--accent-danger);">+$0 / 月</div>
+                    </div>
+                    <div id="tab1ArrearsCumulative" style="margin-top: 0.6rem; padding-top: 0.5rem; border-top: 1px dashed rgba(217, 83, 79, 0.3); font-size: 0.82rem; font-weight: 600; color: var(--text-primary); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
+                        <span>🔥 依設定截至 115 年 <span id="tab1ArrearsMonthLabel">10</span> 月，政府累積已欠我：</span>
+                        <span id="tab1ArrearsTotalNow" style="color: var(--accent-danger); font-weight: 700; font-size: 1rem;">$0 元</span>
+                    </div>
                 </div>
 
                 <div class="chart-container">
@@ -1268,6 +1319,30 @@
                     加薪與晉級設定
                 </div>
 
+                <!-- Budget Pending Option (Tab 2) -->
+                <div class="form-group">
+                    <div class="checkbox-card" id="progBudgetPendingCard" style="border-color: rgba(217, 83, 79, 0.35); background-color: rgba(217, 83, 79, 0.03);">
+                        <input type="checkbox" id="progIsBudgetPending" style="accent-color: var(--accent-danger);">
+                        <div class="checkbox-label">
+                            <span class="checkbox-title" style="color: var(--accent-danger); font-weight: 700;">🚨 追加預算還沒過！(算政府欠我多少錢 XD)</span>
+                            <span class="checkbox-desc">勾選後，7月起之「學術研究費+$2,000」與「主管加給+$2,000」改列政府欠款明細獨立計算</span>
+                        </div>
+                    </div>
+                    <div id="progArrearsMonthGroup" style="display: none; margin-top: 0.75rem; padding: 0.75rem; border-radius: 0.75rem; background: rgba(217, 83, 79, 0.06); border: 1px dashed rgba(217, 83, 79, 0.35);">
+                        <label for="progArrearsCurrentMonth" style="font-size: 0.85rem; color: var(--accent-danger); font-weight: 600; margin-bottom: 0.35rem; display: block;">📅 計算欠款截至月份 (115年)</label>
+                        <div class="select-wrapper">
+                            <select id="progArrearsCurrentMonth">
+                                <option value="7">截至 115 年 7 月 (累積 1 個月)</option>
+                                <option value="8">截至 115 年 8 月 (累積 2 個月)</option>
+                                <option value="9">截至 115 年 9 月 (累積 3 個月)</option>
+                                <option value="10" selected>截至 115 年 10 月 (累積 4 個月 + 考績獎金差額)</option>
+                                <option value="11">截至 115 年 11 月 (累積 5 個月 + 考績獎金差額)</option>
+                                <option value="12">截至 115 年 12 月 (累積 6 個月 + 考績與特休差額)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="form-group">
                     <label for="progDegree">最高學歷</label>
                     <div class="select-wrapper">
@@ -1322,13 +1397,20 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="progCurrentPoint">目前薪級 (115年6月基準)</label>
+                    <label for="progCurrentPoint">目前薪級 (請填 115年8月後現支薪點)</label>
                     <div class="select-wrapper">
                         <select id="progCurrentPoint">
                             <!-- Populated by JS -->
                         </select>
                     </div>
-                    <div id="progDateHelper" style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.35rem; line-height: 1.45;">
+                    <div class="checkbox-card active" id="progPromotedAug115Card" style="margin-top: 0.65rem; padding: 0.65rem 0.85rem;">
+                        <input type="checkbox" id="progHasPromotedAug115" checked>
+                        <div class="checkbox-label">
+                            <span class="checkbox-title" style="font-size: 0.85rem;">今年 (115年) 8 月有例行晉級 1 級 (1~7月自動回推降1級)</span>
+                            <span class="checkbox-desc" style="font-size: 0.75rem;">系統自動將 1~7 月（含 7 月）回推降 1 級計算；若您去年早已封頂或今年未跳級請取消勾選</span>
+                        </div>
+                    </div>
+                    <div id="progDateHelper" style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.5rem; padding: 0.65rem 0.85rem; border-radius: 0.65rem; background: rgba(217, 119, 6, 0.07); border: 1px dashed rgba(217, 119, 6, 0.35); line-height: 1.5;">
                         <!-- Populated dynamically by JS -->
                     </div>
                 </div>
@@ -1349,12 +1431,13 @@
                         <div class="select-wrapper">
                             <select id="progAdminRole">
                                 <option value="none">無行政職務</option>
-                                <option value="principal">校長</option>
-                                <option value="director_70plus">處、室、部、館主任 (70班以上)</option>
-                                <option value="director_under70">處、室、部、館主任 (未滿70班)</option>
-                                <option value="department_head">科主任</option>
-                                <option value="section_chief" selected>組長</option>
-                                <option value="sub_section_chief">國中副組長</option>
+                                <option value="principal">校長 (高中職 - 簡任十等)</option>
+                                <option value="principal_jr">校長 (國中/國小 - 薦任九等)</option>
+                                <option value="director_70plus">高中主任 / 國中70班以上主任 (薦任八等)</option>
+                                <option value="director_under70">處、室、部、館主任 (未滿70班 / 薦任七等)</option>
+                                <option value="department_head">科主任 (薦任七等)</option>
+                                <option value="section_chief" selected>組長 (依薪點 290+ / 245-275 / 230以下)</option>
+                                <option value="sub_section_chief">國中副組長 (委任五等)</option>
                             </select>
                         </div>
                     </div>
@@ -1532,12 +1615,12 @@
                 <div class="timeline">
                     <!-- Stage 1 -->
                     <div class="timeline-item">
-                        <div class="timeline-date">115年1月~6月 (基準期)</div>
-                        <div class="timeline-title">今年調整前之本俸與加給 (114年調整標準)</div>
+                        <div class="timeline-date">115年1月~6月 (上半年回推基準期)</div>
+                        <div class="timeline-title">8月晉級前之舊薪級本俸與加給 (114年待遇標準)</div>
                         <div class="timeline-content">
-                            薪資結構以 115 年 6 月之薪額進行標準計算。
+                            <span id="s1DescLabel">系統自動由您目前（8月後）的薪級回推降 1 級，計算 115 年 1~6 月之薪額。</span>
                             <div class="timeline-grid">
-                                <div class="timeline-grid-item">薪額: <span id="s1Point">--</span></div>
+                                <div class="timeline-grid-item">回推薪額: <span id="s1Point">--</span></div>
                                 <div class="timeline-grid-item">應領薪資: <span id="s1Gross">--</span></div>
                                 <div class="timeline-grid-item">保險退撫: <span id="s1Deduct">--</span></div>
                                 <div class="timeline-grid-item">預估實領: <span id="s1Net" class="text-add">--</span></div>
@@ -1547,10 +1630,10 @@
 
                     <!-- Stage 2 -->
                     <div class="timeline-item">
-                        <div class="timeline-date">115年7月起 (加給加薪)</div>
-                        <div class="timeline-title">主管加給與學術研究加給加薪</div>
+                        <div class="timeline-date" id="s2DateLabel">115年7月起 (加給加薪)</div>
+                        <div class="timeline-title" id="s2TitleLabel">主管加給與學術研究加給加薪</div>
                         <div class="timeline-content">
-                            薪級點不變，學術研究加給加薪 $2,000 元，行政主管職務加給亦加薪 $2,000 元。
+                            <span id="s2DescLabel">薪級點不變，學術研究加給加薪 $2,000 元，行政主管職務加給亦加薪 $2,000 元。</span>
                             <div class="timeline-grid">
                                 <div class="timeline-grid-item">研究加給: <span id="s2Research">--</span></div>
                                 <div class="timeline-grid-item">主管加給: <span id="s2Admin">--</span></div>
@@ -1562,10 +1645,10 @@
 
                     <!-- Stage 3 -->
                     <div class="timeline-item">
-                        <div class="timeline-date">115年8月1日起 (跳薪級)</div>
-                        <div class="timeline-title">學年度晉升下一薪級調整</div>
+                        <div class="timeline-date" id="s3DateLabel">115年8月1日起 (跳薪級)</div>
+                        <div class="timeline-title" id="s3TitleLabel">學年度晉升下一薪級調整</div>
                         <div class="timeline-content">
-                            新學年晉升一薪級，研究費及主管加給持續享有 7 月起之加薪 $2,000 元。
+                            <span id="s3DescLabel">新學年晉升一薪級，研究費及主管加給持續享有 7 月起之加薪 $2,000 元。</span>
                             <div class="timeline-grid" id="s3Grid">
                                 <div class="timeline-grid-item">晉升薪額: <span id="s3Point">--</span></div>
                                 <div class="timeline-grid-item">應領月薪: <span id="s3Gross">--</span></div>
@@ -1592,6 +1675,75 @@
                 </div>
             </div>
 
+            <!-- Government Owes Me Card (Tab 2) -->
+            <div class="card" id="govOwesMeCard" style="display: none; border: 2px solid var(--accent-danger); background: linear-gradient(135deg, rgba(217, 83, 79, 0.06), rgba(251, 191, 36, 0.06));">
+                <div class="card-title" style="color: var(--accent-danger); margin-bottom: 1rem;">
+                    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24" style="color: var(--accent-danger);">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    🚨 政府目前欠我多少錢 XD (追加預算待補發專區)
+                </div>
+
+                <div class="dashboard">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+                        <div style="background: rgba(217, 83, 79, 0.1); border: 1.5px solid rgba(217, 83, 79, 0.35); border-radius: 1rem; padding: 1rem;">
+                            <div style="font-size: 0.8rem; font-weight: 700; color: var(--accent-danger);" id="lblOwedNowTitle">🔥 截至 115 年 10 月 (已過 4 個月) 累積欠我</div>
+                            <div id="valOwedNowTotal" style="font-size: 2.2rem; font-weight: 800; color: var(--accent-danger); margin: 0.25rem 0;">$0</div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary);" id="lblOwedNowSub">含 7~10 月加給差額與 10 月考績獎金差額</div>
+                        </div>
+                        <div style="background: rgba(217, 119, 6, 0.08); border: 1.5px dashed rgba(217, 119, 6, 0.35); border-radius: 1rem; padding: 1rem;">
+                            <div style="font-size: 0.8rem; font-weight: 700; color: #b45309;">⏳ 若拖到 115 年底 (7~12月全年度) 總共欠我</div>
+                            <div id="valOwedYearEndTotal" style="font-size: 2.2rem; font-weight: 800; color: #d97706; margin: 0.25rem 0;">$0</div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary);" id="lblOwedYearEndSub">含 7~12 月(6個月)加給差額 + 考績差額 + 特休差額</div>
+                        </div>
+                    </div>
+
+                    <div class="breakdown-section" style="margin-top: 0.5rem;">
+                        <div class="section-header" style="border-color: rgba(217, 83, 79, 0.25); color: var(--accent-danger);">📋 政府欠款各分項明細拆解</div>
+
+                        <div class="row-item" style="background: rgba(255,255,255,0.5); border-color: rgba(217, 83, 79, 0.2);">
+                            <span class="item-label">
+                                📌 分項一：學術研究加給差額 (7月起每月少領)
+                                <span style="font-size:0.75rem; color:var(--text-secondary); display:block;" id="lblOwedResearchFormula">--</span>
+                            </span>
+                            <span class="item-val" style="color: var(--accent-danger); font-weight: 700;" id="valOwedResearchNow">$0</span>
+                        </div>
+
+                        <div class="row-item" id="rowOwedAdmin" style="background: rgba(255,255,255,0.5); border-color: rgba(217, 83, 79, 0.2); display: none;">
+                            <span class="item-label">
+                                📌 分項二：行政主管職務加給差額 (7月起每月少領)
+                                <span style="font-size:0.75rem; color:var(--text-secondary); display:block;" id="lblOwedAdminFormula">--</span>
+                            </span>
+                            <span class="item-val" style="color: var(--accent-danger); font-weight: 700;" id="valOwedAdminNow">$0</span>
+                        </div>
+
+                        <div class="row-item" id="rowOwedPerfBonus" style="background: rgba(255,255,255,0.5); border-color: rgba(217, 83, 79, 0.2);">
+                            <span class="item-label">
+                                📌 分項三：10月考績獎金短發差額 (因8月全薪少算這兩筆)
+                                <span style="font-size:0.75rem; color:var(--text-secondary); display:block;" id="lblOwedPerfFormula">--</span>
+                            </span>
+                            <span class="item-val" style="color: var(--accent-danger); font-weight: 700;" id="valOwedPerfNow">$0</span>
+                        </div>
+
+                        <div class="row-item" id="rowOwedUnusedLeave" style="background: rgba(255,255,255,0.5); border-color: rgba(217, 83, 79, 0.2); display: none;">
+                            <span class="item-label">
+                                📌 分項四：特休未休假加班費差額 (年底結算時少領)
+                                <span style="font-size:0.75rem; color:var(--text-secondary); display:block;" id="lblOwedLeaveFormula">--</span>
+                            </span>
+                            <span class="item-val" style="color: var(--accent-danger); font-weight: 700;" id="valOwedLeaveNow">$0</span>
+                        </div>
+
+                        <div class="row-item" id="rowOwedNHIDiff" style="background: rgba(255,255,255,0.3); border-color: rgba(217, 83, 79, 0.15); font-size: 0.82rem; display: none;">
+                            <span class="item-label">
+                                💡 補充：因加給未發而暫時少扣之健保/勞保費差額
+                                <span style="font-size:0.72rem; color:var(--text-secondary); display:block;">未來補發時若未追溯扣繳保費則為小確幸，若追溯則會扣回</span>
+                            </span>
+                            <span class="item-val" style="color: var(--accent-success); font-weight: 600;" id="valOwedNHIDiff">$0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Annual Income Summary Card -->
             <div class="card golden-card">
                 <div class="card-title">
@@ -1602,9 +1754,9 @@
                 </div>
                 <div class="dashboard">
                     <div class="main-stat" style="background: none; border: none; box-shadow: none; padding: 0;">
-                        <div class="stat-label">民國 115 年 (1月至12月) 預估總實領年薪 (含年終與考績獎金)</div>
+                        <div class="stat-label" id="lblAnnualTotalTitle">民國 115 年 (1月至12月) 預估總實領年薪 (含年終與考績獎金)</div>
                         <div class="stat-val" id="valAnnualTotal" style="font-size: 3rem; color: #d97706; text-shadow: 0 0 20px rgba(217, 119, 6, 0.15);">$0</div>
-                        <div class="stat-meta">本試算包含：115年各月實領薪水 + 115年2月與10月之兩次考績發放</div>
+                        <div class="stat-meta" id="lblAnnualTotalMeta">本試算包含：115年各月實領薪水 + 115年2月與10月之兩次考績發放</div>
                     </div>
 
                     <div class="breakdown-section" style="margin-top: 1rem;">
@@ -1612,8 +1764,8 @@
                         <div class="row-item" style="background: rgba(255,255,255,0.4); border-color: rgba(245, 158, 11, 0.15);">
                             <span class="item-label">
                                 115年實領月薪累計 (共12個月)
-                                <span style="font-size:0.75rem; color:var(--text-secondary); display:block;">
-                                    (1-6月: $Point10 × 6M) + (7月: 加給+$4K × 1M) + (8-12月: 晉級+$4K × 5M)
+                                <span style="font-size:0.75rem; color:var(--text-secondary); display:block;" id="lblAnnualMonthlyFormula">
+                                    (1-6月: 舊制 × 6M) + (7月: 加給調升 × 1M) + (8-12月: 晉級+加給調升 × 5M)
                                 </span>
                             </span>
                             <span class="item-val text-add" id="valAnnualMonthlyNet">$0</span>
@@ -1658,8 +1810,15 @@
                             <span class="item-val text-sub" id="valAnnualTax">$0</span>
                         </div>
                         <div class="row-item" style="background: rgba(217, 119, 6, 0.05); font-weight: 700; font-size: 1rem; border-color: rgba(217, 119, 6, 0.3); border-top: 2px solid rgba(217, 119, 6, 0.3);">
-                            <span style="color: #b45309;">115年度稅後淨實領總年薪 (落袋金額)</span>
+                            <span style="color: #b45309;" id="lblAnnualAfterTaxTitle">115年度個人稅後淨實領總年薪 (落袋金額)</span>
                             <span style="color: #d97706; font-size: 1.25rem;" id="valAnnualTotalAfterTax">$0</span>
+                        </div>
+                        <div class="row-item" id="rowAnnualWithBackpay" style="display: none; background: rgba(217, 83, 79, 0.08); font-weight: 700; font-size: 0.95rem; border: 1.5px dashed rgba(217, 83, 79, 0.4); margin-top: 0.5rem;">
+                            <span style="color: var(--accent-danger);">
+                                ➕ 若追加預算通過補發後之完整稅後總年薪
+                                <span style="font-size:0.75rem; color:var(--text-secondary); display:block;" id="lblAnnualWithBackpayDetail">--</span>
+                            </span>
+                            <span style="color: var(--accent-danger); font-size: 1.15rem;" id="valAnnualWithBackpay">$0</span>
                         </div>
                     </div>
                 </div>
@@ -1680,7 +1839,31 @@
                 </div>
 
                 <!-- Start State Section -->
-                <div class="form-section-title">目前狀態設定 (115年6月起點)</div>
+                <div class="form-section-title">目前狀態設定 (請填 115年8月後現況)</div>
+
+                <!-- Budget Pending Option (Tab 3) -->
+                <div class="form-group">
+                    <div class="checkbox-card" id="projBudgetPendingCard" style="border-color: rgba(217, 83, 79, 0.35); background-color: rgba(217, 83, 79, 0.03);">
+                        <input type="checkbox" id="projIsBudgetPending" style="accent-color: var(--accent-danger);">
+                        <div class="checkbox-label">
+                            <span class="checkbox-title" style="color: var(--accent-danger); font-weight: 700;">🚨 追加預算還沒過！(算政府欠我多少錢 XD)</span>
+                            <span class="checkbox-desc">勾選後，115年7月後之「學術研究費+$2,000」與「主管加給+$2,000」暫不計入115年實領，並顯示待補發金額</span>
+                        </div>
+                    </div>
+                    <div id="projArrearsMonthGroup" style="display: none; margin-top: 0.75rem; padding: 0.75rem; border-radius: 0.75rem; background: rgba(217, 83, 79, 0.06); border: 1px dashed rgba(217, 83, 79, 0.35);">
+                        <label for="projArrearsCurrentMonth" style="font-size: 0.85rem; color: var(--accent-danger); font-weight: 600; margin-bottom: 0.35rem; display: block;">📅 計算欠款截至月份 (115年)</label>
+                        <div class="select-wrapper">
+                            <select id="projArrearsCurrentMonth">
+                                <option value="7">截至 115 年 7 月 (累積 1 個月)</option>
+                                <option value="8">截至 115 年 8 月 (累積 2 個月)</option>
+                                <option value="9">截至 115 年 9 月 (累積 3 個月)</option>
+                                <option value="10" selected>截至 115 年 10 月 (累積 4 個月 + 考績獎金差額)</option>
+                                <option value="11">截至 115 年 11 月 (累積 5 個月 + 考績獎金差額)</option>
+                                <option value="12">截至 115 年 12 月 (累積 6 個月 + 考績與特休差額)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
 
                 <div class="form-group">
                     <label for="projAge">目前年齡 (115年時)</label>
@@ -1745,11 +1928,21 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="projCurrentPoint">目前薪級 (薪點)</label>
+                    <label for="projCurrentPoint">目前薪級 (請填 115年8月後現支薪點)</label>
                     <div class="select-wrapper">
                         <select id="projCurrentPoint">
                             <!-- Populated dynamically -->
                         </select>
+                    </div>
+                    <div class="checkbox-card active" id="projPromotedAug115Card" style="margin-top: 0.65rem; padding: 0.65rem 0.85rem;">
+                        <input type="checkbox" id="projHasPromotedAug115" checked>
+                        <div class="checkbox-label">
+                            <span class="checkbox-title" style="font-size: 0.85rem;">今年 (115年) 8 月有例行晉級 1 級 (1~7月自動回推降1級)</span>
+                            <span class="checkbox-desc" style="font-size: 0.75rem;">系統自動將 115 年 1~7 月回推降 1 級計算；若您去年早已封頂或今年未跳級請取消勾選</span>
+                        </div>
+                    </div>
+                    <div id="projDateHelper" style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.5rem; padding: 0.65rem 0.85rem; border-radius: 0.65rem; background: rgba(217, 119, 6, 0.07); border: 1px dashed rgba(217, 119, 6, 0.35); line-height: 1.5;">
+                        <!-- Populated dynamically by JS -->
                     </div>
                 </div>
 
@@ -1769,12 +1962,13 @@
                         <div class="select-wrapper">
                             <select id="projAdminRole">
                                 <option value="none">無行政職務</option>
-                                <option value="principal">校長</option>
-                                <option value="director_70plus">處、室、部、館主任 (70班以上)</option>
-                                <option value="director_under70">處、室、部、館主任 (未滿70班)</option>
-                                <option value="department_head">科主任</option>
-                                <option value="section_chief" selected>組長</option>
-                                <option value="sub_section_chief">國中副組長</option>
+                                <option value="principal">校長 (高中職 - 簡任十等)</option>
+                                <option value="principal_jr">校長 (國中/國小 - 薦任九等)</option>
+                                <option value="director_70plus">高中主任 / 國中70班以上主任 (薦任八等)</option>
+                                <option value="director_under70">處、室、部、館主任 (未滿70班 / 薦任七等)</option>
+                                <option value="department_head">科主任 (薦任七等)</option>
+                                <option value="section_chief" selected>組長 (依薪點 290+ / 245-275 / 230以下)</option>
+                                <option value="sub_section_chief">國中副組長 (委任五等)</option>
                             </select>
                         </div>
                     </div>
@@ -1879,13 +2073,13 @@
                 </div>
 
                 <div class="row-item" style="background: rgba(249, 115, 22, 0.02); font-size: 0.8rem; margin-top: 1.5rem; border-style: dashed; flex-direction: column; align-items: flex-start; gap: 0.5rem;">
-                    <div style="font-weight: 700; color: var(--accent-glow);">💡 生涯改敘跳級規則說明：</div>
+                    <div style="font-weight: 700; color: var(--accent-glow);">💡 生涯改敘跳級規則說明 (依 114.01.01 待遇一覽表)：</div>
                     <div style="color: var(--text-secondary); line-height: 1.4;">
-                         • 取得新學歷後，於該年 <b>8 月 1 日</b> 進行改敘跳級。<br>
-                         • <b>碩士畢業</b>：直接<b>跳三級</b> (最高封頂 650 點)。<br>
-                         • <b>博士畢業</b>：直接<b>跳兩級</b> (最高封頂 680 點)。<br>
-                         • 非畢業年份，每年 8 月 1 日正常<b>年資晉級一階</b> (學士上限 625 點)。<br>
-                         • 達最高薪點不再跳薪後，10月考績獎金將<b>自動升為給付 2 個月</b>。
+                         • 取得新學歷後，於該年 <b>8 月 1 日</b> 進行改（提）敘跳級，並若低於新學歷起敘基準則直接以基準起敘。<br>
+                         • <b>大學/專科 → 碩士</b>：提敘 <b>3 級</b> (起敘 245，本薪上限 525，年功薪封頂 650 點)。<br>
+                         • <b>大學/專科 → 博士</b>：提敘 <b>5 級</b>；<b>碩士 → 博士</b>：提敘 <b>2 級</b> (起敘 330，本薪上限 550，年功薪封頂 680 點)。<br>
+                         • 非畢業年份，每年 8 月 1 日正常<b>年資晉級一階</b> (學士/40學分班上限 625 點)。<br>
+                         • 達最高年功薪點不再跳薪後，10月考績獎金將<b>自動升為給付 2 個月</b>。
                     </div>
                 </div>
             </div>
@@ -1997,6 +2191,13 @@
                         <div class="stat-label" style="color: var(--accent-success); font-weight: 700; font-size: 0.85rem;">進修新學位之生涯加薪估算 (比照現學歷)</div>
                         <div class="stat-val" id="valIncrementalTotal" style="font-size: 2.25rem; color: var(--accent-success); text-shadow: 0 0 15px rgba(16, 185, 129, 0.15); text-align: left;">+$0</div>
                         <div class="stat-meta" id="valIncrementalMeta" style="color: var(--text-secondary); text-align: left; font-size: 0.8rem; margin-top: 0.25rem;">比對維持「--」學歷退休，生涯將多獲得 -- 元。</div>
+                    </div>
+
+                    <!-- Tab 3 Government Owes Me Banner -->
+                    <div class="main-stat" id="tab3ArrearsCard" style="background: rgba(217, 83, 79, 0.08); border: 1.5px dashed var(--accent-danger); border-radius: 1rem; padding: 1.1rem 1.25rem; text-align: left; display: none; flex-direction: column; gap: 0.25rem;">
+                        <div class="stat-label" style="color: var(--accent-danger); font-weight: 700; font-size: 0.85rem;" id="lblTab3ArrearsTitle">🚨 追加預算未過：政府目前欠我多少錢 XD</div>
+                        <div class="stat-val" id="valTab3ArrearsNow" style="font-size: 1.85rem; color: var(--accent-danger); text-align: left;">$0</div>
+                        <div class="stat-meta" id="valTab3ArrearsMeta" style="color: var(--text-secondary); text-align: left; font-size: 0.8rem; margin-top: 0.2rem;">--</div>
                     </div>
                 </div>
             </div>
@@ -2288,6 +2489,208 @@
         const gradMasterYear = document.getElementById('gradMasterYear');
         const gradDoctorYear = document.getElementById('gradDoctorYear');
 
+        // Budget Pending & Arrears elements across Tabs 1, 2, 3
+        const isBudgetPending = document.getElementById('isBudgetPending');
+        const budgetPendingCard = document.getElementById('budgetPendingCard');
+        const budgetPendingGroupTab1 = document.getElementById('budgetPendingGroupTab1');
+        const arrearsMonthGroupTab1 = document.getElementById('arrearsMonthGroupTab1');
+        const arrearsCurrentMonth = document.getElementById('arrearsCurrentMonth');
+
+        const progIsBudgetPending = document.getElementById('progIsBudgetPending');
+        const progBudgetPendingCard = document.getElementById('progBudgetPendingCard');
+        const progArrearsMonthGroup = document.getElementById('progArrearsMonthGroup');
+        const progArrearsCurrentMonth = document.getElementById('progArrearsCurrentMonth');
+
+        const projIsBudgetPending = document.getElementById('projIsBudgetPending');
+        const projBudgetPendingCard = document.getElementById('projBudgetPendingCard');
+        const projArrearsMonthGroup = document.getElementById('projArrearsMonthGroup');
+        const projArrearsCurrentMonth = document.getElementById('projArrearsCurrentMonth');
+
+        // August 115 Step Promotion ("1~7月自動回推降1級") elements across Tabs 1, 2, 3
+        const hasPromotedAug115 = document.getElementById('hasPromotedAug115');
+        const promotedAug115Card = document.getElementById('promotedAug115Card');
+        const tab1DateHelper = document.getElementById('tab1DateHelper');
+
+        const progHasPromotedAug115 = document.getElementById('progHasPromotedAug115');
+        const progPromotedAug115Card = document.getElementById('progPromotedAug115Card');
+        const progDateHelper = document.getElementById('progDateHelper');
+
+        const projHasPromotedAug115 = document.getElementById('projHasPromotedAug115');
+        const projPromotedAug115Card = document.getElementById('projPromotedAug115Card');
+        const projDateHelper = document.getElementById('projDateHelper');
+
+        function getDegreeMinPoint(degree) {
+            if (degree === 'doctor') return 330;
+            if (degree === 'master') return 245;
+            if (degree === 'bachelor') return 190;
+            if (degree === 'other_160') return 160;
+            if (degree === 'other_150') return 150;
+            return 120;
+        }
+
+        function getDegreeMaxPoint(degree) {
+            if (degree === 'doctor') return 680;
+            if (degree === 'master') return 650;
+            return 625;
+        }
+
+        // Helper: Resolve 115年1~7月 (lookback -1 step) vs 115年8~12月 (current selected point)
+        function resolveYear115Points(selectedPoint, degree, effStatus, hasPromoted) {
+            const minPt = getDegreeMinPoint(degree);
+            const maxPt = getDegreeMaxPoint(degree);
+            const p_aug_dec = selectedPoint;
+            let p_jan_jul = selectedPoint;
+            let didPromote = false;
+
+            if (effStatus !== 'sub_no_cert' && hasPromoted) {
+                const idx = pointOrder.indexOf(selectedPoint);
+                if (idx > 0 && selectedPoint > minPt) {
+                    p_jan_jul = pointOrder[idx - 1];
+                    didPromote = true;
+                }
+            }
+
+            const isAlreadyCappedFor2MonthsPerf = (!didPromote && p_aug_dec >= maxPt);
+            const isAtMaxCap = (p_aug_dec >= maxPt);
+
+            return {
+                p_jan_jul,
+                p_aug_dec,
+                didPromote,
+                didLookback: didPromote,
+                isAlreadyCappedFor2MonthsPerf,
+                isAtMaxCap,
+                minPt,
+                maxPt
+            };
+        }
+
+        // Helper: Dynamically render reminder boxes explaining the 1~7月 lookback
+        function updatePointHelperTexts() {
+            const today = new Date();
+            const rocYear = today.getFullYear() - 1911;
+            const month = today.getMonth() + 1;
+            const day = today.getDate();
+            const dateStr = `今天是民國 ${rocYear} 年 ${month} 月 ${day} 日`;
+
+            const deg = degreeSelect.value;
+            const curPt = parseInt(pointSelect.value) || 350;
+            const effStatus = getEffectiveTeacherStatus('tab1');
+            const hasProm = hasPromotedAug115 ? hasPromotedAug115.checked : true;
+            const info = resolveYear115Points(curPt, deg, effStatus, hasProm);
+
+            if (promotedAug115Card) promotedAug115Card.classList.toggle('active', hasProm && effStatus !== 'sub_no_cert');
+            if (progPromotedAug115Card) progPromotedAug115Card.classList.toggle('active', hasProm && effStatus !== 'sub_no_cert');
+            if (projPromotedAug115Card) projPromotedAug115Card.classList.toggle('active', hasProm && effStatus !== 'sub_no_cert');
+
+            const janJulItem = salaryData114.find(d => d.point === info.p_jan_jul) || salaryData114[0];
+            const augDecItem = salaryData114.find(d => d.point === info.p_aug_dec) || salaryData114[0];
+
+            let detailHtml = '';
+            if (effStatus === 'sub_no_cert') {
+                detailHtml = `💡 <b>填表提醒</b>：請直接選擇您目前的薪點（<b>${info.p_aug_dec} 薪點</b>）。<br>` +
+                    `📌 <b>系統設定</b>：無合格教師證之代理教師不適用學年跳級，115 年 1~7 月（含 7 月）與 8~12 月皆以 <b>${info.p_aug_dec} 薪點</b> 計算。`;
+            } else if (info.didPromote) {
+                detailHtml = `💡 <b>填表提醒（目前已過 8 月晉級月）</b>：此處請直接填您<b>目前（115年8月跳級後）的現支薪點（${info.p_aug_dec} 薪點）</b>！<br>` +
+                    `📌 <b>系統自動回推降 1 級</b>：計算 <b>115 年 1~7 月（含 7 月）</b>薪資與年終獎金時，系統自動回推降 1 級以 <b style="color: var(--accent-danger);">${info.p_jan_jul} 薪點 (本俸 $${janJulItem.pay.toLocaleString()})</b> 計算 → <b>8~12 月</b>則以目前 <b style="color: var(--accent-glow);">${info.p_aug_dec} 薪點 (本俸 $${augDecItem.pay.toLocaleString()})</b> 計算！`;
+            } else if (hasProm && info.p_aug_dec <= info.minPt) {
+                detailHtml = `💡 <b>填表提醒</b>：您目前選擇的 <b>${info.p_aug_dec} 薪點</b> 已是該學歷起敘薪點（無法再往下降 1 級），因此 115 年 1~7 月與 8~12 月皆以 <b>${info.p_aug_dec} 薪點</b> 計算。`;
+            } else {
+                detailHtml = `💡 <b>填表提醒</b>：您已取消勾選「今年 8 月有晉級」，系統於 <b>115 年 1~7 月（含 7 月）與 8~12 月</b> 皆維持以 <b>${info.p_aug_dec} 薪點 (本俸 $${augDecItem.pay.toLocaleString()})</b> 計算` +
+                    (info.isAlreadyCappedFor2MonthsPerf ? ` <b style="color: var(--accent-danger);">（已達年功薪最高級，10月考績獎金以 2 個月計）</b>。` : `。`);
+            }
+
+            const fullHtml = `📅 <b>${dateStr}</b><br>${detailHtml}`;
+            if (tab1DateHelper) tab1DateHelper.innerHTML = fullHtml;
+            if (progDateHelper) progDateHelper.innerHTML = fullHtml;
+            if (projDateHelper) projDateHelper.innerHTML = fullHtml;
+
+            const s1DescLabel = document.getElementById('s1DescLabel');
+            if (s1DescLabel) {
+                if (info.didPromote) {
+                    s1DescLabel.innerHTML = `以 8 月晉級前之舊薪級（系統由目前 ${info.p_aug_dec} 薪點<b>自動回推降 1 級為 ${info.p_jan_jul} 薪點</b>）計算 1~6 月實領（導師費維持 $4,000；特教加給自 2 月起調升為 $2,800/$900，此處顯示 2-6 月水準）。`;
+                } else {
+                    s1DescLabel.innerHTML = `以目前設定之薪級（<b>${info.p_jan_jul} 薪點</b>，本年度未回推降級）計算 1~6 月實領（導師費維持 $4,000；特教加給自 2 月起調升為 $2,800/$900，此處顯示 2-6 月水準）。`;
+                }
+            }
+        }
+
+        // Helper: Get effective teacher status ('regular' | 'sub_with_cert' | 'sub_no_cert')
+        function getEffectiveTeacherStatus(tab = 'tab1') {
+            if (tab === 'prog') {
+                if (progTeacherStatus.value === 'substitute') {
+                    return progSubHasCert.checked ? 'sub_with_cert' : 'sub_no_cert';
+                }
+                return 'regular';
+            } else if (tab === 'proj') {
+                if (projTeacherStatus.value === 'substitute') {
+                    return projSubHasCert.checked ? 'sub_with_cert' : 'sub_no_cert';
+                }
+                return 'regular';
+            } else {
+                if (teacherStatus.value === 'substitute') {
+                    return subHasCert.checked ? 'sub_with_cert' : 'sub_no_cert';
+                }
+                return 'regular';
+            }
+        }
+
+        // Helper: Unified Base Supervisor Allowance (依據 114.01.01 中小學校公教待遇一覽表)
+        function getBaseAdminPay(role, point, is113 = false) {
+            if (!role || role === 'none') return 0;
+            if (is113) {
+                if (role === 'principal') return 13110;
+                if (role === 'principal_jr') return 9710;
+                if (role === 'director_70plus') return 7520;
+                if (role === 'director_under70' || role === 'department_head') return 5750;
+                if (role === 'section_chief') {
+                    if (point >= 290) return 5750;
+                    if (point >= 245) return 4720;
+                    return 4190;
+                }
+                if (role === 'sub_section_chief') return 4190;
+                return 0;
+            } else {
+                // 114.01.01 官方一覽表標準:
+                // 校長(高中職)簡任十等: 13510 | 校長(國中小)薦任九等: 10010
+                // 高中、國中70班以上主任 薦任八等: 7750
+                // 主任、組長(290以上) 薦任七等: 5930
+                // 組長(245-275) 薦任六等: 4870
+                // 組長(230以下) 委任五等: 4320
+                if (role === 'principal') return 13510;
+                if (role === 'principal_jr') return 10010;
+                if (role === 'director_70plus') return 7750;
+                if (role === 'director_under70' || role === 'department_head') return 5930;
+                if (role === 'section_chief') {
+                    if (point >= 290) return 5930;
+                    if (point >= 245) return 4870;
+                    return 4320;
+                }
+                if (role === 'sub_section_chief') return 4320;
+                return 0;
+            }
+        }
+
+        // Helper: Unified Base Research Pay (依據 114.01.01 中小學校公教待遇一覽表)
+        function getBaseResearchPay(point, hasQual, is113 = false) {
+            if (is113) {
+                if (point >= 475) return hasQual ? 34730 : 29260;
+                if (point >= 350) return 29260;
+                if (point >= 245) return 25780;
+                return 22400;
+            } else {
+                // 114.01.01 官方一覽表標準:
+                // 475以上: 校長、博士、碩士、40學分班 35780 / 學士以下 30140
+                // 350-450: 30140
+                // 245-330: 26560 (未具合格教師證之代理教師八折 21248)
+                // 120-230: 23080 (未具合格教師證之代理教師八折 18464)
+                if (point >= 475) return hasQual ? 35780 : 30140;
+                if (point >= 350) return 30140;
+                if (point >= 245) return 26560;
+                return 23080;
+            }
+        }
+
         // Results displays (Tab 1)
         const netSalaryText = document.getElementById('netSalaryText');
         const valBasicPay = document.getElementById('valBasicPay');
@@ -2409,9 +2812,12 @@
         function saveSettings() {
             try {
                 const settings = {
+                    salaryYear: yearSelect.value,
                     degree: degreeSelect.value,
                     teacherStatus: teacherStatus.value,
+                    subHasCert: subHasCert.checked,
                     salaryPoint: pointSelect.value,
+                    hasPromotedAug115: hasPromotedAug115 ? hasPromotedAug115.checked : true,
                     hasAdvancedQual: hasAdvancedQual.checked,
                     isTutor: isTutor.checked,
                     isSupervisor: isSupervisor.checked,
@@ -2420,12 +2826,19 @@
                     specialEdRole: specialEdRole.value,
                     nhiDependents: nhiDependents.value,
                     laborPensionRate: laborPensionRate.value,
+                    isBudgetPending: isBudgetPending.checked,
+                    arrearsCurrentMonth: arrearsCurrentMonth.value,
                     
                     // Overtime class fields
                     hourlyRateLevel: hourlyRateLevel.value,
                     overtimeMonthType: overtimeMonthType.value,
                     weekdayPeriods: weekdayPeriods.value,
                     overtimePeriods: overtimePeriods.value,
+                    progWeekdayPeriodsS1: progWeekdayPeriodsS1.value,
+                    progOvertimePeriodsS1: progOvertimePeriodsS1.value,
+                    progWeekdayPeriodsS2: progWeekdayPeriodsS2.value,
+                    progOvertimePeriodsS2: progOvertimePeriodsS2.value,
+                    progIsGraduatingClass: progIsGraduatingClass.checked,
                     
                     // Tab 2 progression fields
                     progTaxStatus: progTaxStatus.value,
@@ -2466,14 +2879,36 @@
                 if (!saved) return false;
                 const settings = JSON.parse(saved);
                 
+                if (settings.salaryYear && Array.from(yearSelect.options).some(o => o.value === settings.salaryYear)) {
+                    yearSelect.value = settings.salaryYear;
+                }
                 if (settings.degree) degreeSelect.value = settings.degree;
                 if (settings.teacherStatus) teacherStatus.value = settings.teacherStatus;
+                if (settings.subHasCert !== undefined) {
+                    subHasCert.checked = settings.subHasCert;
+                    subNoCert.checked = !settings.subHasCert;
+                }
+                if (settings.isBudgetPending !== undefined) {
+                    isBudgetPending.checked = settings.isBudgetPending;
+                    progIsBudgetPending.checked = settings.isBudgetPending;
+                    projIsBudgetPending.checked = settings.isBudgetPending;
+                }
+                if (settings.arrearsCurrentMonth) {
+                    arrearsCurrentMonth.value = settings.arrearsCurrentMonth;
+                    progArrearsCurrentMonth.value = settings.arrearsCurrentMonth;
+                    projArrearsCurrentMonth.value = settings.arrearsCurrentMonth;
+                }
                 
                 populatePoints(degreeSelect.value);
                 populateProgressionPoints(degreeSelect.value);
                 populateProjPoints(degreeSelect.value);
                 
                 if (settings.salaryPoint) pointSelect.value = settings.salaryPoint;
+                if (settings.hasPromotedAug115 !== undefined) {
+                    if (hasPromotedAug115) hasPromotedAug115.checked = settings.hasPromotedAug115;
+                    if (progHasPromotedAug115) progHasPromotedAug115.checked = settings.hasPromotedAug115;
+                    if (projHasPromotedAug115) projHasPromotedAug115.checked = settings.hasPromotedAug115;
+                }
                 if (settings.hasAdvancedQual !== undefined) {
                     hasAdvancedQual.checked = settings.hasAdvancedQual;
                     if (hasAdvancedQual.checked) advQualCard.classList.add('active');
@@ -2496,6 +2931,11 @@
                 if (settings.overtimeMonthType) overtimeMonthType.value = settings.overtimeMonthType;
                 if (settings.weekdayPeriods) weekdayPeriods.value = settings.weekdayPeriods;
                 if (settings.overtimePeriods) overtimePeriods.value = settings.overtimePeriods;
+                if (settings.progWeekdayPeriodsS1 !== undefined) progWeekdayPeriodsS1.value = settings.progWeekdayPeriodsS1;
+                if (settings.progOvertimePeriodsS1 !== undefined) progOvertimePeriodsS1.value = settings.progOvertimePeriodsS1;
+                if (settings.progWeekdayPeriodsS2 !== undefined) progWeekdayPeriodsS2.value = settings.progWeekdayPeriodsS2;
+                if (settings.progOvertimePeriodsS2 !== undefined) progOvertimePeriodsS2.value = settings.progOvertimePeriodsS2;
+                if (settings.progIsGraduatingClass !== undefined) progIsGraduatingClass.checked = settings.progIsGraduatingClass;
                 
                 if (settings.progTaxStatus) progTaxStatus.value = settings.progTaxStatus;
                 if (settings.progSpouseIncome) progSpouseIncome.value = settings.progSpouseIncome;
@@ -2718,20 +3158,17 @@
             let hRate, wPeriods, oPeriods;
             let wPeriodsS1 = 0, oPeriodsS1 = 0, wPeriodsS2 = 0, oPeriodsS2 = 0;
             let isGraduating = false;
+            let budgetPending = false;
+            let arrearsMonth = '10';
+            let hasPromAug = true;
 
             // Fetch values from whichever inputs triggered the event
             if (sourceId.startsWith('prog')) {
                 deg = progDegree.value;
-                
-                // Teacher Status translation
-                if (progTeacherStatus.value === 'substitute') {
-                    statusT = progSubHasCert.checked ? 'sub_with_cert' : 'sub_no_cert';
-                } else {
-                    statusT = 'regular';
-                }
-                
+                statusT = getEffectiveTeacherStatus('prog');
                 lpRate = progLaborPensionRate.value;
                 pt = progCurrentPoint.value;
+                hasPromAug = progHasPromotedAug115 ? progHasPromotedAug115.checked : true;
                 
                 // Supervisor translation
                 isSup = progIsSupervisor.checked;
@@ -2746,6 +3183,10 @@
                 spouseIncome = progSpouseIncome.value;
                 taxDependents = parseInt(progTaxDependents.value) || 0;
                 
+                // Budget pending
+                budgetPending = progIsBudgetPending.checked;
+                arrearsMonth = progArrearsCurrentMonth.value;
+
                 // Hourly rate settings
                 hRate = progHourlyRateLevel.value;
                 wPeriodsS1 = parseFloat(progWeekdayPeriodsS1.value) || 0;
@@ -2762,15 +3203,10 @@
                 inputs.forEach(input => taxAges.push(parseInt(input.value) || 0));
             } else if (sourceId.startsWith('proj') && sourceId !== 'projAge') {
                 deg = projDegree.value;
-                
-                if (projTeacherStatus.value === 'substitute') {
-                    statusT = projSubHasCert.checked ? 'sub_with_cert' : 'sub_no_cert';
-                } else {
-                    statusT = 'regular';
-                }
-                
+                statusT = getEffectiveTeacherStatus('proj');
                 lpRate = projLaborPensionRate.value;
                 pt = projCurrentPoint.value;
+                hasPromAug = projHasPromotedAug115 ? projHasPromotedAug115.checked : true;
                 
                 isSup = projIsSupervisor.checked;
                 baseRole = projAdminRole.value;
@@ -2784,6 +3220,9 @@
                 spouseIncome = projSpouseIncome.value;
                 taxDependents = parseInt(projTaxDependents.value) || 0;
                 
+                budgetPending = projIsBudgetPending.checked;
+                arrearsMonth = projArrearsCurrentMonth.value;
+
                 hRate = projHourlyRateLevel.value;
                 wPeriodsS1 = parseFloat(projWeekdayPeriodsS1.value) || 0;
                 oPeriodsS1 = parseFloat(projOvertimePeriodsS1.value) || 0;
@@ -2799,15 +3238,10 @@
             } else {
                 // Tab 1 source
                 deg = degreeSelect.value;
-                
-                if (teacherStatus.value === 'substitute') {
-                    statusT = subHasCert.checked ? 'sub_with_cert' : 'sub_no_cert';
-                } else {
-                    statusT = 'regular';
-                }
-                
+                statusT = getEffectiveTeacherStatus('tab1');
                 lpRate = laborPensionRate.value;
                 pt = pointSelect.value;
+                hasPromAug = hasPromotedAug115 ? hasPromotedAug115.checked : true;
                 
                 isSup = isSupervisor.checked;
                 baseRole = adminRole.value;
@@ -2821,10 +3255,13 @@
                 spouseIncome = progSpouseIncome.value;
                 taxDependents = parseInt(progTaxDependents.value) || 0;
                 
+                budgetPending = isBudgetPending.checked;
+                arrearsMonth = arrearsCurrentMonth.value;
+
                 hRate = hourlyRateLevel.value;
                 wPeriods = parseFloat(weekdayPeriods.value) || 0;
                 oPeriods = parseFloat(overtimePeriods.value) || 0;
-                isGraduating = false;
+                isGraduating = progIsGraduatingClass.checked;
 
                 // Sync Tab 1 to S1 & S2
                 wPeriodsS1 = wPeriods;
@@ -2836,6 +3273,28 @@
                 inputs.forEach(input => taxAges.push(parseInt(input.value) || 0));
             }
 
+            // Sync Budget Pending & Arrears Month across all 3 Tabs
+            isBudgetPending.checked = budgetPending;
+            progIsBudgetPending.checked = budgetPending;
+            projIsBudgetPending.checked = budgetPending;
+
+            arrearsCurrentMonth.value = arrearsMonth;
+            progArrearsCurrentMonth.value = arrearsMonth;
+            projArrearsCurrentMonth.value = arrearsMonth;
+
+            budgetPendingCard.classList.toggle('active', budgetPending);
+            progBudgetPendingCard.classList.toggle('active', budgetPending);
+            projBudgetPendingCard.classList.toggle('active', budgetPending);
+
+            arrearsMonthGroupTab1.style.display = budgetPending ? 'block' : 'none';
+            progArrearsMonthGroup.style.display = budgetPending ? 'block' : 'none';
+            projArrearsMonthGroup.style.display = budgetPending ? 'block' : 'none';
+
+            // Sync August 115 Promotion Lookback across all 3 Tabs
+            if (hasPromotedAug115) hasPromotedAug115.checked = hasPromAug;
+            if (progHasPromotedAug115) progHasPromotedAug115.checked = hasPromAug;
+            if (projHasPromotedAug115) projHasPromotedAug115.checked = hasPromAug;
+
             // Sync Tab 1 Basic UI
             degreeSelect.value = deg;
             
@@ -2844,9 +3303,11 @@
                 subLicenseGroup.style.display = 'block';
                 if (statusT === 'sub_with_cert') {
                     subHasCert.checked = true;
+                    subNoCert.checked = false;
                     document.getElementById('cardSubHasCert').classList.add('active');
                     document.getElementById('cardSubNoCert').classList.remove('active');
                 } else {
+                    subHasCert.checked = false;
                     subNoCert.checked = true;
                     document.getElementById('cardSubNoCert').classList.add('active');
                     document.getElementById('cardSubHasCert').classList.remove('active');
@@ -2889,9 +3350,12 @@
                 hasAdvancedQual.disabled = true;
                 advQualCard.classList.add('active');
             } else {
-                hasAdvancedQual.checked = false;
                 hasAdvancedQual.disabled = false;
-                advQualCard.classList.remove('active');
+                if (sourceId === 'degree' || sourceId === 'progDegree' || sourceId === 'projDegree') {
+                    hasAdvancedQual.checked = false;
+                }
+                if (hasAdvancedQual.checked) advQualCard.classList.add('active');
+                else advQualCard.classList.remove('active');
             }
 
             // Sync Tab 2 progression UI
@@ -2902,9 +3366,11 @@
                 progSubLicenseGroup.style.display = 'block';
                 if (statusT === 'sub_with_cert') {
                     progSubHasCert.checked = true;
+                    progSubNoCert.checked = false;
                     document.getElementById('cardProgSubHasCert').classList.add('active');
                     document.getElementById('cardProgSubNoCert').classList.remove('active');
                 } else {
+                    progSubHasCert.checked = false;
                     progSubNoCert.checked = true;
                     document.getElementById('cardProgSubNoCert').classList.add('active');
                     document.getElementById('cardProgSubHasCert').classList.remove('active');
@@ -2968,9 +3434,11 @@
                 projSubLicenseGroup.style.display = 'block';
                 if (statusT === 'sub_with_cert') {
                     projSubHasCert.checked = true;
+                    projSubNoCert.checked = false;
                     document.getElementById('cardProjSubHasCert').classList.add('active');
                     document.getElementById('cardProjSubNoCert').classList.remove('active');
                 } else {
+                    projSubHasCert.checked = false;
                     projSubNoCert.checked = true;
                     document.getElementById('cardProjSubNoCert').classList.add('active');
                     document.getElementById('cardProjSubHasCert').classList.remove('active');
@@ -3049,10 +3517,11 @@
                 projSpouseIncomeGroup.style.display = 'block';
             } else {
                 progSpouseIncomeGroup.style.display = 'none';
-                progSpouseIncomeGroup.style.display = 'none';
+                projSpouseIncomeGroup.style.display = 'none';
             }
 
             updateBadgeText();
+            updatePointHelperTexts();
             calculateSalary();
             calculateProgression();
             calculateLifetimeProjection();
@@ -3062,18 +3531,23 @@
         // Setup listeners for Tab 1
         yearSelect.addEventListener('change', () => {
             populatePoints(degreeSelect.value);
+            updatePointHelperTexts();
             calculateSalary();
+            saveSettings();
         });
+        isBudgetPending.addEventListener('change', () => syncAndRecalculate('isBudgetPending'));
+        arrearsCurrentMonth.addEventListener('change', () => syncAndRecalculate('arrearsCurrentMonth'));
         degreeSelect.addEventListener('change', () => syncAndRecalculate('degree'));
         teacherStatus.addEventListener('change', () => syncAndRecalculate('teacherStatus'));
         subHasCert.addEventListener('change', () => syncAndRecalculate('subHasCert'));
         subNoCert.addEventListener('change', () => syncAndRecalculate('subNoCert'));
         laborPensionRate.addEventListener('change', () => syncAndRecalculate('laborPensionRate'));
         pointSelect.addEventListener('change', () => syncAndRecalculate('salaryPoint'));
+        if (hasPromotedAug115) hasPromotedAug115.addEventListener('change', () => syncAndRecalculate('hasPromotedAug115'));
         hasAdvancedQual.addEventListener('change', () => {
             if (hasAdvancedQual.checked) advQualCard.classList.add('active');
             else advQualCard.classList.remove('active');
-            calculateSalary();
+            syncAndRecalculate('hasAdvancedQual');
         });
         isTutor.addEventListener('change', () => syncAndRecalculate('isTutor'));
         isSupervisor.addEventListener('change', () => syncAndRecalculate('isSupervisor'));
@@ -3084,17 +3558,23 @@
 
         // Overtime class listeners Tab 1
         hourlyRateLevel.addEventListener('change', () => syncAndRecalculate('hourlyRateLevel'));
-        overtimeMonthType.addEventListener('change', () => calculateSalary());
+        overtimeMonthType.addEventListener('change', () => {
+            calculateSalary();
+            saveSettings();
+        });
         weekdayPeriods.addEventListener('input', () => syncAndRecalculate('weekdayPeriods'));
         overtimePeriods.addEventListener('input', () => syncAndRecalculate('overtimePeriods'));
 
         // Setup listeners for Tab 2
+        progIsBudgetPending.addEventListener('change', () => syncAndRecalculate('progIsBudgetPending'));
+        progArrearsCurrentMonth.addEventListener('change', () => syncAndRecalculate('progArrearsCurrentMonth'));
         progDegree.addEventListener('change', () => syncAndRecalculate('progDegree'));
         progTeacherStatus.addEventListener('change', () => syncAndRecalculate('progTeacherStatus'));
         progSubHasCert.addEventListener('change', () => syncAndRecalculate('progSubHasCert'));
         progSubNoCert.addEventListener('change', () => syncAndRecalculate('progSubNoCert'));
         progLaborPensionRate.addEventListener('change', () => syncAndRecalculate('progLaborPensionRate'));
         progCurrentPoint.addEventListener('change', () => syncAndRecalculate('progCurrentPoint'));
+        if (progHasPromotedAug115) progHasPromotedAug115.addEventListener('change', () => syncAndRecalculate('progHasPromotedAug115'));
         progIsSupervisor.addEventListener('change', () => syncAndRecalculate('progIsSupervisor'));
         progAdminRole.addEventListener('change', () => syncAndRecalculate('progAdminRole'));
         progAdminSeniority.addEventListener('change', () => syncAndRecalculate('progAdminSeniority'));
@@ -3117,12 +3597,15 @@
         progIsGraduatingClass.addEventListener('change', () => syncAndRecalculate('progIsGraduatingClass'));
 
         // Setup listeners for Tab 3
+        projIsBudgetPending.addEventListener('change', () => syncAndRecalculate('projIsBudgetPending'));
+        projArrearsCurrentMonth.addEventListener('change', () => syncAndRecalculate('projArrearsCurrentMonth'));
         projDegree.addEventListener('change', () => syncAndRecalculate('projDegree'));
         projTeacherStatus.addEventListener('change', () => syncAndRecalculate('projTeacherStatus'));
         projSubHasCert.addEventListener('change', () => syncAndRecalculate('projSubHasCert'));
         projSubNoCert.addEventListener('change', () => syncAndRecalculate('projSubNoCert'));
         projLaborPensionRate.addEventListener('change', () => syncAndRecalculate('projLaborPensionRate'));
         projCurrentPoint.addEventListener('change', () => syncAndRecalculate('projCurrentPoint'));
+        if (projHasPromotedAug115) projHasPromotedAug115.addEventListener('change', () => syncAndRecalculate('projHasPromotedAug115'));
         projIsSupervisor.addEventListener('change', () => syncAndRecalculate('projIsSupervisor'));
         projAdminRole.addEventListener('change', () => syncAndRecalculate('projAdminRole'));
         projAdminSeniority.addEventListener('change', () => syncAndRecalculate('projAdminSeniority'));
@@ -3148,7 +3631,7 @@
 
         // Helper: Get active points set for Tab 1
         function getSalaryData() {
-            return (yearSelect.value === '114' || yearSelect.value === '116') ? salaryData114 : salaryData113;
+            return (yearSelect.value === '113') ? salaryData113 : salaryData114;
         }
 
         // Fill Points (Tab 1)
@@ -3200,8 +3683,17 @@
         // Core Monthly Salary calculations (Tab 1)
         function calculateSalary() {
             const is116 = yearSelect.value === '116';
+            const is115 = yearSelect.value === '115';
             const is114 = yearSelect.value === '114';
             const is113 = yearSelect.value === '113';
+            const effStatus = getEffectiveTeacherStatus('tab1');
+            const isPending = (is115 || is116) && isBudgetPending.checked;
+
+            // Show budget pending option only when 115 or 116 is selected
+            if (budgetPendingGroupTab1) {
+                budgetPendingGroupTab1.style.display = (is115 || is116) ? 'block' : 'none';
+            }
+
             const point = parseInt(pointSelect.value);
             const dataSet = getSalaryData();
             const dataItem = dataSet.find(d => d.point === point);
@@ -3213,30 +3705,25 @@
             }
             lblPointDetail.textContent = `(${point}薪點)`;
 
-            // 1. Academic Research Fee
-            const hasQual = hasAdvancedQual.checked;
-            let researchPay = 0;
+            // 1. Academic Research Fee (依據 114.01.01 待遇一覽表)
+            const hasQual = (degreeSelect.value === 'doctor' || degreeSelect.value === 'master' || hasAdvancedQual.checked);
+            const baseResearch = getBaseResearchPay(point, hasQual, is113);
+
+            // Calculate full (budget passed) vs actual (if budget pending)
+            let fullResearchPay = baseResearch;
+            let researchPay = baseResearch;
+
             if (is116) {
-                if (point >= 475) researchPay = hasQual ? 35780 : 30140;
-                else if (point >= 350) researchPay = 30140;
-                else if (point >= 245) researchPay = 26560;
-                else researchPay = 23080;
-                
-                researchPay = Math.round((researchPay + 2000) * 1.04);
-            } else if (is114) {
-                if (point >= 475) researchPay = hasQual ? 35780 : 30140;
-                else if (point >= 350) researchPay = 30140;
-                else if (point >= 245) researchPay = 26560;
-                else researchPay = 23080;
-            } else {
-                if (point >= 475) researchPay = hasQual ? 34730 : 29260;
-                else if (point >= 350) researchPay = 29260;
-                else if (point >= 245) researchPay = 25780;
-                else researchPay = 22400;
+                fullResearchPay = Math.round((baseResearch + 2000) * 1.04);
+                researchPay = isPending ? Math.round(baseResearch * 1.04) : fullResearchPay;
+            } else if (is115) {
+                fullResearchPay = baseResearch + 2000;
+                researchPay = isPending ? baseResearch : fullResearchPay;
             }
 
             // Apply 80% discount for substitute teachers without certificate
-            if (teacherStatus.value === 'sub_no_cert') {
+            if (effStatus === 'sub_no_cert') {
+                fullResearchPay = Math.round(fullResearchPay * 0.8);
                 researchPay = Math.round(researchPay * 0.8);
             }
 
@@ -3253,47 +3740,19 @@
                 rowTutor.style.display = 'none';
             }
 
-            // 3. Supervisor Fee
+            // 3. Supervisor Fee (依據 114.01.01 待遇一覽表)
             const role = isSupervisor.checked ? adminRole.value : 'none';
-            let adminPay = 0;
-            if (is116) {
-                if (role === 'principal') adminPay = 13110;
-                else if (role === 'director_70plus') adminPay = 7750;
-                else if (role === 'director_under70') adminPay = 5930;
-                else if (role === 'department_head') adminPay = 5930;
-                else if (role === 'section_chief') {
-                    if (point >= 290) adminPay = 5930;
-                    else if (point >= 245) adminPay = 4870;
-                    else adminPay = 4320;
-                } else if (role === 'sub_section_chief') {
-                    adminPay = 4320;
-                }
-                if (role !== 'none') {
-                    adminPay = Math.round((adminPay + 2000) * 1.04);
-                }
-            } else if (is114) {
-                if (role === 'principal') adminPay = 13110;
-                else if (role === 'director_70plus') adminPay = 7750;
-                else if (role === 'director_under70') adminPay = 5930;
-                else if (role === 'department_head') adminPay = 5930;
-                else if (role === 'section_chief') {
-                    if (point >= 290) adminPay = 5930;
-                    else if (point >= 245) adminPay = 4870;
-                    else adminPay = 4320;
-                } else if (role === 'sub_section_chief') {
-                    adminPay = 4320;
-                }
-            } else {
-                if (role === 'principal') adminPay = 12730;
-                else if (role === 'director_70plus') adminPay = 7520;
-                else if (role === 'director_under70') adminPay = 5750;
-                else if (role === 'department_head') adminPay = 5750;
-                else if (role === 'section_chief') {
-                    if (point >= 290) adminPay = 5750;
-                    else if (point >= 245) adminPay = 4720;
-                    else adminPay = 4190;
-                } else if (role === 'sub_section_chief') {
-                    adminPay = 4190;
+            const baseAdmin = getBaseAdminPay(role, point, is113);
+            let fullAdminPay = baseAdmin;
+            let adminPay = baseAdmin;
+
+            if (role !== 'none') {
+                if (is116) {
+                    fullAdminPay = Math.round((baseAdmin + 2000) * 1.04);
+                    adminPay = isPending ? Math.round(baseAdmin * 1.04) : fullAdminPay;
+                } else if (is115) {
+                    fullAdminPay = baseAdmin + 2000;
+                    adminPay = isPending ? baseAdmin : fullAdminPay;
                 }
             }
 
@@ -3302,8 +3761,9 @@
                 valAdminPay.textContent = `+$${adminPay.toLocaleString()}`;
                 
                 let roleLabel = '';
-                if (role === 'principal') roleLabel = '(校長)';
-                else if (role === 'director_70plus') roleLabel = '(處室主任 - 70班以上)';
+                if (role === 'principal') roleLabel = '(校長 - 高中職簡任十等)';
+                else if (role === 'principal_jr') roleLabel = '(校長 - 國中小薦任九等)';
+                else if (role === 'director_70plus') roleLabel = '(處室主任 - 高中/國中70班以上)';
                 else if (role === 'director_under70') roleLabel = '(處室主任 - 未滿70班)';
                 else if (role === 'department_head') roleLabel = '(科主任)';
                 else if (role === 'section_chief') roleLabel = '(組長)';
@@ -3314,13 +3774,13 @@
                 rowAdmin.style.display = 'none';
             }
             
-            // 4. Special Education Allowance
+            // 4. Special Education Allowance (115/2起調升為 $2,800 / $900)
             const specialEd = specialEdRole.value;
             let specialEdPay = 0;
             if (specialEd === 'special_cert') {
-                specialEdPay = is116 ? 2800 : 1800;
+                specialEdPay = (is115 || is116) ? 2800 : 1800;
             } else if (specialEd === 'special_no_cert') {
-                specialEdPay = is116 ? 900 : 600;
+                specialEdPay = (is115 || is116) ? 900 : 600;
             }
 
             if (specialEd !== 'none') {
@@ -3332,7 +3792,7 @@
             }
 
             // 5. Weekday classes and Overtime classes calculations
-            const calYearNum = is113 ? 113 : (is114 ? 114 : 116);
+            const calYearNum = is113 ? 113 : (is114 ? 114 : (is115 ? 115 : 116));
             const hourlyRate = getHourlyRate(hourlyRateLevel.value, calYearNum, 9);
             const weekdayPeriodsVal = parseFloat(weekdayPeriods.value) || 0;
             const overtimePeriodsVal = (parseFloat(overtimePeriods.value) || 0) * 4;
@@ -3378,9 +3838,9 @@
 
             // Deductions
             const lpRateVal = parseInt(laborPensionRate.value) || 0;
-            const deducts = computeDeductions(basicPay, grossSalary, parseInt(nhiDependents.value), teacherStatus.value, calYearNum, lpRateVal);
+            const deducts = computeDeductions(basicPay, grossSalary, parseInt(nhiDependents.value), effStatus, calYearNum, lpRateVal);
 
-            const isSub = (teacherStatus.value === 'sub_with_cert' || teacherStatus.value === 'sub_no_cert');
+            const isSub = (effStatus === 'sub_with_cert' || effStatus === 'sub_no_cert');
 
             if (isSub) {
                 document.getElementById('rowGIP').firstElementChild.textContent = "勞保保險費 (勞保)";
@@ -3429,6 +3889,46 @@
             const netSalary = grossSalary - totalDeduct;
             netSalaryText.textContent = `$${netSalary.toLocaleString()}`;
 
+            // Render Tab 1 Government Owes Me Banner if budget pending
+            const tab1ArrearsBanner = document.getElementById('tab1ArrearsBanner');
+            const lblTab1MainStat = document.getElementById('lblTab1MainStat');
+            if (isPending && tab1ArrearsBanner) {
+                tab1ArrearsBanner.style.display = 'block';
+                if (lblTab1MainStat) lblTab1MainStat.textContent = '每月實領薪資 (追加預算未過之目前暫領)';
+
+                const diffResearch = fullResearchPay - researchPay;
+                const diffAdmin = fullAdminPay - adminPay;
+                const monthlyShortfall = diffResearch + diffAdmin;
+
+                let parts = [`學術研究費少領 $${diffResearch.toLocaleString()}/月`];
+                if (diffAdmin > 0) parts.push(`主管加給少領 $${diffAdmin.toLocaleString()}/月`);
+                document.getElementById('tab1ArrearsDetail').textContent = `包含：${parts.join(' ＋ ')}（點擊上方「115-116年加薪與年薪估算」可查看完整累積欠款與考績差額明細）`;
+                document.getElementById('tab1ArrearsVal').textContent = `-$${monthlyShortfall.toLocaleString()} / 月`;
+
+                const curM = parseInt(arrearsCurrentMonth.value) || 10;
+                const monthsCount = Math.max(1, curM - 6);
+                const mResearchOwed = (effStatus === 'sub_no_cert' ? 1600 : 2000) * monthsCount;
+                const mAdminOwed = (role !== 'none' ? 2000 : 0) * monthsCount;
+                const hasProm1 = hasPromotedAug115 ? hasPromotedAug115.checked : true;
+                const ptInfo115 = resolveYear115Points(point, degreeSelect.value, effStatus, hasProm1);
+                const perfM = isSub ? 0 : (ptInfo115.isAlreadyCappedFor2MonthsPerf ? 2.0 : 1.0);
+                const mPerfOwed = (curM >= 10) ? Math.round(perfM * ((effStatus === 'sub_no_cert' ? 1600 : 2000) + (role !== 'none' ? 2000 : 0))) : 0;
+
+                let mLeaveOwed = 0;
+                if (curM === 12 && role !== 'none') {
+                    const sen = parseInt(adminSeniority.value) || 0;
+                    let lDays = sen >= 14 ? 30 : (sen >= 9 ? 28 : (sen >= 6 ? 21 : (sen >= 3 ? 14 : (sen >= 1 ? 7 : 0))));
+                    let uDays = Math.max(0, lDays - 10);
+                    mLeaveOwed = Math.round((((effStatus === 'sub_no_cert' ? 1600 : 2000) + 2000) / 240) * 8 * uDays);
+                }
+                const totalOwedNow = mResearchOwed + mAdminOwed + mPerfOwed + mLeaveOwed;
+                document.getElementById('tab1ArrearsMonthLabel').textContent = curM;
+                document.getElementById('tab1ArrearsTotalNow').textContent = `$${totalOwedNow.toLocaleString()} 元`;
+            } else {
+                if (tab1ArrearsBanner) tab1ArrearsBanner.style.display = 'none';
+                if (lblTab1MainStat) lblTab1MainStat.textContent = '每月實領薪資 (預估)';
+            }
+
             // Render Chart percentages
             const netPercent = (netSalary / grossSalary) * 100;
             const deductPercent = (totalDeduct / grossSalary) * 100;
@@ -3475,142 +3975,139 @@
         // Core progression timeline calculations (Tab 2)
         function calculateProgression() {
             const degree = progDegree.value;
-            const startPoint = parseInt(progCurrentPoint.value);
+            const selectedPoint = parseInt(progCurrentPoint.value);
             const role = progIsSupervisor.checked ? progAdminRole.value : 'none';
             const tutor = progIsTutor.checked;
             const dependents = parseInt(progNHIDependents.value);
             const specialEd = progSpecialEdRole.value;
+            const effStatus = getEffectiveTeacherStatus('prog');
+            const isSub = (effStatus === 'sub_with_cert' || effStatus === 'sub_no_cert');
+            const isPending = progIsBudgetPending.checked;
+            const curArrearsMonth = parseInt(progArrearsCurrentMonth.value) || 10;
+            const lpRateVal = parseInt(progLaborPensionRate.value) || 0;
+            const hasProm = progHasPromotedAug115 ? progHasPromotedAug115.checked : true;
+
+            // Resolve 115年1~7月 (lookback -1 step) vs 115年8~12月 (selected current point)
+            const ptInfo115 = resolveYear115Points(selectedPoint, degree, effStatus, hasProm);
+            const startPoint = ptInfo115.p_jan_jul; // 115年1~7月薪點
+            const s3Point = ptInfo115.p_aug_dec;    // 115年8~12月現支薪點
+            const s3ReachedMax = ptInfo115.isAlreadyCappedFor2MonthsPerf;
 
             const tutorPay = tutor ? 4000 : 0;
-            const hasAdvQual = (degree === 'master' || degree === 'doctor');
+            const hasAdvQual = (degree === 'master' || degree === 'doctor' || hasAdvancedQual.checked);
 
             // --- STAGE 1: 115年1月~6月 ---
             const s1DataItem = salaryData114.find(d => d.point === startPoint);
             if (!s1DataItem) return;
             const s1Basic = s1DataItem.pay;
 
-            let s1Research = 0;
-            if (startPoint >= 475) s1Research = hasAdvQual ? 35780 : 30140;
-            else if (startPoint >= 350) s1Research = 30140;
-            else if (startPoint >= 245) s1Research = 26560;
-            else s1Research = 23080;
-
-            if (progTeacherStatus.value === 'sub_no_cert') {
+            let s1Research = getBaseResearchPay(startPoint, hasAdvQual, false);
+            if (effStatus === 'sub_no_cert') {
                 s1Research = Math.round(s1Research * 0.8);
             }
 
-            let s1Admin = 0;
-            if (role === 'principal') s1Admin = 13110;
-            else if (role === 'director_70plus') s1Admin = 7750;
-            else if (role === 'director_under70') s1Admin = 5930;
-            else if (role === 'department_head') s1Admin = 5930;
-            else if (role === 'section_chief') {
-                if (startPoint >= 475) s1Admin = 7750;
-                else if (startPoint >= 290) s1Admin = 5930;
-                else s1Admin = 4320;
-            } else if (role === 'sub_section_chief') {
-                s1Admin = 4320;
-            }
+            const s1Admin = getBaseAdminPay(role, startPoint, false);
 
             // Stage 1 Special Education allowance: Jan is old rate, Feb-Jun is new rate
             const s1SpecialEdJan = (specialEd === 'special_cert') ? 1800 : (specialEd === 'special_no_cert' ? 600 : 0);
             const s1SpecialEdFebJune = (specialEd === 'special_cert') ? 2800 : (specialEd === 'special_no_cert' ? 900 : 0);
 
-            // Calculate Stage 1 Jan (for cumulative annual calculations later)
-            const s1GrossJan = s1Basic + s1Research + s1Admin + tutorPay + s1SpecialEdJan;
-            const s1DeductsJan = computeDeductions(s1Basic, s1GrossJan, dependents, progTeacherStatus.value, 115, parseInt(progLaborPensionRate.value) || 0);
-            const s1NetJan = s1GrossJan - s1DeductsJan.total;
-
             // Calculate Stage 1 Feb-Jun (representing June and displayed as s1Gross)
             const s1Gross = s1Basic + s1Research + s1Admin + tutorPay + s1SpecialEdFebJune;
-            const s1Deducts = computeDeductions(s1Basic, s1Gross, dependents, progTeacherStatus.value, 115, parseInt(progLaborPensionRate.value) || 0);
+            const s1Deducts = computeDeductions(s1Basic, s1Gross, dependents, effStatus, 115, lpRateVal);
             const s1Net = s1Gross - s1Deducts.total;
 
-            document.getElementById('s1Point').textContent = `${startPoint} 薪點`;
+            document.getElementById('s1Point').textContent = ptInfo115.didLookback ? `${startPoint} 薪點 (回推降1級)` : `${startPoint} 薪點`;
             document.getElementById('s1Gross').textContent = `${s1Gross.toLocaleString()}`;
             document.getElementById('s1Deduct').textContent = `${s1Deducts.total.toLocaleString()}`;
             document.getElementById('s1Net').textContent = `${s1Net.toLocaleString()}`;
 
-            // --- STAGE 2: 115年7月起 (加給加薪 $2000) ---
+            // --- STAGE 2: 115年7月起 (加給加薪 $2000，薪點仍為 1~7月之 startPoint) ---
             const s2Basic = s1Basic;
-            let s2ResearchBase = 0;
-            if (startPoint >= 475) s2ResearchBase = hasAdvQual ? 35780 : 30140;
-            else if (startPoint >= 350) s2ResearchBase = 30140;
-            else if (startPoint >= 245) s2ResearchBase = 26560;
-            else s2ResearchBase = 23080;
+            const s2ResearchBase = getBaseResearchPay(startPoint, hasAdvQual, false);
 
-            let s2Research = s2ResearchBase + 2000;
-            if (progTeacherStatus.value === 'sub_no_cert') {
-                s2Research = Math.round(s2Research * 0.8);
+            let s2ResearchFull = s2ResearchBase + 2000;
+            if (effStatus === 'sub_no_cert') {
+                s2ResearchFull = Math.round(s2ResearchFull * 0.8);
             }
-            const s2Admin = s1Admin + (role !== 'none' ? 2000 : 0);
+            const s2AdminFull = s1Admin + (role !== 'none' ? 2000 : 0);
             const s2SpecialEd = (specialEd === 'special_cert') ? 2800 : (specialEd === 'special_no_cert' ? 900 : 0);
 
-            const s2Gross = s2Basic + s2Research + s2Admin + tutorPay + s2SpecialEd;
-            const s2Deducts = computeDeductions(s2Basic, s2Gross, dependents, progTeacherStatus.value, 115, parseInt(progLaborPensionRate.value) || 0);
-            const s2Net = s2Gross - s2Deducts.total;
+            const s2ResearchActual = isPending ? s1Research : s2ResearchFull;
+            const s2AdminActual = isPending ? s1Admin : s2AdminFull;
 
-            document.getElementById('s2Research').textContent = `${s2Research.toLocaleString()} (+$2K)`;
-            document.getElementById('s2Admin').textContent = role !== 'none' ? `${s2Admin.toLocaleString()} (+$2K)` : '0';
-            document.getElementById('s2Gross').textContent = `${s2Gross.toLocaleString()}`;
-            document.getElementById('s2Net').textContent = `${s2Net.toLocaleString()}`;
+            const s2GrossFull = s2Basic + s2ResearchFull + s2AdminFull + tutorPay + s2SpecialEd;
+            const s2GrossActual = s2Basic + s2ResearchActual + s2AdminActual + tutorPay + s2SpecialEd;
+            const s2DeductsActual = computeDeductions(s2Basic, s2GrossActual, dependents, effStatus, 115, lpRateVal);
+            const s2NetActual = s2GrossActual - s2DeductsActual.total;
 
-            // --- STAGE 3: 115年8月1日起 (晉薪1級) ---
-            let s3Point = startPoint;
-            let s3ReachedMax = false;
-            if (progTeacherStatus.value !== 'sub_no_cert') {
-                const nextInfo = getNextPoint(startPoint, degree);
-                s3Point = nextInfo.point;
-                s3ReachedMax = nextInfo.reachedMax;
+            const s2DateLabel = document.getElementById('s2DateLabel');
+            const s2TitleLabel = document.getElementById('s2TitleLabel');
+            if (isPending) {
+                if (s2DateLabel) s2DateLabel.textContent = '115年7月起 (🚨 追加預算未過 - 暫領舊制)';
+                if (s2TitleLabel) s2TitleLabel.textContent = '加給調升 $2,000 尚未發放 (改列待補發欠款)';
+                document.getElementById('s2Research').textContent = `${s2ResearchActual.toLocaleString()} (待補+$${(s2ResearchFull - s2ResearchActual).toLocaleString()})`;
+                document.getElementById('s2Admin').textContent = role !== 'none' ? `${s2AdminActual.toLocaleString()} (待補+$2K)` : '0';
+                document.getElementById('s2Gross').textContent = `${s2GrossActual.toLocaleString()}`;
+                document.getElementById('s2Net').textContent = `${s2NetActual.toLocaleString()}`;
+            } else {
+                if (s2DateLabel) s2DateLabel.textContent = '115年7月起';
+                if (s2TitleLabel) s2TitleLabel.textContent = '學術研究加給、主管加給雙調升';
+                document.getElementById('s2Research').textContent = `${s2ResearchFull.toLocaleString()} (+$${(s2ResearchFull - s1Research).toLocaleString()})`;
+                document.getElementById('s2Admin').textContent = role !== 'none' ? `${s2AdminFull.toLocaleString()} (+$2K)` : '0';
+                document.getElementById('s2Gross').textContent = `${s2GrossFull.toLocaleString()}`;
+                document.getElementById('s2Net').textContent = `${s2NetActual.toLocaleString()}`;
             }
 
-            const s3DataItem = salaryData114.find(d => d.point === s3Point);
+            // --- STAGE 3: 115年8月1日起 (目前現支薪級 s3Point) ---
+            const s3DataItem = salaryData114.find(d => d.point === s3Point) || salaryData114[salaryData114.length - 1];
             const s3Basic = s3DataItem.pay;
 
-            let s3ResearchBase = 0;
-            if (s3Point >= 475) s3ResearchBase = hasAdvQual ? 35780 : 30140;
-            else if (s3Point >= 350) s3ResearchBase = 30140;
-            else if (s3Point >= 245) s3ResearchBase = 26560;
-            else s3ResearchBase = 23080;
-            
-            let s3Research = s3ResearchBase + 2000;
-            if (progTeacherStatus.value === 'sub_no_cert') {
-                s3Research = Math.round(s3Research * 0.8);
+            const s3ResearchBase = getBaseResearchPay(s3Point, hasAdvQual, false);
+            let s3ResearchFull = s3ResearchBase + 2000;
+            let s3ResearchPending = s3ResearchBase;
+            if (effStatus === 'sub_no_cert') {
+                s3ResearchFull = Math.round(s3ResearchFull * 0.8);
+                s3ResearchPending = Math.round(s3ResearchPending * 0.8);
             }
+            const s3ResearchActual = isPending ? s3ResearchPending : s3ResearchFull;
 
-            let s3AdminBase = 0;
-            if (role === 'principal') s3AdminBase = 13110;
-            else if (role === 'director_70plus') s3AdminBase = 7750;
-            else if (role === 'director_under70') s3AdminBase = 5930;
-            else if (role === 'department_head') s3AdminBase = 5930;
-            else if (role === 'section_chief') {
-                if (s3Point >= 475) s3AdminBase = 7750;
-                else if (s3Point >= 290) s3AdminBase = 5930;
-                else s3AdminBase = 4320;
-            } else if (role === 'sub_section_chief') {
-                s3AdminBase = 4320;
-            }
-            const s3Admin = s3AdminBase + (role !== 'none' ? 2000 : 0);
+            const s3AdminBase = getBaseAdminPay(role, s3Point, false);
+            const s3AdminFull = s3AdminBase + (role !== 'none' ? 2000 : 0);
+            const s3AdminActual = isPending ? s3AdminBase : s3AdminFull;
 
             const s3SpecialEd = (specialEd === 'special_cert') ? 2800 : (specialEd === 'special_no_cert' ? 900 : 0);
 
-            const s3Gross = s3Basic + s3Research + s3Admin + tutorPay + s3SpecialEd;
-            const s3Deducts = computeDeductions(s3Basic, s3Gross, dependents, progTeacherStatus.value, 115, parseInt(progLaborPensionRate.value) || 0);
-            const s3Net = s3Gross - s3Deducts.total;
+            const s3GrossFull = s3Basic + s3ResearchFull + s3AdminFull + tutorPay + s3SpecialEd;
+            const s3GrossActual = s3Basic + s3ResearchActual + s3AdminActual + tutorPay + s3SpecialEd;
+            const s3DeductsActual = computeDeductions(s3Basic, s3GrossActual, dependents, effStatus, 115, lpRateVal);
+            const s3NetActual = s3GrossActual - s3DeductsActual.total;
 
-            document.getElementById('s3Point').innerHTML = `${s3Point} 薪點 ${s3ReachedMax ? '<span style="color:var(--accent-danger); font-size:0.7rem;">(已達學歷頂額)</span>' : ''}`;
-            document.getElementById('s3Gross').textContent = `${s3Gross.toLocaleString()}`;
-            document.getElementById('s3Deduct').textContent = `${s3Deducts.total.toLocaleString()}`;
-            document.getElementById('s3Net').textContent = `${s3Net.toLocaleString()}`;
+            const s3TitleLabel = document.getElementById('s3TitleLabel');
+            if (s3TitleLabel) {
+                const baseS3Title = ptInfo115.didLookback ? '新學年度晉本俸/年功薪 1 級 (目前現支薪級)' : (s3ReachedMax ? '已達學歷頂額 (維持現支薪級・考績2個月)' : '維持現支薪級 (本年度未晉級)');
+                s3TitleLabel.textContent = isPending ? `${baseS3Title} (不含未過追加預算)` : baseS3Title;
+            }
+            const maxDegPt = getDegreeMaxPoint(degree);
+            let s3BadgeHtml = '';
+            if (s3ReachedMax) {
+                s3BadgeHtml = '<span style="color:var(--accent-danger); font-size:0.7rem;">(已達學歷頂額・考績2個月)</span>';
+            } else if (ptInfo115.didLookback && s3Point >= maxDegPt) {
+                s3BadgeHtml = '<span style="color:var(--accent-warning); font-size:0.7rem;">(今年剛晉至頂額・考績1個月，明年起2個月)</span>';
+            }
+            document.getElementById('s3Point').innerHTML = `${s3Point} 薪點 ${s3BadgeHtml}`;
+            document.getElementById('s3Gross').textContent = `${s3GrossActual.toLocaleString()}`;
+            document.getElementById('s3Deduct').textContent = `${s3DeductsActual.total.toLocaleString()}`;
+            document.getElementById('s3Net').textContent = `${s3NetActual.toLocaleString()}`;
 
             // --- STAGE 4: 116年1月起 (全面調薪 4%) ---
             const s4Basic = Math.round(s3Basic * 1.04);
-            const s4Research = Math.round(s3Research * 1.04);
-            const s4Admin = Math.round(s3Admin * 1.04);
+            const s4Research = Math.round(s3ResearchFull * 1.04);
+            const s4Admin = Math.round(s3AdminFull * 1.04);
             const s4SpecialEd = (specialEd === 'special_cert') ? 2800 : (specialEd === 'special_no_cert' ? 900 : 0);
 
             const s4Gross = s4Basic + s4Research + s4Admin + tutorPay + s4SpecialEd;
-            const s4Deducts = computeDeductions(s4Basic, s4Gross, dependents, progTeacherStatus.value, 116, parseInt(progLaborPensionRate.value) || 0);
+            const s4Deducts = computeDeductions(s4Basic, s4Gross, dependents, effStatus, 116, lpRateVal);
             const s4Net = s4Gross - s4Deducts.total;
 
             document.getElementById('s4Basic').textContent = `${s4Basic.toLocaleString()}`;
@@ -3618,13 +4115,12 @@
             document.getElementById('s4Gross').textContent = `${s4Gross.toLocaleString()}`;
             document.getElementById('s4Net').textContent = `${s4Net.toLocaleString()}`;
 
-            // --- 115年度年薪計算 (2026年 1月至12月同一年) ---
-            let totalMonthlyNet = 0;
-            let totalDeductsCumulative = 0;
-            let taxableGross = 0;
-            let totalPensionSelf = 0;
+            // --- 115年度年薪計算 (同時計算「目前實領 Actual」與「預算通過完整 Full」) ---
+            let totalMonthlyNetActual = 0, totalMonthlyNetFull = 0;
+            let totalDeductsActual = 0, totalDeductsFull = 0;
+            let taxableGrossActual = 0, taxableGrossFull = 0;
+            let totalPensionSelfActual = 0, totalPensionSelfFull = 0;
 
-            // Monthly breakdown for Year 115 (Jan to Dec)
             for (let m = 1; m <= 12; m++) {
                 const isJanJul = (m <= 7);
                 const pt = isJanJul ? startPoint : s3Point;
@@ -3632,37 +4128,22 @@
                 let spEd = s1SpecialEdFebJune;
                 if (m === 1) spEd = s1SpecialEdJan;
 
-                const hasAllowanceAdd = (m >= 7);
+                const isJulOrLater = (m >= 7);
 
                 const dataItem = salaryData114.find(d => d.point === pt) || salaryData114[salaryData114.length - 1];
-                let basic = dataItem.pay;
+                const basic = dataItem.pay;
 
-                let research = 0;
-                const hasQual_local = (degree === 'master' || degree === 'doctor');
-                if (pt >= 475) research = hasQual_local ? 35780 : 30140;
-                else if (pt >= 350) research = 30140;
-                else if (pt >= 245) research = 26560;
-                else research = 23080;
-
-                if (hasAllowanceAdd) research += 2000;
-                if (progTeacherStatus.value === 'sub_no_cert') {
-                    research = Math.round(research * 0.8);
+                const baseRes = getBaseResearchPay(pt, hasAdvQual, false);
+                let resFull = baseRes + (isJulOrLater ? 2000 : 0);
+                let resActual = baseRes + ((isJulOrLater && !isPending) ? 2000 : 0);
+                if (effStatus === 'sub_no_cert') {
+                    resFull = Math.round(resFull * 0.8);
+                    resActual = Math.round(resActual * 0.8);
                 }
 
-                let admin = 0;
-                if (role === 'principal') admin = 13110;
-                else if (role === 'director_70plus') admin = 7750;
-                else if (role === 'director_under70') admin = 5930;
-                else if (role === 'department_head') admin = 5930;
-                else if (role === 'section_chief') {
-                    if (pt >= 475) admin = 7750;
-                    else if (pt >= 290) admin = 5930;
-                    else admin = 4320;
-                } else if (role === 'sub_section_chief') {
-                    admin = 4320;
-                }
-
-                if (hasAllowanceAdd) admin = admin > 0 ? admin + 2000 : 0;
+                const baseAdm = getBaseAdminPay(role, pt, false);
+                const admFull = baseAdm > 0 ? (baseAdm + (isJulOrLater ? 2000 : 0)) : 0;
+                const admActual = baseAdm > 0 ? (baseAdm + ((isJulOrLater && !isPending) ? 2000 : 0)) : 0;
 
                 // Determine hourly rate and periods for the current month
                 const hourlyRate = getHourlyRate(progHourlyRateLevel.value, 115, m);
@@ -3674,19 +4155,19 @@
                 let overtimeLimit = 70;
                 
                 if (m === 1) {
-                    weeks = 2; // only up to 2nd week
-                    overtimeLimit = 15; // winter vacation
+                    weeks = 2;
+                    overtimeLimit = 15;
                 } else if (m === 2) {
-                    weeks = 2; // starts from 3rd week
-                    overtimeLimit = 15; // winter vacation
+                    weeks = 2;
+                    overtimeLimit = 15;
                 } else if (m === 6) {
-                    weeks = progIsGraduatingClass.checked ? 1 : 4; // graduating classes only 1 week
+                    weeks = progIsGraduatingClass.checked ? 1 : 4;
                     overtimeLimit = 70;
                 } else if (m === 7 || m === 8) {
-                    weeks = 0; // vacation, no classes
-                    overtimeLimit = 25; // summer vacation
+                    weeks = 0;
+                    overtimeLimit = 25;
                 } else {
-                    weeks = 4; // normal term month
+                    weeks = 4;
                     overtimeLimit = 70;
                 }
 
@@ -3701,33 +4182,47 @@
                 const classPayExempt = overtimeExempt * hourlyRate;
                 const classPayTaxable = classPayTaxableWeekday + classPayTaxableOvertime;
 
-                const monthlyTaxableGross = basic + research + spEd + classPayTaxable;
-                const monthlyExemptGross = tutorPay + admin + classPayExempt;
-                const monthlyGross = monthlyTaxableGross + monthlyExemptGross;
+                // Actual
+                const mTaxableGrossActual = basic + resActual + spEd + classPayTaxable;
+                const mExemptGrossActual = tutorPay + admActual + classPayExempt;
+                const mGrossActual = mTaxableGrossActual + mExemptGrossActual;
+                const deductsAct = computeDeductions(basic, mGrossActual, dependents, effStatus, 115, lpRateVal);
 
-                const lpRateVal = parseInt(progLaborPensionRate.value) || 0;
-                const deducts = computeDeductions(basic, monthlyGross, dependents, progTeacherStatus.value, 115, lpRateVal);
+                totalMonthlyNetActual += (mGrossActual - deductsAct.total);
+                totalDeductsActual += deductsAct.total;
+                taxableGrossActual += mTaxableGrossActual;
+                totalPensionSelfActual += deductsAct.laborPensionDeduct;
 
-                totalMonthlyNet += (monthlyGross - deducts.total);
-                totalDeductsCumulative += deducts.total;
-                taxableGross += monthlyTaxableGross;
-                totalPensionSelf += deducts.laborPensionDeduct;
+                // Full
+                const mTaxableGrossFull = basic + resFull + spEd + classPayTaxable;
+                const mExemptGrossFull = tutorPay + admFull + classPayExempt;
+                const mGrossFull = mTaxableGrossFull + mExemptGrossFull;
+                const deductsFl = computeDeductions(basic, mGrossFull, dependents, effStatus, 115, lpRateVal);
+
+                totalMonthlyNetFull += (mGrossFull - deductsFl.total);
+                totalDeductsFull += deductsFl.total;
+                taxableGrossFull += mTaxableGrossFull;
+                totalPensionSelfFull += deductsFl.laborPensionDeduct;
             }
 
             // Bonuses
             const yearEndBonus = Math.round(1.5 * s1Gross);
             const taxableYearEndBonus = Math.round(1.5 * (s1Basic + s1Research + s1SpecialEdFebJune));
             let performanceMonths = s3ReachedMax ? 2.0 : 1.0;
-            if (progTeacherStatus.value === 'sub_with_cert' || progTeacherStatus.value === 'sub_no_cert') {
+            if (isSub) {
                 performanceMonths = 0;
             }
-            const performanceBonus = Math.round(performanceMonths * s3Gross);
-            const taxablePerformanceBonus = Math.round(performanceMonths * (s3Basic + s3Research + s3SpecialEd));
+            const performanceBonusActual = Math.round(performanceMonths * s3GrossActual);
+            const taxablePerformanceBonusActual = Math.round(performanceMonths * (s3Basic + s3ResearchActual + s3SpecialEd));
+
+            const performanceBonusFull = Math.round(performanceMonths * s3GrossFull);
+            const taxablePerformanceBonusFull = Math.round(performanceMonths * (s3Basic + s3ResearchFull + s3SpecialEd));
 
             // Unused Leave Calculation (Taiwan public school teacher serving as admin rules)
             let leaveDays = 0;
             let unusedLeaveDays = 0;
-            let unusedLeaveCompensation = 0;
+            let unusedLeaveCompensationActual = 0;
+            let unusedLeaveCompensationFull = 0;
 
             const rowAnnualUnusedLeave = document.getElementById('rowAnnualUnusedLeave');
 
@@ -3740,27 +4235,117 @@
                 else if (seniority >= 1) leaveDays = 7;
                 else leaveDays = 0;
 
-                if (leaveDays > 10) {
-                    unusedLeaveDays = leaveDays - 10;
-                } else {
-                    unusedLeaveDays = 0;
-                }
+                unusedLeaveDays = Math.max(0, leaveDays - 10);
 
                 // Daily rate based on Stage 3 rate (本俸+學術費+主管)
-                const monthlyRate = s3Basic + s3Research + s3Admin;
-                unusedLeaveCompensation = Math.round((monthlyRate / 240) * 8 * unusedLeaveDays);
+                const monthlyRateActual = s3Basic + s3ResearchActual + s3AdminActual;
+                const monthlyRateFull = s3Basic + s3ResearchFull + s3AdminFull;
+                unusedLeaveCompensationActual = Math.round((monthlyRateActual / 240) * 8 * unusedLeaveDays);
+                unusedLeaveCompensationFull = Math.round((monthlyRateFull / 240) * 8 * unusedLeaveDays);
 
                 rowAnnualUnusedLeave.style.display = 'flex';
-                document.getElementById('lblAnnualUnusedLeaveDetail').textContent = `行政年資滿 ${seniority} 年，特休 ${leaveDays} 天，可請領 ${unusedLeaveDays} 天特休加班費`;
-                document.getElementById('valAnnualUnusedLeave').textContent = `${unusedLeaveCompensation.toLocaleString()}`;
+                document.getElementById('lblAnnualUnusedLeaveDetail').textContent = `行政年資滿 ${seniority} 年，特休 ${leaveDays} 天，可請領 ${unusedLeaveDays} 天特休加班費${isPending ? ' (目前以未含追加預算基準計)' : ''}`;
+                document.getElementById('valAnnualUnusedLeave').textContent = `${unusedLeaveCompensationActual.toLocaleString()}`;
             } else {
                 rowAnnualUnusedLeave.style.display = 'none';
             }
 
-            const annualGrandTotal = totalMonthlyNet + yearEndBonus + performanceBonus + unusedLeaveCompensation;
+            // --- Populate "Government Owes Me XD" Card when budget pending ---
+            const govOwesMeCard = document.getElementById('govOwesMeCard');
+            if (isPending && govOwesMeCard) {
+                govOwesMeCard.style.display = 'block';
+
+                const monthsNow = Math.max(1, curArrearsMonth - 6); // 7月=1, 10月=4, 12月=6
+                const monthlyResDiff = (effStatus === 'sub_no_cert') ? 1600 : 2000;
+                const monthlyAdmDiff = (role !== 'none') ? 2000 : 0;
+
+                // Item 1: Academic Research Allowance Arrears
+                const owedResNow = monthlyResDiff * monthsNow;
+                const owedResYearEnd = monthlyResDiff * 6;
+                document.getElementById('lblOwedResearchFormula').textContent =
+                    `每月少領 $${monthlyResDiff.toLocaleString()} 元${effStatus === 'sub_no_cert' ? ' (無證代理八折)' : ''} × ${monthsNow} 個月 (7月~${curArrearsMonth}月) ＝ $${owedResNow.toLocaleString()} 元 【計至12月底共6個月為 $${owedResYearEnd.toLocaleString()} 元】`;
+                document.getElementById('valOwedResearchNow').textContent = `+$${owedResNow.toLocaleString()}`;
+
+                // Item 2: Supervisor Allowance Arrears
+                const rowOwedAdmin = document.getElementById('rowOwedAdmin');
+                const owedAdmNow = monthlyAdmDiff * monthsNow;
+                const owedAdmYearEnd = monthlyAdmDiff * 6;
+                if (role !== 'none') {
+                    rowOwedAdmin.style.display = 'flex';
+                    document.getElementById('lblOwedAdminFormula').textContent =
+                        `每月少領 $2,000 元 × ${monthsNow} 個月 (7月~${curArrearsMonth}月) ＝ $${owedAdmNow.toLocaleString()} 元 【計至12月底共6個月為 $${owedAdmYearEnd.toLocaleString()} 元】`;
+                    document.getElementById('valOwedAdminNow').textContent = `+$${owedAdmNow.toLocaleString()}`;
+                } else {
+                    rowOwedAdmin.style.display = 'none';
+                }
+
+                // Item 3: October Performance Bonus Shortfall
+                const perfDiffFull = performanceBonusFull - performanceBonusActual;
+                const owedPerfNow = (curArrearsMonth >= 10) ? perfDiffFull : 0;
+                const owedPerfYearEnd = perfDiffFull;
+                if (isSub) {
+                    document.getElementById('lblOwedPerfFormula').textContent = `代理教師無考績獎金差額 ($0)`;
+                    document.getElementById('valOwedPerfNow').textContent = `$0`;
+                } else if (curArrearsMonth >= 10) {
+                    document.getElementById('lblOwedPerfFormula').textContent =
+                        `8月全薪少算 $${(monthlyResDiff + monthlyAdmDiff).toLocaleString()} 元 × 考績 ${performanceMonths} 個月 (${s3ReachedMax ? '封頂2個月' : '晉級1個月'}) ＝ 10月考績少領 $${perfDiffFull.toLocaleString()} 元`;
+                    document.getElementById('valOwedPerfNow').textContent = `+$${owedPerfNow.toLocaleString()}`;
+                } else {
+                    document.getElementById('lblOwedPerfFormula').textContent =
+                        `截至 ${curArrearsMonth} 月尚未發放考績獎金 ($0) 【10月發放時將少領 $${perfDiffFull.toLocaleString()} 元 (${performanceMonths}個月)】`;
+                    document.getElementById('valOwedPerfNow').textContent = `$0 (10月少 $${perfDiffFull.toLocaleString()})`;
+                }
+
+                // Item 4: Unused Leave Overtime Pay Shortfall
+                const rowOwedUnusedLeave = document.getElementById('rowOwedUnusedLeave');
+                const leaveDiffFull = unusedLeaveCompensationFull - unusedLeaveCompensationActual;
+                const owedLeaveNow = (curArrearsMonth === 12) ? leaveDiffFull : 0;
+                const owedLeaveYearEnd = leaveDiffFull;
+                if (role !== 'none' && unusedLeaveDays > 0) {
+                    rowOwedUnusedLeave.style.display = 'flex';
+                    document.getElementById('lblOwedLeaveFormula').textContent =
+                        `可請領 ${unusedLeaveDays} 天 × 每日差額 ($${(monthlyResDiff + monthlyAdmDiff).toLocaleString()} ÷ 30日) ＝ 年底結算少領 $${leaveDiffFull.toLocaleString()} 元${curArrearsMonth < 12 ? ` (截至${curArrearsMonth}月尚未結算，列計於年底總額)` : ''}`;
+                    document.getElementById('valOwedLeaveNow').textContent = curArrearsMonth === 12 ? `+$${leaveDiffFull.toLocaleString()}` : `$0 (年底少 $${leaveDiffFull.toLocaleString()})`;
+                } else {
+                    rowOwedUnusedLeave.style.display = 'none';
+                }
+
+                // Item 5: NHI / LI Deduction Difference (if bracket changed)
+                const rowOwedNHIDiff = document.getElementById('rowOwedNHIDiff');
+                const deductDiffYearEnd = totalDeductsFull - totalDeductsActual;
+                if (deductDiffYearEnd > 0) {
+                    rowOwedNHIDiff.style.display = 'flex';
+                    document.getElementById('valOwedNHIDiff').textContent = `全年暫少扣 $${deductDiffYearEnd.toLocaleString()} 元`;
+                } else {
+                    rowOwedNHIDiff.style.display = 'none';
+                }
+
+                const totalOwedNow = owedResNow + owedAdmNow + owedPerfNow + owedLeaveNow;
+                const totalOwedYearEnd = owedResYearEnd + owedAdmYearEnd + owedPerfYearEnd + owedLeaveYearEnd;
+
+                document.getElementById('lblOwedNowTitle').textContent = `🔥 截至 115 年 ${curArrearsMonth} 月 (7~${curArrearsMonth}月，已過 ${monthsNow} 個月) 政府目前欠我`;
+                document.getElementById('valOwedNowTotal').textContent = `$${totalOwedNow.toLocaleString()} 元`;
+
+                let nowSubParts = [`7~${curArrearsMonth}月加給差額 $${(owedResNow + owedAdmNow).toLocaleString()}`];
+                if (owedPerfNow > 0) nowSubParts.push(`10月考績差額 $${owedPerfNow.toLocaleString()}`);
+                if (owedLeaveNow > 0) nowSubParts.push(`特休差額 $${owedLeaveNow.toLocaleString()}`);
+                document.getElementById('lblOwedNowSub').textContent = `包含：${nowSubParts.join(' ＋ ')}`;
+
+                document.getElementById('valOwedYearEndTotal').textContent = `$${totalOwedYearEnd.toLocaleString()} 元`;
+                let endSubParts = [`7~12月(6個月)加給差額 $${(owedResYearEnd + owedAdmYearEnd).toLocaleString()}`];
+                if (owedPerfYearEnd > 0) endSubParts.push(`考績差額 $${owedPerfYearEnd.toLocaleString()}`);
+                if (owedLeaveYearEnd > 0) endSubParts.push(`特休差額 $${owedLeaveYearEnd.toLocaleString()}`);
+                document.getElementById('lblOwedYearEndSub').textContent = `包含：${endSubParts.join(' ＋ ')}`;
+            } else if (govOwesMeCard) {
+                govOwesMeCard.style.display = 'none';
+            }
+
+            const annualGrandTotalActual = totalMonthlyNetActual + yearEndBonus + performanceBonusActual + unusedLeaveCompensationActual;
+            const annualGrandTotalFull = totalMonthlyNetFull + yearEndBonus + performanceBonusFull + unusedLeaveCompensationFull;
 
             // Calculate Estimated Income Tax (annual consolidation)
-            const finalConsolidatedTaxableGross = taxableGross + taxableYearEndBonus + taxablePerformanceBonus;
+            const finalConsolidatedTaxableGrossActual = taxableGrossActual + taxableYearEndBonus + taxablePerformanceBonusActual;
+            const finalConsolidatedTaxableGrossFull = taxableGrossFull + taxableYearEndBonus + taxablePerformanceBonusFull;
             const taxStatusVal = progTaxStatus.value;
             const spouseIncomeVal = taxStatusVal === 'married' ? (parseInt(progSpouseIncome.value) || 0) : 0;
 
@@ -3769,9 +4354,11 @@
             inputs.forEach(input => ages.push(parseInt(input.value) || 0));
 
             // Subtract labor pension self contribution from taxable gross
-            const consolidatedTaxableNet = finalConsolidatedTaxableGross - totalPensionSelf;
+            const consolidatedTaxableNetActual = finalConsolidatedTaxableGrossActual - totalPensionSelfActual;
+            const consolidatedTaxableNetFull = finalConsolidatedTaxableGrossFull - totalPensionSelfFull;
 
-            const taxResult = computeIncomeTax(consolidatedTaxableNet, taxStatusVal, ages, spouseIncomeVal);
+            const taxResultActual = computeIncomeTax(consolidatedTaxableNetActual, taxStatusVal, ages, spouseIncomeVal);
+            const taxResultFull = computeIncomeTax(consolidatedTaxableNetFull, taxStatusVal, ages, spouseIncomeVal);
 
             // Render spouse income row
             const rowSpouse = document.getElementById('rowAnnualSpouseIncome');
@@ -3782,32 +4369,53 @@
                 rowSpouse.style.display = 'none';
             }
 
+            // Update Annual Card Title & Formula
+            const lblAnnualTotalTitle = document.getElementById('lblAnnualTotalTitle');
+            const lblAnnualMonthlyFormula = document.getElementById('lblAnnualMonthlyFormula');
+            if (isPending) {
+                if (lblAnnualTotalTitle) lblAnnualTotalTitle.textContent = '民國 115 年預估目前實領年薪 (不含未過追加預算之暫領金額)';
+                if (lblAnnualMonthlyFormula) lblAnnualMonthlyFormula.textContent = '(1-7月: 舊制 × 7M) + (8-12月: 僅晉級1級、不含追加預算加給 × 5M)';
+            } else {
+                if (lblAnnualTotalTitle) lblAnnualTotalTitle.textContent = '民國 115 年 (1月至12月) 預估總實領年薪 (含年終與考績獎金)';
+                if (lblAnnualMonthlyFormula) lblAnnualMonthlyFormula.textContent = '(1-6月: 舊制 × 6M) + (7月: 加給調升 × 1M) + (8-12月: 晉級+加給調升 × 5M)';
+            }
+
             // Render Annual elements
-            document.getElementById('valAnnualTotal').textContent = `${annualGrandTotal.toLocaleString()}`;
-            document.getElementById('valAnnualMonthlyNet').textContent = `${totalMonthlyNet.toLocaleString()} (12個月累計)`;
+            document.getElementById('valAnnualTotal').textContent = `${annualGrandTotalActual.toLocaleString()}`;
+            document.getElementById('valAnnualMonthlyNet').textContent = `${totalMonthlyNetActual.toLocaleString()} (12個月累計)`;
             document.getElementById('valAnnualYearEnd').textContent = `${yearEndBonus.toLocaleString()}`;
-            document.getElementById('valAnnualPerformance').textContent = `${performanceBonus.toLocaleString()}`;
+            document.getElementById('valAnnualPerformance').textContent = `${performanceBonusActual.toLocaleString()}`;
             document.getElementById('lblPerformanceMonths').textContent = (performanceMonths === 0) ? '0 (代理無)' : performanceMonths;
-            document.getElementById('valAnnualTotalDeduct').textContent = `${totalDeductsCumulative.toLocaleString()}`;
+            document.getElementById('valAnnualTotalDeduct').textContent = `${totalDeductsActual.toLocaleString()}`;
 
             // Consolidated tax detail message
-            const grossMsg = taxStatusVal === 'married' ? `家庭課稅總額 ${(consolidatedTaxableNet + spouseIncomeVal).toLocaleString()} 元 (已扣勞退自提)` : `課稅年所得 ${consolidatedTaxableNet.toLocaleString()} 元 (已扣勞退自提)`;
-            document.getElementById('lblAnnualTaxDetail').textContent = `${grossMsg}，淨額 ${taxResult.netTaxable.toLocaleString()} 元 (稅率 ${Math.round(taxResult.rate * 100)}%)`;
-            document.getElementById('valAnnualTax').textContent = `${taxResult.tax.toLocaleString()}`;
+            const grossMsg = taxStatusVal === 'married' ? `家庭課稅總額 ${(consolidatedTaxableNetActual + spouseIncomeVal).toLocaleString()} 元 (已扣勞退自提)` : `課稅年所得 ${consolidatedTaxableNetActual.toLocaleString()} 元 (已扣勞退自提)`;
+            document.getElementById('lblAnnualTaxDetail').textContent = `${grossMsg}，淨額 ${taxResultActual.netTaxable.toLocaleString()} 元 (稅率 ${Math.round(taxResultActual.rate * 100)}%)`;
+            document.getElementById('valAnnualTax').textContent = `${taxResultActual.tax.toLocaleString()}`;
 
             // Render Net After Tax (Family vs Personal)
             const labelAnnualTotalAfterTax = document.getElementById('valAnnualTotalAfterTax');
-            const rowTotalAfterTax = labelAnnualTotalAfterTax.parentElement;
+            const lblAnnualAfterTaxTitle = document.getElementById('lblAnnualAfterTaxTitle');
+            const rowAnnualWithBackpay = document.getElementById('rowAnnualWithBackpay');
+
+            const netAfterTaxActual = (taxStatusVal === 'married' ? (annualGrandTotalActual + spouseIncomeVal) : annualGrandTotalActual) - taxResultActual.tax;
+            const netAfterTaxFull = (taxStatusVal === 'married' ? (annualGrandTotalFull + spouseIncomeVal) : annualGrandTotalFull) - taxResultFull.tax;
 
             if (taxStatusVal === 'married') {
-                rowTotalAfterTax.firstElementChild.textContent = "115年度家庭稅後合併淨所得 (落袋金額)";
-                const familyPreTaxTotal = annualGrandTotal + spouseIncomeVal;
-                const familyNet = familyPreTaxTotal - taxResult.tax;
-                labelAnnualTotalAfterTax.textContent = `${familyNet.toLocaleString()}`;
+                if (lblAnnualAfterTaxTitle) lblAnnualAfterTaxTitle.textContent = isPending ? "115年度家庭稅後目前實領淨所得 (不含待補發)" : "115年度家庭稅後合併淨所得 (落袋金額)";
+                labelAnnualTotalAfterTax.textContent = `${netAfterTaxActual.toLocaleString()}`;
             } else {
-                rowTotalAfterTax.firstElementChild.textContent = "115年度個人稅後淨實領總年薪 (落袋金額)";
-                const netAfterTax = annualGrandTotal - taxResult.tax;
-                labelAnnualTotalAfterTax.textContent = `${netAfterTax.toLocaleString()}`;
+                if (lblAnnualAfterTaxTitle) lblAnnualAfterTaxTitle.textContent = isPending ? "115年度個人稅後目前實領總年薪 (不含待補發)" : "115年度個人稅後淨實領總年薪 (落袋金額)";
+                labelAnnualTotalAfterTax.textContent = `${netAfterTaxActual.toLocaleString()}`;
+            }
+
+            if (isPending && rowAnnualWithBackpay) {
+                rowAnnualWithBackpay.style.display = 'flex';
+                const netDiff = netAfterTaxFull - netAfterTaxActual;
+                document.getElementById('lblAnnualWithBackpayDetail').textContent = `待政府補發全年差額後，稅後實領將再增加 +$${netDiff.toLocaleString()} 元`;
+                document.getElementById('valAnnualWithBackpay').textContent = `$${netAfterTaxFull.toLocaleString()}`;
+            } else if (rowAnnualWithBackpay) {
+                rowAnnualWithBackpay.style.display = 'none';
             }
         }
 
@@ -3846,9 +4454,9 @@
             }
         }
 
-        projAge.addEventListener('change', calculateLifetimeProjection);
-        gradMasterYear.addEventListener('change', calculateLifetimeProjection);
-        gradDoctorYear.addEventListener('change', calculateLifetimeProjection);
+        projAge.addEventListener('change', () => { calculateLifetimeProjection(); saveSettings(); });
+        gradMasterYear.addEventListener('change', () => { calculateLifetimeProjection(); saveSettings(); });
+        gradDoctorYear.addEventListener('change', () => { calculateLifetimeProjection(); saveSettings(); });
 
         function populateProjPoints(selectedDegree) {
             const currentSelectedValue = projCurrentPoint.value;
@@ -3888,6 +4496,11 @@
             // Basic configuration synced
             const startPoint = parseInt(projCurrentPoint.value);
             const degree = projDegree.value;
+            const effStatus = getEffectiveTeacherStatus('proj');
+            const isSub = (effStatus === 'sub_with_cert' || effStatus === 'sub_no_cert');
+            const isPending = projIsBudgetPending.checked;
+            const curArrearsMonth = parseInt(projArrearsCurrentMonth.value) || 10;
+
             const role = projIsSupervisor.checked ? projAdminRole.value : 'none';
             const startSeniority = parseInt(projAdminSeniority.value) || 0;
             const tutor = projIsTutor.checked;
@@ -3927,91 +4540,76 @@
             let chartAnnuals = [];
             let chartMonthlies = [];
 
+            let year115ReachedMax = false;
+            let year115UnusedLeaveDays = 0;
+
+            const hasProm = projHasPromotedAug115 ? projHasPromotedAug115.checked : true;
+            const ptInfo115 = resolveYear115Points(startPoint, degree, effStatus, hasProm);
+
             // Calculate calendar years from 115 up to retirement
             for (let i = 0; i <= yearsCount; i++) {
                 const year = 115 + i;
                 const age = startAge + i;
+                const prevDegree = currentDegree;
 
                 // 1. Determine Graduations/ 改敘
-                if (gradMaster !== 'none' && gradMaster !== 'already') {
-                    if (year >= parseInt(gradMaster)) {
-                        if (currentDegree === 'bachelor' || currentDegree.startsWith('other')) {
-                            currentDegree = 'master';
-                        }
+                const isGradMasterThisYear = (gradMaster !== 'none' && gradMaster !== 'already' && parseInt(gradMaster) === year && (prevDegree === 'bachelor' || prevDegree.startsWith('other')));
+                if (gradMaster !== 'none' && gradMaster !== 'already' && year >= parseInt(gradMaster)) {
+                    if (currentDegree === 'bachelor' || currentDegree.startsWith('other')) {
+                        currentDegree = 'master';
                     }
                 }
-                if (gradDoctor !== 'none' && gradDoctor !== 'already') {
-                    if (year >= parseInt(gradDoctor)) {
-                        currentDegree = 'doctor';
-                    }
+                const isGradDoctorThisYear = (gradDoctor !== 'none' && gradDoctor !== 'already' && parseInt(gradDoctor) === year && prevDegree !== 'doctor');
+                if (gradDoctor !== 'none' && gradDoctor !== 'already' && year >= parseInt(gradDoctor)) {
+                    currentDegree = 'doctor';
                 }
 
                 // 2. Resolve salary point progression for this calendar year
-                let p_jan_jul = currentPoint;
-                let p_aug_dec = currentPoint;
+                let p_jan_jul = (i === 0) ? ptInfo115.p_jan_jul : currentPoint;
+                let p_aug_dec = p_jan_jul;
                 let reachedMax_aug_dec = false;
 
-                if (i > 0) {
-                    p_jan_jul = currentPoint;
-                    
-                    if (projTeacherStatus.value === 'sub_no_cert') {
-                        // For uncertified teachers: jump to minimum on graduation, but no annual steps.
-                        const isGradMaster = (gradMaster !== 'none' && gradMaster !== 'already' && parseInt(gradMaster) === year);
-                        const isGradDoctor = (gradDoctor !== 'none' && gradDoctor !== 'already' && parseInt(gradDoctor) === year);
-                        if (isGradMaster) {
-                            p_aug_dec = Math.max(p_jan_jul, 245);
-                        } else if (isGradDoctor) {
-                            p_aug_dec = Math.max(p_jan_jul, 330);
-                        } else {
-                            p_aug_dec = p_jan_jul;
-                        }
+                if (i === 0 && !isGradDoctorThisYear && !isGradMasterThisYear) {
+                    p_aug_dec = ptInfo115.p_aug_dec;
+                    reachedMax_aug_dec = ptInfo115.isAlreadyCappedFor2MonthsPerf;
+                } else if (effStatus === 'sub_no_cert') {
+                    // For uncertified teachers: jump to minimum on graduation, but no annual steps.
+                    if (isGradDoctorThisYear) {
+                        p_aug_dec = Math.max(p_jan_jul, 330);
+                    } else if (isGradMasterThisYear) {
+                        p_aug_dec = Math.max(p_jan_jul, 245);
                     } else {
-                        let jumpCount = 1;
-                        if (gradMaster !== 'none' && gradMaster !== 'already' && parseInt(gradMaster) === year) {
-                            jumpCount = 4; // Master graduation = 3 (degree) + 1 (annual) = 4 steps
-                        } else if (gradDoctor !== 'none' && gradDoctor !== 'already' && parseInt(gradDoctor) === year) {
-                            jumpCount = 3; // PhD graduation = 2 (degree) + 1 (annual) = 3 steps
-                        }
-
-                        let tempPoint = p_jan_jul;
-                        for (let j = 0; j < jumpCount; j++) {
-                            const next = getNextPoint(tempPoint, currentDegree);
-                            tempPoint = next.point;
-                            reachedMax_aug_dec = next.reachedMax;
-                        }
-                        p_aug_dec = tempPoint;
+                        p_aug_dec = p_jan_jul;
                     }
-                    currentPoint = p_aug_dec; // update for next iteration
                 } else {
-                    p_jan_jul = startPoint;
-                    if (projTeacherStatus.value === 'sub_no_cert') {
-                        const isGradMaster = (gradMaster !== 'none' && gradMaster !== 'already' && parseInt(gradMaster) === 115);
-                        const isGradDoctor = (gradDoctor !== 'none' && gradDoctor !== 'already' && parseInt(gradDoctor) === 115);
-                        if (isGradMaster) {
-                            p_aug_dec = Math.max(startPoint, 245);
-                        } else if (isGradDoctor) {
-                            p_aug_dec = Math.max(startPoint, 330);
-                        } else {
-                            p_aug_dec = startPoint;
-                        }
-                    } else {
-                        let jumpCount = 1;
-                        if (gradMaster !== 'none' && gradMaster !== 'already' && parseInt(gradMaster) === 115) {
-                            jumpCount = 4; // Master graduation = 3 (degree) + 1 (annual) = 4 steps
-                        } else if (gradDoctor !== 'none' && gradDoctor !== 'already' && parseInt(gradDoctor) === 115) {
-                            jumpCount = 3; // PhD graduation = 2 (degree) + 1 (annual) = 3 steps
-                        }
-
-                        let tempPoint = startPoint;
-                        for (let j = 0; j < jumpCount; j++) {
-                            const next = getNextPoint(tempPoint, currentDegree);
-                            tempPoint = next.point;
-                            reachedMax_aug_dec = next.reachedMax;
-                        }
-                        p_aug_dec = tempPoint;
+                    // 依據 114.01.01 待遇一覽表：
+                    // 學士以下升碩士：提敘 3 級 (+ 考績 1 級 = 4 級)，最低 245 薪點
+                    // 碩士升博士：提敘 2 級 (+ 考績 1 級 = 3 級)，最低 330 薪點
+                    // 學士以下直升博士：提敘 5 級 (+ 考績 1 級 = 6 級)，最低 330 薪點
+                    let jumpCount = 1;
+                    let minDegreePoint = 0;
+                    if (isGradDoctorThisYear) {
+                        jumpCount = (prevDegree === 'master') ? 3 : 6;
+                        minDegreePoint = 330;
+                    } else if (isGradMasterThisYear) {
+                        jumpCount = 4;
+                        minDegreePoint = 245;
                     }
-                    currentPoint = p_aug_dec;
+
+                    let tempPoint = p_jan_jul;
+                    for (let j = 0; j < jumpCount; j++) {
+                        const next = getNextPoint(tempPoint, currentDegree);
+                        tempPoint = next.point;
+                        reachedMax_aug_dec = next.reachedMax;
+                    }
+                    if (minDegreePoint > 0 && tempPoint < minDegreePoint) {
+                        tempPoint = minDegreePoint;
+                        reachedMax_aug_dec = false;
+                    }
+                    p_aug_dec = tempPoint;
                 }
+                currentPoint = p_aug_dec; // update for next iteration
+                if (i === 0) year115ReachedMax = reachedMax_aug_dec;
 
                 // 3. Resolve Monthly rates (115 mixed scale vs 116+ 4% adjustments)
                 let net_monthly_total = 0;
@@ -4038,40 +4636,24 @@
                     let spEd = sEdFebDec;
                     if (is115 && m === 1) spEd = sEdJan;
 
-                    const hasAllowanceAdd = is115 ? (m >= 7) : true;
+                    const hasAllowanceAdd = is115 ? (m >= 7 && !isPending) : true;
                     const applyScale = !is115;
 
                     const dataItem = salaryData114.find(d => d.point === pt) || salaryData114[salaryData114.length - 1];
                     let basic = dataItem.pay;
                     if (applyScale) basic = Math.round(basic * 1.04);
 
-                    let research = 0;
-                    const hasQual_local = (currentDegree === 'master' || currentDegree === 'doctor');
-                    if (pt >= 475) research = hasQual_local ? 35780 : 30140;
-                    else if (pt >= 350) research = 30140;
-                    else if (pt >= 245) research = 26560;
-                    else research = 23080;
+                    const hasQual_local = (currentDegree === 'master' || currentDegree === 'doctor' || hasAdvancedQual.checked);
+                    let research = getBaseResearchPay(pt, hasQual_local, false);
 
                     if (hasAllowanceAdd && !applyScale) research += 2000;
                     if (applyScale) research = Math.round((research + 2000) * 1.04);
 
-                    if (projTeacherStatus.value === 'sub_no_cert') {
+                    if (effStatus === 'sub_no_cert') {
                         research = Math.round(research * 0.8);
                     }
 
-                    let admin = 0;
-                    if (role === 'principal') admin = 13110;
-                    else if (role === 'director_70plus') admin = 7750;
-                    else if (role === 'director_under70') admin = 5930;
-                    else if (role === 'department_head') admin = 5930;
-                    else if (role === 'section_chief') {
-                        if (pt >= 475) admin = 7750;
-                        else if (pt >= 290) admin = 5930;
-                        else admin = 4320;
-                    } else if (role === 'sub_section_chief') {
-                        admin = 4320;
-                    }
-
+                    let admin = getBaseAdminPay(role, pt, false);
                     if (hasAllowanceAdd && !applyScale) admin = admin > 0 ? admin + 2000 : 0;
                     if (applyScale) admin = admin > 0 ? Math.round((admin + 2000) * 1.04) : 0;
 
@@ -4116,7 +4698,7 @@
                     const monthlyExemptGross = tutorPay + admin + classPayExempt;
                     const monthlyGross = monthlyTaxableGross + monthlyExemptGross;
 
-                    const deducts = computeDeductions(basic, monthlyGross, dependents, projTeacherStatus.value, year, lpRateVal);
+                    const deducts = computeDeductions(basic, monthlyGross, dependents, effStatus, year, lpRateVal);
 
                     net_monthly_total += (monthlyGross - deducts.total);
                     gross_total_annual += monthlyTaxableGross + monthlyExemptGross;
@@ -4127,7 +4709,7 @@
                     // Track base monthly rates for display or comparison
                     const baseGrossForBonus = basic + research + admin + tutorPay + spEd;
                     const baseTaxableGrossForBonus = basic + research + spEd;
-                    const pureDeducts = computeDeductions(basic, baseGrossForBonus, dependents, projTeacherStatus.value, year, lpRateVal);
+                    const pureDeducts = computeDeductions(basic, baseGrossForBonus, dependents, effStatus, year, lpRateVal);
                     const pureBaseNet = baseGrossForBonus - pureDeducts.total;
                     const actualNet = monthlyGross - deducts.total;
 
@@ -4153,7 +4735,7 @@
                 const yearEndBonus = Math.round(1.5 * gross_jan);
                 const taxableYearEndBonus = Math.round(1.5 * taxable_gross_jan);
                 let perfMonths = reachedMax_aug_dec ? 2.0 : 1.0;
-                if (projTeacherStatus.value === 'sub_with_cert' || projTeacherStatus.value === 'sub_no_cert') {
+                if (isSub) {
                     perfMonths = 0;
                 }
                 const performanceBonus = Math.round(perfMonths * gross_aug);
@@ -4173,14 +4755,11 @@
                     else if (currentSeniority >= 1) leaveDays = 7;
                     else leaveDays = 0;
 
-                    if (leaveDays > 10) {
-                        unusedLeaveDays = leaveDays - 10;
-                    } else {
-                        unusedLeaveDays = 0;
-                    }
+                    unusedLeaveDays = Math.max(0, leaveDays - 10);
                     const monthlyRate = gross_aug - tutorPay;
                     unusedLeaveCompensation = Math.round((monthlyRate / 240) * 8 * unusedLeaveDays);
                 }
+                if (i === 0) year115UnusedLeaveDays = unusedLeaveDays;
 
                 const annualTotal = net_monthly_total + yearEndBonus + performanceBonus + unusedLeaveCompensation;
                 
@@ -4223,14 +4802,16 @@
                     }
                 }
 
-                const degLabel = currentDegree === 'doctor' ? '博士' : currentDegree === 'master' ? '碩士' : '學士';
+                const degLabel = currentDegree === 'doctor' ? '博士' : currentDegree === 'master' ? '碩士' : (currentDegree === 'bachelor' ? '學士' : '專科/高中');
                 const unusedLeaveText = role !== 'none' 
                     ? `${unusedLeaveCompensation.toLocaleString()} <span style="font-size:0.7rem; color:var(--text-secondary); display:block;">(特休${leaveDays}天, 補貼${unusedLeaveDays}天)</span>` 
                     : '<span style="color:var(--text-secondary); font-size:0.8rem;">-</span>';
 
+                const pendingBadge = (is115 && isPending) ? ' <span style="font-size:0.7rem; color:var(--accent-danger); font-weight:700;">(不含未過預算)</span>' : '';
+
                 lifetimeTableHTML += `
                     <tr>
-                        <td><b>民國 ${year} 年</b></td>
+                        <td><b>民國 ${year} 年</b>${pendingBadge}</td>
                         <td>${age} 歲</td>
                         <td>${degLabel}</td>
                         <td>${p_jan_jul} → ${p_aug_dec} ${reachedMax_aug_dec ? '👑' : ''}</td>
@@ -4261,33 +4842,22 @@
                 const year = 115 + i;
                 const is115 = (year === 115);
 
-                let p_jan_jul_b = currentPointB;
-                let p_aug_dec_b = currentPointB;
+                let p_jan_jul_b = (i === 0) ? ptInfo115.p_jan_jul : currentPointB;
+                let p_aug_dec_b = p_jan_jul_b;
                 let reachedMax_aug_dec_b = false;
 
-                if (i > 0) {
-                    p_jan_jul_b = currentPointB;
-                    if (projTeacherStatus.value === 'sub_no_cert') {
-                        p_aug_dec_b = p_jan_jul_b;
-                        reachedMax_aug_dec_b = false;
-                    } else {
-                        const next = getNextPoint(p_jan_jul_b, currentDegreeB);
-                        p_aug_dec_b = next.point;
-                        reachedMax_aug_dec_b = next.reachedMax;
-                    }
-                    currentPointB = p_aug_dec_b;
+                if (i === 0) {
+                    p_aug_dec_b = ptInfo115.p_aug_dec;
+                    reachedMax_aug_dec_b = ptInfo115.isAlreadyCappedFor2MonthsPerf;
+                } else if (effStatus === 'sub_no_cert') {
+                    p_aug_dec_b = p_jan_jul_b;
+                    reachedMax_aug_dec_b = false;
                 } else {
-                    p_jan_jul_b = startPoint;
-                    if (projTeacherStatus.value === 'sub_no_cert') {
-                        p_aug_dec_b = startPoint;
-                        reachedMax_aug_dec_b = false;
-                    } else {
-                        const next = getNextPoint(startPoint, currentDegreeB);
-                        p_aug_dec_b = next.point;
-                        reachedMax_aug_dec_b = next.reachedMax;
-                    }
-                    currentPointB = p_aug_dec_b;
+                    const next = getNextPoint(p_jan_jul_b, currentDegreeB);
+                    p_aug_dec_b = next.point;
+                    reachedMax_aug_dec_b = next.reachedMax;
                 }
+                currentPointB = p_aug_dec_b;
 
                 let net_monthly_total_b = 0;
                 let gross_total_annual_b = 0;
@@ -4307,40 +4877,24 @@
                     let spEd = sEdFebDec;
                     if (is115 && m === 1) spEd = sEdJan;
 
-                    const hasAllowanceAdd = is115 ? (m >= 7) : true;
+                    const hasAllowanceAdd = is115 ? (m >= 7 && !isPending) : true;
                     const applyScale = !is115;
 
                     const dataItem = salaryData114.find(d => d.point === pt) || salaryData114[salaryData114.length - 1];
                     let basic = dataItem.pay;
                     if (applyScale) basic = Math.round(basic * 1.04);
 
-                    let research = 0;
-                    const hasQual_local = (currentDegreeB === 'master' || currentDegreeB === 'doctor');
-                    if (pt >= 475) research = hasQual_local ? 35780 : 30140;
-                    else if (pt >= 350) research = 30140;
-                    else if (pt >= 245) research = 26560;
-                    else research = 23080;
+                    const hasQual_local = (currentDegreeB === 'master' || currentDegreeB === 'doctor' || hasAdvancedQual.checked);
+                    let research = getBaseResearchPay(pt, hasQual_local, false);
 
                     if (hasAllowanceAdd && !applyScale) research += 2000;
                     if (applyScale) research = Math.round((research + 2000) * 1.04);
 
-                    if (projTeacherStatus.value === 'sub_no_cert') {
+                    if (effStatus === 'sub_no_cert') {
                         research = Math.round(research * 0.8);
                     }
 
-                    let admin = 0;
-                    if (role === 'principal') admin = 13110;
-                    else if (role === 'director_70plus') admin = 7750;
-                    else if (role === 'director_under70') admin = 5930;
-                    else if (role === 'department_head') admin = 5930;
-                    else if (role === 'section_chief') {
-                        if (pt >= 475) admin = 7750;
-                        else if (pt >= 290) admin = 5930;
-                        else admin = 4320;
-                    } else if (role === 'sub_section_chief') {
-                        admin = 4320;
-                    }
-
+                    let admin = getBaseAdminPay(role, pt, false);
                     if (hasAllowanceAdd && !applyScale) admin = admin > 0 ? admin + 2000 : 0;
                     if (applyScale) admin = admin > 0 ? Math.round((admin + 2000) * 1.04) : 0;
 
@@ -4385,7 +4939,7 @@
                     const monthlyExemptGross = tutorPay + admin + classPayExempt;
                     const monthlyGross = monthlyTaxableGross + monthlyExemptGross;
 
-                    const deducts = computeDeductions(basic, monthlyGross, dependents, projTeacherStatus.value, year, lpRateVal);
+                    const deducts = computeDeductions(basic, monthlyGross, dependents, effStatus, year, lpRateVal);
 
                     net_monthly_total_b += (monthlyGross - deducts.total);
                     gross_total_annual_b += monthlyTaxableGross + monthlyExemptGross;
@@ -4409,7 +4963,7 @@
                 const yearEndBonus_b = Math.round(1.5 * gross_jan_b);
                 const taxableYearEndBonus_b = Math.round(1.5 * taxable_gross_jan_b);
                 let perfMonths_b = reachedMax_aug_dec_b ? 2.0 : 1.0;
-                if (projTeacherStatus.value === 'sub_with_cert' || projTeacherStatus.value === 'sub_no_cert') {
+                if (isSub) {
                     perfMonths_b = 0;
                 }
                 const performanceBonus_b = Math.round(perfMonths_b * gross_aug_b);
@@ -4429,11 +4983,7 @@
                     else if (currentSeniority >= 1) leaveDays_b = 7;
                     else leaveDays_b = 0;
 
-                    if (leaveDays_b > 10) {
-                        unusedLeaveDays_b = leaveDays_b - 10;
-                    } else {
-                        unusedLeaveDays_b = 0;
-                    }
+                    unusedLeaveDays_b = Math.max(0, leaveDays_b - 10);
                     const monthlyRate_b = gross_aug_b - tutorPay;
                     unusedLeaveCompensation_b = Math.round((monthlyRate_b / 240) * 8 * unusedLeaveDays_b);
                 }
@@ -4460,7 +5010,7 @@
             valLifetimeMeta.textContent = `從 115 年 (${startAge}歲) 投教至 65 歲退休，教學生涯總計共 ${yearsCount + 1} 年。`;
 
             const deltaTotal = cumulativeTotal - baselineTotal;
-            const startDegreeLabel = degree === 'doctor' ? '博士' : degree === 'master' ? '碩士' : '學士';
+            const startDegreeLabel = degree === 'doctor' ? '博士' : degree === 'master' ? '碩士' : (degree === 'bachelor' ? '學士' : '專科/高中');
 
             if (deltaTotal > 0) {
                 incrementalCard.style.display = 'flex';
@@ -4468,6 +5018,37 @@
                 valIncrementalMeta.innerHTML = `相較於維持現有<b>「${startDegreeLabel}」</b>學歷教到 65 歲退休，進修新學位將使您的生涯累計實領淨所得增加 <b>${deltaTotal.toLocaleString()} 元</b>。`;
             } else {
                 incrementalCard.style.display = 'none';
+            }
+
+            // Render Tab 3 Government Owes Me Banner
+            const tab3ArrearsCard = document.getElementById('tab3ArrearsCard');
+            if (isPending && tab3ArrearsCard) {
+                tab3ArrearsCard.style.display = 'flex';
+                const monthsNow = Math.max(1, curArrearsMonth - 6);
+                const mResDiff = effStatus === 'sub_no_cert' ? 1600 : 2000;
+                const mAdmDiff = role !== 'none' ? 2000 : 0;
+
+                const owedResNow = mResDiff * monthsNow;
+                const owedAdmNow = mAdmDiff * monthsNow;
+                const perfM115 = isSub ? 0 : (year115ReachedMax ? 2.0 : 1.0);
+                const owedPerfFull = Math.round(perfM115 * (mResDiff + mAdmDiff));
+                const owedPerfNow = (curArrearsMonth >= 10) ? owedPerfFull : 0;
+                const owedLeaveFull = role !== 'none' ? Math.round(((mResDiff + mAdmDiff) / 240) * 8 * year115UnusedLeaveDays) : 0;
+                const owedLeaveNow = (curArrearsMonth === 12) ? owedLeaveFull : 0;
+
+                const totalOwedNow = owedResNow + owedAdmNow + owedPerfNow + owedLeaveNow;
+                const totalOwedYearEnd = (mResDiff + mAdmDiff) * 6 + owedPerfFull + owedLeaveFull;
+
+                document.getElementById('lblTab3ArrearsTitle').textContent = `🚨 追加預算未過：截至 115 年 ${curArrearsMonth} 月政府累積欠我 XD`;
+                document.getElementById('valTab3ArrearsNow').textContent = `$${totalOwedNow.toLocaleString()} 元 (若拖至115年底共欠 $${totalOwedYearEnd.toLocaleString()} 元)`;
+
+                let parts = [`學術研究費差額 $${owedResNow.toLocaleString()}`];
+                if (owedAdmNow > 0) parts.push(`主管加給差額 $${owedAdmNow.toLocaleString()}`);
+                if (owedPerfNow > 0) parts.push(`10月考績差額 $${owedPerfNow.toLocaleString()}`);
+                if (owedLeaveNow > 0) parts.push(`特休差額 $${owedLeaveNow.toLocaleString()}`);
+                document.getElementById('valTab3ArrearsMeta').textContent = `截至 ${curArrearsMonth} 月明細：${parts.join(' ＋ ')}（下方115年表格以未過預算之目前實領列計，116年起恢復完整4%調薪計算）`;
+            } else if (tab3ArrearsCard) {
+                tab3ArrearsCard.style.display = 'none';
             }
 
             // Update Chart.js Instance
@@ -4676,6 +5257,18 @@
         populateSeniorityOptions(projAdminSeniority);
         setupLifetimeInputs();
 
+        // Set default arrears month dynamically based on current system month if in ROC 115
+        (function() {
+            const now = new Date();
+            const rYear = now.getFullYear() - 1911;
+            const rMonth = now.getMonth() + 1;
+            if (rYear === 115 && rMonth >= 7 && rMonth <= 12) {
+                arrearsCurrentMonth.value = String(rMonth);
+                progArrearsCurrentMonth.value = String(rMonth);
+                projArrearsCurrentMonth.value = String(rMonth);
+            }
+        })();
+
         // Try loading settings from localStorage first
         const settingsLoaded = loadSettings();
 
@@ -4697,10 +5290,14 @@
             populateProgressionPoints('master');
             populateProjPoints('master');
 
-            // Select 330 point as default
-            pointSelect.value = '330';
-            progCurrentPoint.value = '330';
-            projCurrentPoint.value = '330';
+            // Select 350 point as default (8月後現支 350 薪點，1~7月自動回推 330 薪點)
+            pointSelect.value = '350';
+            progCurrentPoint.value = '350';
+            projCurrentPoint.value = '350';
+
+            if (hasPromotedAug115) hasPromotedAug115.checked = true;
+            if (progHasPromotedAug115) progHasPromotedAug115.checked = true;
+            if (projHasPromotedAug115) projHasPromotedAug115.checked = true;
 
             // Select 組長 (section_chief) as default administrative role
             adminRole.value = 'section_chief';
@@ -4716,34 +5313,7 @@
         }
 
         // Run sync visibility helper manually once to display the correct cards
-        syncAndRecalculate('degree');
-
-        // Populate inputs date and guidelines helper text dynamically
-        (function() {
-            const today = new Date();
-            const rocYear = today.getFullYear() - 1911;
-            const month = today.getMonth() + 1;
-            const day = today.getDate();
-            const dateStr = `今天是民國 ${rocYear} 年 ${month} 月 ${day} 日`;
-            
-            let hint = '';
-            if (rocYear === 115) {
-                if (month < 8) {
-                    hint = `目前仍在 8 月前。若您目前的舊薪級為 330 薪點，此處「目前薪級」應選您目前的 <b>330 薪點</b>。`;
-                } else {
-                    hint = `目前已在 8 月或之後。若您自 8 月起已晉級為 350 薪點，此處「目前薪級」仍應選晉級前的舊薪級 <b>330 薪點</b>。`;
-                }
-            } else if (rocYear > 115) {
-                hint = `目前已是民國 ${rocYear} 年。此處應選擇您在民國 115 年 6 月時的歷史舊薪級。`;
-            } else {
-                hint = `此處請選擇您在民國 115 年 6 月時的起算薪級。`;
-            }
-
-            const progDateHelper = document.getElementById('progDateHelper');
-            if (progDateHelper) {
-                progDateHelper.innerHTML = `📅 <b>${dateStr}</b><br><span style="color: var(--accent-glow);">${hint}</span>`;
-            }
-        })();
+        syncAndRecalculate('init');
 
         function exportToExcel() {
             const table = document.querySelector('.proj-table');
@@ -4779,8 +5349,9 @@
             const link = document.createElement('a');
             link.setAttribute('href', url);
             
-            const degree = projDegree.value === 'doctor' ? '博士' : projDegree.value === 'master' ? '碩士' : '學士';
-            const status = projTeacherStatus.value === 'cert' ? '合格教師' : (projTeacherStatus.value === 'sub_with_cert' ? '代理教師-有證' : '代理教師-無證');
+            const degree = projDegree.value === 'doctor' ? '博士' : projDegree.value === 'master' ? '碩士' : (projDegree.value === 'bachelor' ? '學士' : '專科高中');
+            const effStatus = getEffectiveTeacherStatus('proj');
+            const status = effStatus === 'regular' ? '正式教師' : (effStatus === 'sub_with_cert' ? '代理教師-有證' : '代理教師-無證');
             const filename = `教師生涯薪資投影試算_${degree}_${status}.csv`;
             
             link.setAttribute('download', filename);
